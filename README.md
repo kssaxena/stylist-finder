@@ -39,63 +39,6 @@ The project focuses on delivering a seamless, responsive, and aesthetically plea
 
 ---
 
-## 📁 Project Structure
-
-```text
-Luxury-Beauty-Wellness-Studio/
-│
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── pages/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-│
-├── package.json
-├── tailwind.config.js
-├── postcss.config.js
-├── vite.config.js
-└── README.md
-```
-
----
-
-## 🚀 Getting Started
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/luxury-beauty-wellness-studio.git
-```
-
-### Navigate to the Project Directory
-
-```bash
-cd luxury-beauty-wellness-studio
-```
-
-### Install Dependencies
-
-```bash
-npm install
-```
-
-### Start the Development Server
-
-```bash
-npm run dev
-```
-
-Open your browser and visit:
-
-```
-http://localhost:5173
-```
-
----
-
 ## 📱 Responsive Design
 
 The application is optimized for:
@@ -104,20 +47,6 @@ The application is optimized for:
 - Laptop
 - Tablet
 - Mobile Devices
-
----
-
-## 🚀 Future Enhancements
-
-- Online Appointment Booking
-- Customer Testimonials
-- Pricing Section
-- Contact Form
-- Google Maps Integration
-- Authentication System
-- Backend Integration
-- Payment Gateway
-- Dark Mode Support
 
 ---
 
@@ -133,20 +62,4 @@ The website features:
 - Professional Footer
 
 ---
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
----
-
-## 👨‍💻 Author
-
-**Akanksha Kumari**
-
-- GitHub: https://github.com/Akanksha4127
-
-
----
-
 > **Luxury Beauty & Wellness Studio** is designed to provide a premium digital experience that reflects the elegance and professionalism of modern beauty and wellness businesses.
