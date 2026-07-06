@@ -1,0 +1,41 @@
+{
+  "name": "multi-vendor-saloon-backend",
+  "version": "1.0.0",
+  "description": "This is a backend for a multi-vendor saloon which offers RBAC for 5 kinds of user.",
+  "keywords": [
+    "backend",
+    "mern",
+    "saloon",
+    "javascript",
+    "typescript",
+    "mongodb",
+    "express"
+  ],
+  "license": "ISC",
+  "author": "kssaxena mr_saxena",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run dev",
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "imagekit": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.4.0",
+    "mongoose": "^9.7.3",
+    "multer": "^2.2.0",
+    "nodemailer": "^9.0.3",
+    "nodemon": "^3.1.14",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  }
+}
