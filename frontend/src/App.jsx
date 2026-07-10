@@ -5,6 +5,7 @@ import InputBox from "./components/Input";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home.jsx/Home"
+import Authentication from "./pages/Authentication";
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <div className="">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/authentication/login" element={<Authentication/>} />
             
         </Routes>
       </div>

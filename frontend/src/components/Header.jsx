@@ -8,10 +8,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom"
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showUser, setShowUser] = useState(false);
+
+  const navigate = useNavigate()
 
   const [isScrolled, setIsScrolled] = useState(false);
   // const location = useLocation();
@@ -98,7 +101,9 @@ const Header = () => {
                 <select className="outline-none bg-transparent"></select>
               </div>
               {showUser === false ? (
-                <Button LabelName="Login / Register" variant="Secondary" />
+                <Button  LabelName="Login / Register" variant="Secondary" onClick={()=> {
+                  navigate("/authentication/login");
+                }} />
               ) : (
                 <FiUser className="cursor-pointer text-white text-lg" />
               )}
