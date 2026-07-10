@@ -2,119 +2,90 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const InputBox = ({
-  LabelName = "",
-  Placeholder = "",
+  label = "",
+  placeholder = "",
   className = "",
-  Type = "text",
-  Name = "",
-  Value,
+  type = "text",
+  name = "",
+  value = "",
   onChange,
-  Required = true,
-  keyPress,
-  Disabled = false,
-  LabelClassname = "",
-  PasswordIndication = false,
+  required = false,
+  disabled = false,
   onClick,
-  TextArea = false,
+  onKeyDown,
+  labelClassName = "",
+  passwordHint = false,
+  textarea = false,
   rows = 4,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const isPasswordField = Type === "password";
+  const isPasswordField = type === "password";
 
   return (
-    <div className="flex justify-center items-center w-full">
-      <div className="py-4 w-full">
-        <div>
-          {LabelName && (
-            <label
-              htmlFor={Name}
-              className={`block text-sm font-medium text-gray-700 mb-2 ${LabelClassname}`}
+    <div className="w-full py-3">
+      {/* Label */}
+      {label && (
+        <label
+          htmlFor={name}
+          className={`block text-sm font-medium text-gray-700 mb-2 ${labelClassName}`}
+        >
+          {label}
+          {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+
+      {/* Input */}
+      {!textarea ? (
+        <div className="relative">
+          <input
+            id={name}
+            name={name}
+            type={isPasswordField ? (showPassword ? "text" : "password") : type}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            required={required}
+            disabled={disabled}
+            onClick={onClick}
+            onKeyDown={onKeyDown}
+            className={`w-full px-4 py-2 ${
+              isPasswordField ? "pr-12" : ""
+            } border border-gray-300 rounded-lg bg-[#FFFDF9] text-gray-700 outline-none focus:ring-1 focus:ring-[#8B2954] focus:border-[#8B2954] transition hover:shadow-md disabled:bg-gray-100 disabled:cursor-not-allowed ${className}`}
+          />
+
+          {/* Password Toggle */}
+          {isPasswordField && (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#8B2954]"
             >
-              {LabelName}
-              {Required === true ? "*" : ""}
-            </label>
+              {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+            </button>
           )}
         </div>
-        <div>
-          {TextArea === false ? (
-            <div className="relative w-full">
-              <input
-                onClick={onClick}
-                disabled={Disabled}
-                id={Name}
-                name={Name}
-                type={
-                  isPasswordField ? (showPassword ? "text" : "password") : Type
-                }
-                placeholder={Placeholder}
-                required={Required}
-                className={`w-full px-4 ${
-                  isPasswordField ? "pr-12" : ""
-                } py-2 text-gray-700 bg-[#FFFDF9] border border-gray-300 rounded-md focus:ring-[#8B2954] focus:border-[#8B2954] outline-none transition duration-200 ease-in-out hover:shadow-md ${className}`}
-                {...(onChange
-                  ? { value: Value ?? "", onChange }
-                  : { defaultValue: Value })}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && typeof keyPress === "function") {
-                    keyPress(e);
-                  }
-                }}
-              />
-              {isPasswordField && (
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="
-                absolute
-                right-3
-                top-1/2
-                -translate-y-1/2
-                text-gray-500
-                hover:text-[#FFC20E]
-                transition
-              "
-                >
-                  {showPassword ? (
-                    <FaEyeSlash size={18} />
-                  ) : (
-                    <FaEye size={18} />
-                  )}
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="w-full">
-              {LabelName && (
-                <label
-                  htmlFor={Name}
-                  className={`block text-sm font-medium text-gray-700 mb-2 ${LabelClassname}`}
-                >
-                  {LabelName}
-                  {Required === true ? "*" : ""}
-                </label>
-              )}
+      ) : (
+        <textarea
+          id={name}
+          name={name}
+          rows={rows}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-[#FFFDF9] resize-none outline-none focus:ring-2 focus:ring-[#8B2954] focus:border-[#8B2954] transition hover:shadow-md disabled:bg-gray-100 disabled:cursor-not-allowed ${className}`}
+        />
+      )}
 
-              <textarea
-                rows={rows}
-                placeholder={Placeholder}
-                value={Value}
-                onChange={onChange}
-                className="w-full px-4 py-3 rounded-xl border border-gradient-to-r from-yellow-400 to-yellow-600 bg-white text-black resize-none  focus:ring-1 focus:ring-[#FFC20E] focus:border-[#FFC20E] outline-none transition duration-200 ease-in-out hover:shadow-md  disabled:bg-yellow-100 disabled:text-gray-500 disabled:border-gray-300 "
-              />
-            </div>
-          )}
-
-          {PasswordIndication === true ? (
-            <span className="text-[11px] text-red-600 line-clamp-5">
-              Password should be min 8 & max 20 characters, should contain 1
-              uppercase, 1 lowercase, 1 digit, and 1 special character
-            </span>
-          ) : (
-            ""
-          )}
-        </div>
-      </div>
+      {/* Password Hint */}
+      {passwordHint && (
+        <p className="mt-2 text-xs text-red-500">
+          Password should be 8–20 characters and include at least one uppercase
+          letter, one lowercase letter, one number, and one special character.
+        </p>
+      )}
     </div>
   );
 };

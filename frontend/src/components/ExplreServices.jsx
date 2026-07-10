@@ -1,47 +1,3 @@
-// import React from "react";
-// import InputBox from "../components/Input";
-// import Button from "./Button";
-// import { motion, AnimatePresence } from "framer-motion";
-
-// const AppointmentForm = () => {
-//   return (
-//     <AnimatePresence>
-//       <motion.div
-//         // whileInView={{ opacity: 1, x: 0 }}
-//         // initial={{ opacity: 0, x: -100 }}
-//         // exit={{ opacity: 0, x: 100 }}
-//         // transition={{ type: "keyframes", duration: 0.2, ease:"easeInOut" }}
-//         className=""
-//       >
-//         <h2 className="text-2xl font-bold ">Your Location</h2>
-
-//         <InputBox
-//           type="text"
-//           LabelName="State"
-//           Placeholder="Enter your state name"
-//           className=""
-//         />
-
-//         <InputBox
-//           type="text"
-//           LabelName="City"
-//           Placeholder="Enter your city name"
-//           className=""
-//         />
-//         <InputBox
-//           type="text"
-//           LabelName="Pin Code"
-//           Placeholder="Enter your pin code"
-//           className=""
-//         />
-//         <Button LabelName="Save & Continue" className="w-full mt-4" />
-//       </motion.div>
-//     </AnimatePresence>
-//   );
-// };
-
-// export default AppointmentForm;
-
 import React, { useState } from "react";
 import InputBox from "./Input";
 import Button from "./Button";
@@ -53,7 +9,8 @@ import { maleServices } from "../constants/maleServices";
 import { FaArrowLeft, FaArrowRight, FaLeaf } from "react-icons/fa";
 
 
-const AppointmentForm = ({ onClose }) => {
+
+const ExploreServices = ({ onClose }) => {
   // Step State
   const [step, setStep] = useState(1);
 
@@ -135,7 +92,7 @@ const AppointmentForm = ({ onClose }) => {
   return (
     <div className="space-y-6">
       <button onClick={handleBack}>
-        <FaArrowLeft className="text-gray-600" />
+        <FaArrowLeft className="text-gray-600"/>
       </button>
       {/* ---------------- STEP 1 ---------------- */}
 
@@ -149,7 +106,7 @@ const AppointmentForm = ({ onClose }) => {
               placeholder="Enter your Pincode"
               // value={pincode}
               // onChange={(e) => setPincode(e.target.value)}
-              className="flex-1 justify-between md:px-6 px-4 py-3 outline-none"
+              className="flex-1 md:px-6 px-4 justify-between py-3 outline-none"
             />
 
             <button
@@ -168,7 +125,7 @@ const AppointmentForm = ({ onClose }) => {
             <div className="flex-1 border"></div>
           </div>
 
-          <div className="grid md:grid-cols-4 grid-cols-3 gap-3 md:px-20">
+          <div className="grid md:grid-cols-4 grid-cols-3 gap-3 md:px-20 ">
             {popularCities.map((city) => {
               const Icon = city.icon;
 
@@ -249,7 +206,7 @@ const AppointmentForm = ({ onClose }) => {
             <div className="w-72 h-0.5 rounded-full bg-pink-200 mx-auto mt-6" />
           </div>
 
-          <div className="grid md:grid-cols-2 grid-cols-1 gap-8 py-8 md:px-28 px-20">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4 py-8 md:px-28 px-20">
             {genderData.map((item) => {
               const Icon = item.icon;
 
@@ -265,7 +222,6 @@ const AppointmentForm = ({ onClose }) => {
                       : "border-gray-300"
                   }`}
                 >
-                
 
                   <button
                     checked={gender === item.name}
@@ -275,7 +231,7 @@ const AppointmentForm = ({ onClose }) => {
                     <Icon className="text-[#8B2954] text-xl" />
                   </button>
 
-                  <h2 className="text-xl">{item.name}</h2>
+                  <h2 className="md:text-xl text-sm">{item.name}</h2>
                 </div>
               );
             })}
@@ -283,10 +239,10 @@ const AppointmentForm = ({ onClose }) => {
 
           <button
             onClick={handleGender}
-            className=" bg-[#8B2954] text-white py-2 rounded-full w-2/3 mx-auto flex justify-center items-center gap-4 md:text-xl text-sm"
+            className=" bg-[#8B2954] text-white md:text-xl text-sm py-2 rounded-full w-2/3 mx-auto flex justify-center items-center gap-4 "
           >
             Continue
-            <FaArrowRight className="text-xl" />
+            <FaArrowRight className="md:text-xl text-sm" />
           </button>
         </>
       )}
@@ -345,13 +301,13 @@ const AppointmentForm = ({ onClose }) => {
                       : "border-gray-300"
                   }`}
                 >
-
+             
                   <button
                     checked={service === item.title}
                     readOnly
                     className="w-10 h-10 rounded-full bg-pink-100 flex justify-center items-center"
                   >
-                    <Icon className="text-[#8B2954] text-2xl" />
+                    <Icon className="text-[#8B2954] text-xl" />
                   </button>
 
                   <p className="text-[13px]">{item.title}</p>
@@ -363,10 +319,10 @@ const AppointmentForm = ({ onClose }) => {
           <button
             disabled={!service}
             onClick={handleFinish}
-            className=" bg-[#8B2954] font-light text-white py-2 rounded-full w-2/3 mx-auto md:text-xl text-sm flex justify-center items-center gap-2"
+            className=" bg-[#8B2954] font-light text-white py-2 rounded-full w-2/3 mx-auto md:text-xl flex justify-center items-center gap-2"
           >
             Finish
-            <FaArrowRight className="md:text-lg text-sm" />
+            <FaArrowRight />
           </button>
         </>
       )}
@@ -374,4 +330,4 @@ const AppointmentForm = ({ onClose }) => {
   );
 };
 
-export default AppointmentForm;
+export default ExploreServices;
