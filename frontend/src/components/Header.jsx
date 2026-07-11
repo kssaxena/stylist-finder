@@ -8,13 +8,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showUser, setShowUser] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [isScrolled, setIsScrolled] = useState(false);
   // const location = useLocation();
@@ -37,8 +37,8 @@ const Header = () => {
   }, []);
 
   const headerBgClass = isScrolled
-    ? "bg-black/ backdrop-blur-3xl transition duration-300 ease-in-out border"
-    : "bg-transparent";
+    ? "bg-black/30 backdrop-blur-3xl transition duration-300 ease-in-out"
+    : "bg-black/10";
 
   // accordion card
   const AccordionCard = ({ children }) => {
@@ -49,12 +49,16 @@ const Header = () => {
         <div className="rounded-full overflow-hidden backdrop-blur-3xl flex flex-row-reverse p-2 h-16 justify-center items-center">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-full"
+            className="p-2 rounded-full cursor-pointer"
           >
             {isOpen ? (
-              <IoClose className="text-lg text-gray-500" />
+              <IoClose
+                className={`text-lg  ${isScrolled ? "text-gray-200" : "text-gray-500"}`}
+              />
             ) : (
-              <FiMenu className="text-lg  text-gray-500" />
+              <FiMenu
+                className={`text-lg  ${isScrolled ? "text-gray-200" : "text-gray-500"}`}
+              />
             )}
           </button>
 
@@ -67,7 +71,7 @@ const Header = () => {
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-                className="overflow-hidden backdrop-blur-3xl rounded-full"
+                className="overflow-hidden backdrop-blur-3xl rounded-full "
               >
                 {children}
               </motion.div>
@@ -80,7 +84,7 @@ const Header = () => {
 
   return (
     <header
-      className={`w-full px-4 md:px-8 lg:px-12 py-2 fixed z-40 ${headerBgClass}  `}
+      className={`w-full px-4 md:px-8 lg:px-12 py-2 fixed z-40 ${headerBgClass} h-20 `}
     >
       <div className="flex items-center justify-between ">
         {/* Logo */}
@@ -101,9 +105,14 @@ const Header = () => {
                 <select className="outline-none bg-transparent"></select>
               </div>
               {showUser === false ? (
-                <Button  LabelName="Login / Register" variant="Secondary" onClick={()=> {
-                  navigate("/authentication/login");
-                }} />
+                <Button
+                  className="truncate"
+                  LabelName="Login / Register"
+                  variant="Secondary"
+                  onClick={() => {
+                    navigate("/auth/login");
+                  }}
+                />
               ) : (
                 <FiUser className="cursor-pointer text-white text-lg" />
               )}
