@@ -26,7 +26,7 @@ function Landing() {
   };
   return (
     <div className="w-full h-[100vh] relative">
-      <div className="h-full w-full">
+      <div className="h-full w-full absolute -top-16 left-0">
         <video
           src={HeroVdo}
           autoPlay
@@ -64,7 +64,6 @@ function Landing() {
             LabelName="Explore Services"
             onClick={() => {
               openExploreServices();
-              console.log("Button is clicked");
             }}
           />
           {/* 
