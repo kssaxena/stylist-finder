@@ -5,7 +5,8 @@ import Logo from "../assets/Logo.png";
 const Footer = () => {
   const quickLinks = [
     { name: "Home", path: "/" },
-    { name: "Services", path: "#" },
+    { name: "Female Services", path: "/services/location/female/category" },
+    { name: "Male Services", path: "/services/location/male/category" },
     { name: "Media Coverage", path: "#" },
     { name: "Contact", path: "#" },
   ];

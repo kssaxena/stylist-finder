@@ -12,9 +12,7 @@ const Button = ({
     <button
       type={type}
       onClick={onClick}
-      className={`${className} ${
-        variant === "primary" ? Primary : Secondary
-      } text-wrap w-fit px-4 py-2 text-center text-xs rounded-full cursor-pointer`}
+      className={`${className} ${variant === "primary" ? Primary : Secondary} text-wrap w-fit px-4 py-2 text-center text-xs rounded-full cursor-pointer`}
     >
       {LabelName}
     </button>
