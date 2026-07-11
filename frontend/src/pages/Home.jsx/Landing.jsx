@@ -8,7 +8,6 @@ import ExploreServices from "../../components/ExplreServices";
 
 function Landing() {
   const [isOpen, setIsOpen] = useState(false);
-
   const [appointmentType, setAppointmentType] = useState("");
 
   const openSelfAppointment = () => {
@@ -26,7 +25,7 @@ function Landing() {
   };
   return (
     <div className="w-full h-[100vh] relative">
-      <div className="h-full w-full absolute -top-16 left-0">
+      <div className="h-full w-full absolute -top-24 left-0">
         <video
           src={HeroVdo}
           autoPlay
@@ -57,7 +56,8 @@ function Landing() {
           <Button
             LabelName="Book Appointment"
             onClick={() => {
-              openSelfAppointment();
+              // openSelfAppointment();
+              openExploreServices();
             }}
           />
           <Button

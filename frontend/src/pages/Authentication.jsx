@@ -11,7 +11,7 @@ function Authentication() {
   }
 
   return (
-    <div className="h-full flex justify-center items-center py-14 ">
+    <div className="h-full flex justify-center items-center">
       {type === "login" ? <Login /> : <Register />}
     </div>
   );

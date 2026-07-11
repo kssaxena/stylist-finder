@@ -51,7 +51,7 @@ const InputBox = ({
             onKeyDown={onKeyDown}
             className={`w-full px-4 py-2 ${
               isPasswordField ? "pr-12" : ""
-            } border border-gray-300 rounded-lg bg-[#FFFDF9] text-gray-700 outline-none focus:ring-1 focus:ring-[#8B2954] focus:border-[#8B2954] transition hover:shadow-md disabled:bg-gray-100 disabled:cursor-not-allowed ${className}`}
+            } border border-gray-300 rounded-lg bg-neutral-50 text-gray-700 outline-none focus:ring-1 focus:ring-[#8B2954] focus:border-[#8B2954] transition hover:shadow-md disabled:bg-gray-100 disabled:cursor-not-allowed ${className}`}
           />
 
           {/* Password Toggle */}

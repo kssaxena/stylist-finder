@@ -7,92 +7,62 @@ import { genderData } from "../constants/genderData";
 import { femaleServices } from "../constants/femaleServices";
 import { maleServices } from "../constants/maleServices";
 import { FaArrowLeft, FaArrowRight, FaLeaf } from "react-icons/fa";
-
-
+import { useNavigate } from "react-router-dom";
 
 const ExploreServices = ({ onClose }) => {
-  // Step State
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
-
-  // Location State
+  const [gender, setGender] = useState("");
+  const [service, setService] = useState("");
   const [location, setLocation] = useState({
-    state: "",
     city: "",
     pincode: "",
   });
 
-  // Gender State
-  const [gender, setGender] = useState("");
-
-  // Service State
-  const [service, setService] = useState("");
-
   // Step 1
   const handleLocation = () => {
-    // if (location?.pincode) {
-    //   return setStep(2);
-    // }
-    // if (location?.city) {
-    //   return setStep(2);
-    // }
-
     setStep(2);
   };
 
   // Step 2
   const handleGender = () => {
-    if (!gender) {
-      alert("Please select gender");
-      return;
-    }
-
     setStep(3);
   };
 
   // Step 3
   const handleFinish = () => {
-    if (!service) {
-      alert("Please select a service");
-      return;
-    }
+    const city = location.city;
+    const genderData = gender;
+    const category = service;
+    // if (!city || !genderData || !category) {
+    //   navigate("/services/all");
+    // }
+    navigate("/services/all");
 
-    const params = {
-      location,
-      gender,
-      service,
-    };
-
-    localStorage.setItem("params", JSON.stringify(params));
-
-    alert("Appointment data saved!");
-
+    // navigate(`/services/${city}/${genderData}/${category}`);
     // const response = await FetchData(`get/${params?.location?.pincode}/${params?.gender}/${params?.service}`,"get")
 
     if (onClose) {
       onClose();
+      setLocation("");
+      setGender("");
+      setService("");
     }
   };
   const handleBack = () => {
     if (step > 1) {
       setStep((prev) => prev - 1);
     }
+    setLocation("");
+    setGender("");
+    setService("");
   };
 
   const services = gender === "Male" ? maleServices : femaleServices;
-
-  // const {user} = useSelector((state)=>state.auth)
-
-  // if(!user){return <Location/>}
-  // if(user) {return <Gender/>}
-
-  // 1. Location fetch (user: pincode, city, coordinates)
-  // 2. Gender (user: male, female)
-  // 3. Service Category ({male: hair, beard etc.}:{female: hair, beard, waxing etc.})
-
   return (
     <div className="space-y-6">
       <button onClick={handleBack}>
-        <FaArrowLeft className="text-gray-600"/>
+        <FaArrowLeft className="text-gray-600" />
       </button>
       {/* ---------------- STEP 1 ---------------- */}
 
@@ -132,7 +102,10 @@ const ExploreServices = ({ onClose }) => {
               return (
                 <div
                   key={city.id}
-                  onClick={() => setLocation({ city: city?.name })}
+                  onClick={() => {
+                    setLocation({ city: city?.name });
+                    handleLocation();
+                  }}
                   className="cursor-pointer flex flex-col items-center group"
                 >
                   <div className="w-16 h-16 rounded-xl bg-pink-50 flex items-center justify-center group-hover:bg-[#8B2954] transition">
@@ -144,56 +117,10 @@ const ExploreServices = ({ onClose }) => {
               );
             })}
           </div>
-
-          <Button
-            LabelName="Save & Continue"
-            className="w-full"
-            onClick={handleLocation}
-          />
-          {/* <Button
-            LabelName="Save & Continue"
-            className="w-full"
-            onClick={() => {
-              handleLocation();
-
-            }}
-          /> */}
         </div>
       )}
 
       {/* ---------------- STEP 2 ---------------- */}
-
-      {/* {step === 2 && (
-        <div className="space-y-5">
-          <h2 className="text-2xl font-bold text-center">Choose your Gender</h2>
-
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              value="Male"
-              checked={gender === "Male"}
-              onChange={(e) => setGender(e.target.value)}
-            />
-            Male
-          </label>
-
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              value="Female"
-              checked={gender === "Female"}
-              onChange={(e) => setGender(e.target.value)}
-            />
-            Female
-          </label>
-
-          <Button
-            LabelName="Continue"
-            className="w-full"
-            onClick={handleGender}
-          />
-        </div>
-      )} */}
       {step === 2 && (
         <>
           <div className="text-center">
@@ -213,7 +140,10 @@ const ExploreServices = ({ onClose }) => {
               return (
                 <div
                   key={item.id}
-                  onClick={() => setGender(item.name)}
+                  onClick={() => {
+                    setGender(item.name);
+                    handleGender();
+                  }}
                   className={`cursor-pointer rounded-xl border py-4 px-2 flex items-center gap-4 transition
 
                   ${
@@ -222,7 +152,6 @@ const ExploreServices = ({ onClose }) => {
                       : "border-gray-300"
                   }`}
                 >
-
                   <button
                     checked={gender === item.name}
                     readOnly
@@ -236,43 +165,10 @@ const ExploreServices = ({ onClose }) => {
               );
             })}
           </div>
-
-          <button
-            onClick={handleGender}
-            className=" bg-[#8B2954] text-white md:text-xl text-sm py-2 rounded-full w-2/3 mx-auto flex justify-center items-center gap-4 "
-          >
-            Continue
-            <FaArrowRight className="md:text-xl text-sm" />
-          </button>
         </>
       )}
 
       {/* ---------------- STEP 3 ---------------- */}
-
-      {/* {step === 3 && (
-        <div className="space-y-5">
-          <h2 className="text-2xl font-bold text-center">Select Service</h2>
-
-          {(gender === "Male" ? maleServices : femaleServices).map((item) => (
-            <label key={item} className="flex items-center gap-3">
-              <input
-                type="radio"
-                value={item}
-                checked={service === item}
-                onChange={(e) => setService(e.target.value)}
-              />
-
-              {item}
-            </label>
-          ))}
-
-          <Button
-            LabelName="Finish"
-            className="w-full"
-            onClick={handleFinish}
-          />
-        </div>
-      )} */}
       {step === 3 && (
         <>
           <div className="text-center ">
@@ -292,7 +188,12 @@ const ExploreServices = ({ onClose }) => {
               return (
                 <div
                   key={item.id}
-                  onClick={() => setService(item.title)}
+                  onClick={() => {
+                    setService(item.value);
+                    console.log(service);
+                    console.log(item.title);
+                    handleFinish();
+                  }}
                   className={`cursor-pointer rounded-xl border p-4 flex items-center gap-4 transition
 
                   ${
@@ -301,10 +202,9 @@ const ExploreServices = ({ onClose }) => {
                       : "border-gray-300"
                   }`}
                 >
-             
                   <button
-                    checked={service === item.title}
-                    readOnly
+                    // checked={service === item.title}
+                    // readOnly
                     className="w-10 h-10 rounded-full bg-pink-100 flex justify-center items-center"
                   >
                     <Icon className="text-[#8B2954] text-xl" />
@@ -315,15 +215,6 @@ const ExploreServices = ({ onClose }) => {
               );
             })}
           </div>
-
-          <button
-            disabled={!service}
-            onClick={handleFinish}
-            className=" bg-[#8B2954] font-light text-white py-2 rounded-full w-2/3 mx-auto md:text-xl flex justify-center items-center gap-2"
-          >
-            Finish
-            <FaArrowRight />
-          </button>
         </>
       )}
     </div>

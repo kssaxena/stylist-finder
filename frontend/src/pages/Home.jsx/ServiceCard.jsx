@@ -1,6 +1,36 @@
 import { FaArrowDown, FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import services from "../../constants/service";
 import { truncateString } from "../../utils/utility-functions";
+import SkinCare from "../../assets/Service/SkinCare.png";
+import HairCare from "../../assets/Service/HairCare.png";
+import Threading from "../../assets/Service/Threading.png";
+
+const services = [
+  {
+    id: 1,
+    image: SkinCare,
+    title: "Facial Services",
+    description:
+      "Rejuvenate your skin with personalized facials, deep cleansing, hydration, and advanced skincare treatments for a healthy, radiant glow.",
+  },
+  {
+    id: 2,
+    image: HairCare,
+    title: "Hair Spa",
+    description:
+      "Transform your hair with professional haircuts, styling, spa treatments, smoothening, coloring, and nourishing hair therapies.",
+  },
+
+  {
+    id: 5,
+    image: Threading,
+    title: "Threading & Waxing",
+    description:
+      "Experience precise eyebrow threading and smooth waxing services for silky, hair-free skin with long-lasting results.",
+  },
+]
+
+
+
 
 const ServiceCard = () => {
   return (
