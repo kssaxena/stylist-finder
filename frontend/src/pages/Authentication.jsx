@@ -1,17 +1,20 @@
-import React, { useState } from 'react'
-import Login from '../components/Login'
-import Register from '../components/Register'
+import React from "react";
+import { useParams, Navigate } from "react-router-dom";
+import Login from "../components/Login";
+import Register from "../components/Register";
 
-function Authentication( switchForm ) {
+function Authentication() {
+  const { type } = useParams();
 
-  const[isLogin, setIsLogin] = useState(true)
+  if (type !== "login" && type !== "register") {
+    return <Navigate to="/auth/login" replace />;
+  }
+
   return (
-    <div className="h-full flex flex-col justify-center items-center py-14">{isLogin ? <Login switchForm={() => {
-      setIsLogin(false)
-    }}  />  :  <Register switchForm={() => {
-      setIsLogin(true)
-    }} /> }</div>
+    <div className="h-full flex justify-center items-center py-14 ">
+      {type === "login" ? <Login /> : <Register />}
+    </div>
   );
 }
 
-export default Authentication
+export default Authentication;
