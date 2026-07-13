@@ -7,6 +7,11 @@ import Threading from "../assets/Service/Threading.png";
 import Bridal from "../assets/Service/Bridal.png";
 import MensHaircut from "../assets/Service/MensHaircut.png";
 import BeardGrooming from "../assets/Service/BeardGrooming.png";
+import { GoVerified } from "react-icons/go";
+import { FaMapMarkerAlt, FaBookmark, FaHeart, FaStore } from "react-icons/fa";
+import { CiBank } from "react-icons/ci";
+import { FaServicestack, FaUserCheck } from "react-icons/fa6";
+import { PiFlowerLotusFill } from "react-icons/pi";
 
 export const services = [
   {
@@ -140,5 +145,167 @@ export const categories = [
   {
     id: 5,
     name: "Beard Styling",
+  },
+];
+
+export const CustomerArray = [
+  {
+    id: 1,
+    label: "Overview",
+    value: "overview",
+    icon: <GoVerified />,
+  },
+  {
+    id: 2,
+    label: "Address",
+    value: "address",
+    icon: <FaMapMarkerAlt />,
+  },
+  {
+    id: 3,
+    label: "Banking Details",
+    value: "banking_details",
+    icon: <CiBank />,
+  },
+  {
+    id: 3,
+    label: "Bookings",
+    value: "booking",
+    icon: <FaBookmark />,
+  },
+  {
+    id: 4,
+    label: "Favorite Store ",
+    value: "favorite_store",
+    icon: <FaStore/>,
+  },
+  {
+    id: 5,
+    label: "Favorite Professional",
+    value: "favorite_professional",
+    icon: <FaHeart />,
+  },
+
+  {
+    id: 6,
+    label: "Quick Services",
+    value: "quick_services",
+    icon: <FaServicestack />,
+  },
+  {
+    id: 7,
+    label: "isProfile Complete ",
+    value: "is_profile_complete",
+    icon: <FaUserCheck />,
+  },
+  {
+    id: 8,
+    label: "Currently Under Booking",
+    value: "currently_under_booking",
+    icon: <PiFlowerLotusFill />,
+  },
+];
+
+export const StoreArray = [
+  {
+    id: 1,
+    label: "Overview",
+    value: "overview",
+    icon: <GoVerified />,
+  },
+  {
+    id: 2,
+    label: "Address",
+    value: "address",
+    icon: <FaMapMarkerAlt />,
+  },
+  {
+    id: 3,
+    label: "Store Bank Details",
+    value: "store_bank_details",
+    icon: <CiBank />,
+  },
+  {
+    id: 3,
+    label: "Store Staff",
+    value: "store_staff",
+    icon: <FaStore />,
+  },
+
+  {
+    id: 4,
+    label: "Services",
+    value: "services",
+    icon: <FaServicestack />,
+  },
+  {
+    id: 5,
+    label: " Bookings ",
+    value: "bookings",
+    icon: <FaBookmark />,
+  },
+  {
+    id: 6,
+    label: " Store timing ",
+    value: "store_timing",
+    icon: <FaBookmark />,
+  },
+  {
+    id: 6,
+    label: " Images ",
+    value: "images",
+    icon: <FaBookmark />,
+  },
+  {
+    id: 6,
+    label: " KYC Detail ",
+    value: "kyc_details",
+    icon: <FaBookmark />,
+  },
+  {
+    id: 7,
+    label: " Owner Details ",
+    value: "owner_detail",
+    icon: <FaBookmark />,
+  },
+];
+
+export const ProfessionalArray = [
+  {
+    id: 1,
+    label: "Overview",
+    value: "overview",
+    icon: "",
+  },
+  {
+    id: 2,
+    label: "Address",
+    value: "address",
+    icon: " ",
+  },
+  {
+    id: 3,
+    label: "Store Bank Details",
+    value: "store_bank_details",
+    icon: " ",
+  },
+  {
+    id: 3,
+    label: "Store Staff",
+    value: "store_staff",
+    icon: " ",
+  },
+
+  {
+    id: 4,
+    label: "Services",
+    value: "services",
+    icon: " ",
+  },
+  {
+    id: 5,
+    label: " Bookings ",
+    value: "bookings",
+    icon: " ",
   },
 ];

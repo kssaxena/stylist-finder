@@ -8,7 +8,7 @@ import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import LoginSvg from "../assets/Login.svg";
 
-const Login = ({ onRegister, switchForm }) => {
+const Login = ({ onRegister }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -33,14 +33,14 @@ const Login = ({ onRegister, switchForm }) => {
   };
 
   return (
-    <div className="w-full  rounded-3xl flex justify-center items-center px-10">
-      <div className="shadow-xl border border-neutral-100 rounded-3xl h-full w-full flex flex-row justify-center items-center p-10">
+    <div className="w-full  rounded-3xl flex justify-center items-center lg:px-10 px-2">
+      <div className="shadow-xl border border-neutral-100 rounded-3xl h-full w-full flex flex-row justify-center items-center lg:p-10 p-2">
         {" "}
-        <div className="w-1/2 h-full flex justify-center items-center">
+        <div className="w-1/2 h-full hidden lg:flex justify-center items-center">
           <img src={LoginSvg} alt="Login" className="w-[70%]" />
         </div>
-        <div className="w-1/2 border border-neutral-100 shadow-xl rounded-xl py-4 justify-center items-center flex">
-          <div className="w-fit">
+        <div className="lg:w-1/2 w-full lg:border border-neutral-100 lg:shadow-xl rounded-xl py-4 justify-center items-center flex">
+          <div className="w-full lg:w-fit">
             {" "}
             {/* Logo */}
             <div className="flex justify-center">
@@ -57,24 +57,18 @@ const Login = ({ onRegister, switchForm }) => {
               </p>
             </div>
             {/* Form */}
-            <form onSubmit={handleLogin} className="mt-8 space-y-4">
+            <form className="mt-8 space-y-4">
               <InputBox
-                label="Phone Number"
-                placeholder="Enter your phone number"
-                Name="email"
-                Value={formData.email}
+                label="contact Number"
+                placeholder="Enter your contact number"
+                name="contactNumber"
+                type="text"
+                onChange={() => console.log("Input worked")}
+                onKeyDown={() => console.log("Input worked")}
+                onClick={() => console.log("Input worked")}
+                Value={formData.number}
                 onChange={handleChange}
               />
-
-              {/* <InputBox
-          label="Password"
-          Placeholder="Enter your password"
-          Type="password"
-          Name="password"
-          Value={formData.password}
-          onChange={handleChange}
-        /> */}
-
               <Button type="submit" LabelName="Login" className="w-full" />
             </form>
             {/* Register */}

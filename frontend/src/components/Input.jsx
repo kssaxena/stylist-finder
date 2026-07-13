@@ -7,7 +7,7 @@ const InputBox = ({
   className = "",
   type = "text",
   name = "",
-  value = "",
+  value ,
   onChange,
   required = false,
   disabled = false,

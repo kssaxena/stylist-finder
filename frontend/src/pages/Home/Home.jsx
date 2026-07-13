@@ -11,7 +11,7 @@ function Home() {
   const demoService = services.slice(2, services.length);
   const navigate = useNavigate();
   return (
-    <div className="h-full flex flex-col gap-10 relative">
+    <div className="h-full pb-10 flex flex-col gap-10 relative">
       <Landing />
       <ServiceCard />
       <ChooseUs />
