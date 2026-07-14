@@ -7,9 +7,9 @@ const storeSchema = new mongoose.Schema(
     storeEmail: { type: String },
     address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
     bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankDetails" },
-    storeStaffs: { type: mongoose.Schema.Types.ObjectId, ref: "StoreStaff" },
-    services: { type: mongoose.Schema.Types.ObjectId, ref: "Services" },
-    bookings: { type: mongoose.Schema.Types.ObjectId, ref: "Bookings" },
+    storeStaffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "StoreStaff" }],
+    services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Services" }],
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Bookings" }],
 
     // enums
     serviceType: {
