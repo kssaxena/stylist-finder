@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Customer } from "../models/customer.model.js";
 import { Address } from "../models/address.model.js";
 import { BankDetails } from "../models/bankDetails.model.js";
+import { ServiceBookings } from "../models/serviceBooking.model.js";
 
 const registerCustomer = asyncHandler(async (req, res) => {
   const { contactNumber, name, email } = req.body;
@@ -241,6 +242,10 @@ const markAddressDefault = asyncHandler(async (req, res) => {
   if (!addressId || !customerId)
     throw new ApiError(400, "Something went wrong please try again later");
 
+  const removeDefault = await Address.find({ customer: customerId });
+  removeDefault.defaultAddress = false;
+  await removeDefault.save();
+
   const address = await Address.findByIdAndUpdate(addressId, {
     defaultAddress: true,
   });
@@ -311,7 +316,7 @@ const deleteAddress = asyncHandler(async (req, res) => {
 const dashboardData = asyncHandler(async (req, res) => {
   const { customerId, query } = req.params;
 
-  if (query === "overview") {
+  if (query === "overview" || "") {
     const customer = await Customer.findById(customerId).select(
       "name contactNumber email gender alternateContactNumber",
     );
@@ -333,7 +338,7 @@ const dashboardData = asyncHandler(async (req, res) => {
       );
   }
   if (query === "address") {
-    const address = await Address.findOne({ customer: customerId });
+    const address = await Address.find({ customer: customerId });
     if (!address) throw new ApiError(400, "No data found");
 
     return res
@@ -348,18 +353,57 @@ const dashboardData = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, bankDetails, "Data fetched successfully !"));
   }
+  if (query === "service-bookings") {
+    const bookings = await ServiceBookings.find({ customer: customerId });
+    if (!bookings) throw new ApiError(400, "No data found");
 
-  //   bookings
-  //   favstore
-  //   favprofessional
-  //   quickservice
-  //   wishlist
+    return res
+      .status(200)
+      .json(new ApiResponse(200, bookings, "Data fetched successfully !"));
+  }
+  if (query === "fav-store") {
+    const favStore = await Customer.findById(customerId).select("favStore");
+    if (!favStore) throw new ApiError(400, "No data found");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, favStore, "Data fetched successfully !"));
+  }
+  if (query === "fav-professional") {
+    const favProfessional =
+      await Customer.findById(customerId).select("favProfessional");
+    if (!favProfessional) throw new ApiError(400, "No data found");
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, favProfessional, "Data fetched successfully !"),
+      );
+  }
+  if (query === "quick-services") {
+    const quickService =
+      await Customer.findById(customerId).select("quickServices");
+    if (!quickService) throw new ApiError(400, "No data found");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, quickService, "Data fetched successfully !"));
+  }
+  if (query === "wishlist") {
+    const wishlist =
+      await Customer.findById(customerId).select("wishListServices");
+    if (!wishlist) throw new ApiError(400, "No data found");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, wishlist, "Data fetched successfully !"));
+  }
 });
 
 export {
   registerCustomer,
-  otpVerification,
   loginCustomer,
+  otpVerification,
   updateGender,
   addAlternateContactNumber,
   addAddress,
