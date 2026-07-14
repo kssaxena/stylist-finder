@@ -17,6 +17,7 @@ const serviceSchema = new mongoose.Schema(
     duration: { type: String, required: true },
     prepTime: { type: String, default: 0, required: true },
     isPrepTime: { type: Boolean, default: true },
+    timeIncludingPrepTime: { type: Boolean, default: false },
     onSite: { type: Boolean, default: true },
     inHouse: { type: Boolean, default: true },
     serviceFor: {
