@@ -9,7 +9,7 @@ const storeSchema = new mongoose.Schema(
     bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankDetails" },
     storeStaffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "StoreStaff" }],
     services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Services" }],
-    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Bookings" }],
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "ServiceBookings" }],
 
     // enums
     serviceType: {

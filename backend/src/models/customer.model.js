@@ -23,7 +23,7 @@ const customerSchema = new mongoose.Schema(
     ],
 
     // model linking
-    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Bookings" }],
+    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "ServiceBookings" }],
     favStore: [{ type: mongoose.Schema.Types.ObjectId, ref: "Store" }],
     favProfessional: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Professional" },
