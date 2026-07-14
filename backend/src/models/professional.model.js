@@ -1,13 +1,15 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const storeSchema = new mongoose.Schema(
+const professionalSchema = new mongoose.Schema(
   {
-    storeName: { type: String },
-    storeContactNumber: { type: String },
-    storeEmail: { type: String },
+    // initials for registration
+    name: { type: String, required: true, trim: true },
+    contactNumber: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true },
+
+    // model links
     address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
     bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankDetails" },
-    storeStaffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "StoreStaff" }],
     services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Services" }],
     bookings: [
       { type: mongoose.Schema.Types.ObjectId, ref: "ServiceBookings" },
@@ -20,23 +22,19 @@ const storeSchema = new mongoose.Schema(
       default: "Both",
     },
     paymentOptions: {
-      inStore: { type: String, enum: ["Online (Cards / UPI)", "Cash", "Both"] },
-      onSite: { type: String, enum: ["UPI", "Cash", "Both"] },
+      type: String,
+      enum: ["Cash", "Online (UPI)", "Both"],
+      default: "Both",
     },
 
     // extras for profile
-    storeTimings: { openFrom: { type: Date }, openTill: { type: Date } },
     images: {
-      logo: { url: String, fileId: String },
-      gallery: [{ url: String, fileId: String }],
+      profileImage: { url: String, fileId: String },
+      gallery: { url: String, fileId: String },
     },
 
-    // owner details
-    owner: {
-      ownerName: { type: String, required: true },
-      ownerContact: { type: String, required: true },
-      ownerEmail: { type: String, required: true },
-      ownerAddress: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
+    // kyc
+    kycDetails: {
       aadhar: {
         number: { type: Number },
         image: {
@@ -48,28 +46,21 @@ const storeSchema = new mongoose.Schema(
         number: { type: Number },
         image: { url: String, fileId: String },
       },
-    },
-
-    // store kyc
-    pan: {
-      number: { type: Number },
-      image: { url: String, fileId: String },
-    },
-    gst: {
-      number: { type: Number },
-      image: { url: String, fileId: String },
+      gst: {
+        number: { type: Number },
+        image: { url: String, fileId: String },
+      },
     },
 
     // authentications
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
-    role: "Store",
+    role: "Professional",
 
     // admin controls
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
-    ownerKycComplete: { type: Boolean, default: false },
-    storeKycComplete: { type: Boolean, default: false },
+    kycComplete: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
     isSubscribed: { type: Boolean, default: true },
     subscription: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
@@ -82,4 +73,4 @@ const storeSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export const Store = mongoose.model("Store", storeSchema);
+export const Professional = mongoose.model("Professional", professionalSchema);
