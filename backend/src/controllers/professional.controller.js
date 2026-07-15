@@ -123,9 +123,18 @@ const otpVerification = asyncHandler(async (req, res) => {
     user.isTemporaryRegistered = false;
     await user.save();
 
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "OTP verified successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          { user, tokens: { accessToken, refreshToken } },
+          "OTP verified successfully",
+        ),
+      );
   }
 
   if (verificationType === "loginVerification") {
@@ -149,9 +158,18 @@ const otpVerification = asyncHandler(async (req, res) => {
     user.otpExpiry = null;
     await user.save();
 
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "OTP verified successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          { user, tokens: { accessToken, refreshToken } },
+          "OTP verified successfully",
+        ),
+      );
   }
 });
 
