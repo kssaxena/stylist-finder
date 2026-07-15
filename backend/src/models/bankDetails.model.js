@@ -6,11 +6,16 @@ const bankDetailsSchema = new mongoose.Schema(
     professional: { type: mongoose.Schema.Types.ObjectId, ref: "Professional" },
     customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
 
-    bankName: { type: String, required: true },
-    branchName: { type: String, required: true },
-    accountHolderName: { type: String, required: true },
-    accountNumber: { type: String, required: true },
-    ifscCode: { type: String, required: true },
+    accountDetails: {
+      bankName: String,
+      branchName: String,
+      accountHolderName: String,
+      accountNumber: String,
+      confirmAccountNumber: String,
+      ifscCode: String,
+    },
+
+    upiID: String,
 
     // owner operations
     isActive: { type: Boolean, default: true },
