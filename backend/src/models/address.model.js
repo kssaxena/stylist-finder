@@ -39,6 +39,7 @@ const addressSchema = new mongoose.Schema(
       enum: ["Home", "Friend's", "Others"],
       default: "Home",
     },
+    contactDetails: { name: String, contact: String },
     otherAddressType: String,
     defaultAddress: { type: Boolean, default: false },
   },
