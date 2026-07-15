@@ -6,6 +6,14 @@ const professionalSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     contactNumber: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Prefer not to say"],
+      default: "Prefer not to say",
+    },
+    alternateContactNumber: { type: String },
+    about: String,
+    specialization: [String],
 
     // model links
     address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
@@ -19,7 +27,7 @@ const professionalSchema = new mongoose.Schema(
     serviceType: {
       type: String,
       enum: ["In House", "On Site", "Both (In house and On site)"],
-      default: "Both",
+      default: "Both (In house and On site)",
     },
     paymentOptions: {
       type: String,
@@ -36,6 +44,7 @@ const professionalSchema = new mongoose.Schema(
     // kyc
     kycDetails: {
       aadhar: {
+        verified: { type: Boolean, default: false },
         number: { type: Number },
         image: {
           front: { url: String, fileId: String },
@@ -43,10 +52,12 @@ const professionalSchema = new mongoose.Schema(
         },
       },
       pan: {
+        verified: { type: Boolean, default: false },
         number: { type: Number },
         image: { url: String, fileId: String },
       },
       gst: {
+        verified: { type: Boolean, default: false },
         number: { type: Number },
         image: { url: String, fileId: String },
       },
@@ -56,10 +67,12 @@ const professionalSchema = new mongoose.Schema(
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
     role: "Professional",
+    currentlyUnderBooking: { type: Boolean, default: false },
 
     // admin controls
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
+    kycSubmitted: { type: Boolean, default: false },
     kycComplete: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
     isSubscribed: { type: Boolean, default: true },
@@ -72,5 +85,21 @@ const professionalSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+professionalSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    { _id: this._id, role: "Professional" },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "20m" },
+  );
+};
+
+professionalSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    { _id: this._id, role: "Professional" },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" },
+  );
+};
 
 export const Professional = mongoose.model("Professional", professionalSchema);

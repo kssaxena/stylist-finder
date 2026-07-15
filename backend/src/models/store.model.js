@@ -68,7 +68,9 @@ const storeSchema = new mongoose.Schema(
     // admin controls
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
+    ownerKycSubmitted: { type: Boolean, default: false },
     ownerKycComplete: { type: Boolean, default: false },
+    storeKycSubmitted: { type: Boolean, default: false },
     storeKycComplete: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
     isSubscribed: { type: Boolean, default: true },
@@ -81,5 +83,21 @@ const storeSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+storeSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    { _id: this._id, role: "Store" },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "20m" },
+  );
+};
+
+storeSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    { _id: this._id, role: "Store" },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" },
+  );
+};
 
 export const Store = mongoose.model("Store", storeSchema);
