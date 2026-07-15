@@ -49,6 +49,7 @@ const serviceSchema = new mongoose.Schema(
     },
     // requirements from customer
     serviceRequirements: [{ type: String }],
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

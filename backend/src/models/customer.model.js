@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
 const customerSchema = new mongoose.Schema(
   {
@@ -23,7 +24,9 @@ const customerSchema = new mongoose.Schema(
     ],
 
     // model linking
-    bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "ServiceBookings" }],
+    bookings: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "ServiceBookings" },
+    ],
     favStore: [{ type: mongoose.Schema.Types.ObjectId, ref: "Store" }],
     favProfessional: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Professional" },
@@ -38,8 +41,8 @@ const customerSchema = new mongoose.Schema(
     isProfileComplete: { type: Boolean, default: false },
 
     // authentication
-    otp: { type: String, default: null },
-    otpExpiry: { type: Date, default: null },
+    otp: { type: String, default: null, select: false },
+    otpExpiry: { type: Date, default: null, select: false },
     role: "Customer",
     currentlyUnderBooking: { type: Boolean, default: false },
 
@@ -50,5 +53,21 @@ const customerSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+customerSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    { _id: this._id, role: "Customer" },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "20m" },
+  );
+};
+
+customerSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    { _id: this._id, role: "Customer" },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" },
+  );
+};
 
 export const Customer = mongoose.model("Customer", customerSchema);
