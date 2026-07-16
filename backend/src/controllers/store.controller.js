@@ -172,6 +172,305 @@ const otpVerification = asyncHandler(async (req, res) => {
   }
 });
 
+const addAddress = asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const {
+    flatNumber,
+    floor,
+    block,
+    societyName,
+    street1,
+    street2,
+    area,
+    locality,
+    sector,
+    city,
+    state,
+    country,
+    lat,
+    lng,
+  } = req.body;
+  if (!street1 || !area || !city || !state || !country)
+    throw new ApiError(400, "Please fill the required inputs");
+
+  const newAddress = await Address.create({
+    store: storeId,
+    flatNumber,
+    floor,
+    block,
+    societyName,
+    street1,
+    street2,
+    area,
+    locality,
+    sector,
+    city,
+    state,
+    country,
+    location: { coordinates: [lat, lng] },
+  });
+  if (!newAddress)
+    throw new ApiError(400, "Something went wrong, please try again later");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, newAddress, "Added successfully !"));
+});
+
+const updateAddress = asyncHandler(async (req, res) => {
+  const { storeId, addressId } = req.params;
+  const {
+    flatNumber,
+    floor,
+    block,
+    societyName,
+    street1,
+    street2,
+    area,
+    locality,
+    sector,
+    city,
+    state,
+    country,
+    lat,
+    lng,
+  } = req.body;
+  if (!street1 || !area || !city || !state || !country)
+    throw new ApiError(400, "Please fill the required inputs");
+
+  const updatedAddress = await Address.findByIdAndUpdate(addressId, {
+    store: storeId,
+    flatNumber,
+    floor,
+    block,
+    societyName,
+    street1,
+    street2,
+    area,
+    locality,
+    sector,
+    city,
+    state,
+    country,
+    location: { coordinates: [lat, lng] },
+  });
+  if (!updatedAddress)
+    throw new ApiError(400, "Something went wrong, please try again later");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedAddress, "Added successfully !"));
+});
+
+const addBankDetails = asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const {
+    bankName,
+    branchName,
+    accountHolderName,
+    accountNumber,
+    confirmAccountNumber,
+    ifscCode,
+    upiID,
+  } = req.body;
+
+  if (
+    !bankName ||
+    !branchName ||
+    !accountHolderName ||
+    !accountNumber ||
+    !confirmAccountNumber ||
+    !ifscCode
+  )
+    throw new ApiError(400, "All details are required");
+
+  const bankValidation = validateBankDetails(
+    bankName,
+    branchName,
+    accountHolderName,
+    accountNumber,
+    confirmAccountNumber,
+    ifscCode,
+  );
+  if (!bankValidation.valid) {
+    throw new ApiError(403, bankValidation.message);
+  }
+
+  // add upi validator here.. in future
+
+  const bank = await BankDetails.create({
+    store: storeId,
+    accountDetails: {
+      bankName,
+      branchName,
+      accountHolderName,
+      accountNumber,
+      confirmAccountNumber,
+      ifscCode,
+    },
+    upiID,
+  });
+  if (!bank)
+    throw new ApiError(403, "Something went wrong, please try again later !");
+  await bank.save();
+
+  return res.status(200).json(new ApiResponse(200, {}, "Added successfully !"));
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const {
+    serviceType,
+    paymentOptions,
+    storeTimings,
+    ownerName,
+    ownerContact,
+    ownerEmail,
+    ownerAddress,
+  } = req.body;
+
+  if (!validatePhone(ownerContact))
+    throw new ApiError(403, "Invalid contact number");
+  if (ownerName.length > 100)
+    throw new ApiError(400, "Name length is too long.");
+
+  const store = await Store.findByIdAndUpdate(storeId, {
+    serviceType,
+    paymentOptions,
+    storeTimings,
+    owner: { ownerName, ownerContact, ownerEmail, ownerAddress },
+  });
+  if (!store)
+    throw new ApiError(400, "Something went wrong, please try again later");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Updated Successfully !"));
+});
+
+const submitKYCVerification = asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  const { aadharNumber, panNumber, storePan, gstNumber } = req.body;
+
+  if (!storeId) throw new ApiError(400, "Invalid request");
+  if (!aadharNumber || !panNumber)
+    throw new ApiError(400, "Aadhar and Pan numbers are required for KYC");
+
+  //   validators
+  if (validateAadhaar(aadharNumber) === !true)
+    throw new ApiError(401, "Invalid AADHAR number");
+  if (validatePAN(panNumber) === !true)
+    throw new ApiError(401, "Invalid PAN number");
+  if (validatePAN(storePan) === !true)
+    throw new ApiError(401, "Invalid PAN number");
+  if (gstNumber) {
+    if (validateGST(gstNumber) === !true)
+      throw new ApiError(401, "Invalid GST number");
+  }
+
+  const user = await Store.findById(storeId);
+  if (!user) throw new ApiError(404, "No user found");
+
+  const sanitize = (str = "") =>
+    str
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9-_]/g, "")
+      .replace(/\s+/g, "-");
+  const safeName = sanitize(user.name);
+  const safePhone = sanitize(user.contactNumber);
+
+  let aadharFront = {};
+  let aadharBack = {};
+  let PAN = {};
+  let StorePAN = {};
+  let GST = {};
+
+  if (req.files?.aadharFront?.[0]) {
+    const uploaded = await UploadImages(req.files.aadharFront[0].filename, {
+      folderStructure: `professional/kyc-images/${safePhone}-${safeName}`,
+    });
+    aadharFront = {
+      url: uploaded.url,
+      fileId: uploaded.fileId,
+    };
+  }
+  if (req.files?.aadharBack?.[0]) {
+    const uploaded = await UploadImages(req.files.aadharBack[0].filename, {
+      folderStructure: `professional/kyc-images/${safePhone}-${safeName}`,
+    });
+    aadharBack = {
+      url: uploaded.url,
+      fileId: uploaded.fileId,
+    };
+  }
+  if (req.files?.StorePAN?.[0]) {
+    const uploaded = await UploadImages(req.files.StorePAN[0].filename, {
+      folderStructure: `professional/kyc-images/${safePhone}-${safeName}`,
+    });
+    StorePAN = {
+      url: uploaded.url,
+      fileId: uploaded.fileId,
+    };
+  }
+  if (req.files?.PAN?.[0]) {
+    const uploaded = await UploadImages(req.files.PAN[0].filename, {
+      folderStructure: `professional/kyc-images/${safePhone}-${safeName}`,
+    });
+    PAN = {
+      url: uploaded.url,
+      fileId: uploaded.fileId,
+    };
+  }
+  if (req.files?.GST?.[0]) {
+    const uploaded = await UploadImages(req.files.GST[0].filename, {
+      folderStructure: `professional/kyc-images/${safePhone}-${safeName}`,
+    });
+    GST = {
+      url: uploaded.url,
+      fileId: uploaded.fileId,
+    };
+  }
+
+  user.owner = {
+    aadhar: {
+      number: aadharNumber,
+      image: {
+        front: aadharFront,
+        back: aadharBack,
+      },
+    },
+    pan: {
+      number: panNumber,
+      image: PAN,
+    },
+  };
+  user.pan = { number: storePan, image: { StorePAN } };
+  user.gst = { number: gstNumber, image: { GST } };
+  user.owner.ownerKycSubmitted = true;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "KYC details are submitted we will verify it soon, please feel free to contact our representative.",
+      ),
+    );
+});
 
 
-export { registerStore, loginProfessional, otpVerification };
+
+export {
+  registerStore,
+  loginProfessional,
+  otpVerification,
+  addAddress,
+  updateAddress,
+  addBankDetails,
+  updateProfile,
+  submitKYCVerification,
+};
