@@ -72,6 +72,8 @@ const professionalSchema = new mongoose.Schema(
     // admin controls
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
+    isRegistrationFee: { type: String, default: "500" },
+    isRegistrationFeePaid: { type: Boolean, default: false },
     kycSubmitted: { type: Boolean, default: false },
     kycComplete: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
