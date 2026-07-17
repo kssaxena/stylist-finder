@@ -70,6 +70,23 @@ const professionalSchema = new mongoose.Schema(
     currentlyUnderBooking: { type: Boolean, default: false },
 
     // admin controls
+    promotionLevel: {
+      type: String,
+      enum: [
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "none",
+      ],
+      default: "none",
+    },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     isRegistrationFee: { type: String, default: "500" },
