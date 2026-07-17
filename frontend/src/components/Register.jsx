@@ -1,59 +1,35 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
 import Logo from "../assets/Logo.png";
 import InputBox from "./Input";
 import Button from "./Button";
 import Login from "./Login";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useToast } from "../components/ToastContext";
+import { customerRegistrationInputs } from "../constants/constants";
+import { FetchData } from "../utils/FetchFromApi";
 
 const Register = ({ onBack, onLogin, switchForm }) => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agree: false,
-  });
+  const userType = useParams();
+  const { showToast } = useToast();
+  const formRef = useRef();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.fullName ||
-      !formData.phone ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
-      alert("Please fill all fields");
-      return;
+    try {
+      const formData = new FormData(formRef.current);
+      const response = await FetchData(
+        `/${userType}/register`,
+        "get",
+        formData,
+      );
+      console.log(response);
+      formRef.current.reset();
+    } catch (err) {
+      console.log(err);
     }
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    if (!formData.agree) {
-      alert("Please accept Terms & Conditions");
-      return;
-    }
-
-    console.log(formData);
-
-    // TODO:
-    // Register API
   };
 
   return (
@@ -98,60 +74,19 @@ const Register = ({ onBack, onLogin, switchForm }) => {
           </p>
         </div>
         {/* Form */}
-        <form onSubmit={handleRegister} className="w-full md:w-1/2">
-          <div className="grid md:grid-cols-2 gap-3">
+        <form ref={formRef} onSubmit={handleRegister()}>
+          {customerRegistrationInputs.map((data, index) => (
             <InputBox
-              label="Full Name"
-              placeholder="Enter your full name"
-              Name="fullName"
-              Value={formData.fullName}
-              onChange={handleChange}
+              placeholder={data.placeholder}
+              label={data.label}
+              type={data.type}
+              name={data.name}
             />
-
-            <InputBox
-              label="Phone Number"
-              placeholder="Enter your phone number"
-              Name="phone"
-              Value={formData.phone}
-              onChange={handleChange}
-            />
-          </div>
-
-          <InputBox
-            label="Email Address"
-            placeholder="Enter your email address"
-            Name="email"
-            Value={formData.email}
-            onChange={handleChange}
-          />
-
-          <InputBox
-            label="Password"
-            placeholder="Create Password"
-            Type="password"
-            Name="password"
-            Value={formData.password}
-            onChange={handleChange}
-            PasswordIndication={true}
-          />
-
-          <InputBox
-            label="Confirm Password"
-            placeholder="Confirm Password"
-            Type="password"
-            Name="confirmPassword"
-            Value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-
-          {/* Terms */}
-
+          ))}
           <div className="flex items-start gap-3 py-4">
             <input
               type="checkbox"
               name="agree"
-              checked={formData.agree}
-              onChange={handleChange}
               className="mt-1 accent-[#8B2954]"
             />
 
