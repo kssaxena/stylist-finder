@@ -67,6 +67,23 @@ const storeSchema = new mongoose.Schema(
     role: "Store",
 
     // admin controls
+    promotionLevel: {
+      type: String,
+      enum: [
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "none",
+      ],
+      default: "none",
+    },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     ownerKycSubmitted: { type: Boolean, default: false },
