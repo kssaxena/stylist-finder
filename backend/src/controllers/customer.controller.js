@@ -539,6 +539,7 @@ export {
   otpVerification,
   updateGender,
   addAlternateContactNumber,
+  updateAlternateNumber,
   addAddress,
   markAddressDefault,
   updateAddress,
