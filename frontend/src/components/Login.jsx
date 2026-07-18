@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF, FaApple } from "react-icons/fa";
 import Logo from "../assets/Logo.png";
 import InputBox from "./Input";
 import Button from "./Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LoginSvg from "../assets/Login.svg";
+import { FetchData } from "../utils/FetchFromApi";
+import { useRef } from "react";
 
 const Login = ({ onRegister }) => {
   const navigate = useNavigate();
+  const formRef = useRef();
+  const { userType } = useParams("");
+  console.log(userType)
 
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    number: "",
   });
 
   const handleChange = (e) => {
@@ -23,14 +25,19 @@ const Login = ({ onRegister }) => {
     });
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+    // e.preventDefault();
+    try {
+      const formData = new FormData(formRef.current);
+      const response = await FetchData(`/customer/login`, "get", formData);
 
-    console.log(formData);
-
-    // TODO:
-    // API Call
+      console.log(response);
+      formRef.current.reset();
+    } catch (error) {
+      
+    }
   };
+  
 
   return (
     <div className="w-full  rounded-3xl flex justify-center items-center lg:px-10 px-2">
@@ -57,7 +64,11 @@ const Login = ({ onRegister }) => {
               </p>
             </div>
             {/* Form */}
-            <form className="mt-8 space-y-4">
+            <form
+              ref={formRef}
+              onClick={handleLogin}
+              className="mt-8 space-y-4"
+            >
               <InputBox
                 label="contact Number"
                 placeholder="Enter your contact number"
@@ -75,7 +86,7 @@ const Login = ({ onRegister }) => {
             <p className="text-center mt-8 text-gray-600">
               Don't have an account?{" "}
               <button
-                onClick={() => navigate("/auth/register")}
+                onClick={() => navigate(`/auth/${"register"}/${userType}`)}
                 className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
               >
                 Register

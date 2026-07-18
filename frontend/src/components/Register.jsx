@@ -9,14 +9,35 @@ import { useToast } from "../components/ToastContext";
 import { customerRegistrationInputs } from "../constants/constants";
 import { FetchData } from "../utils/FetchFromApi";
 
-const Register = ({ onBack, onLogin, switchForm }) => {
+const Register = () => {
   const navigate = useNavigate();
-  const userType = useParams();
+  const { userType } = useParams("");
   const { showToast } = useToast();
   const formRef = useRef();
 
+  const registerContent = {
+    customer: {
+      heading: "Create Your Account",
+      subHeading:
+        "Join Stylist Finder to discover the best salons, parlours, and beauty professionals near you.",
+    },
+
+    store: {
+      heading: "Register Your Salon or Parlour",
+      subHeading:
+        "Create your business profile, showcase your services, and connect with customers looking for beauty services.",
+    },
+
+    professional: {
+      heading: "Join as a Beauty Professional",
+      subHeading:
+        "Build your professional profile, showcase your expertise, and grow your client base with Stylist Finder.",
+    },
+  };
+ const content = registerContent[userType] || registerContent.customer;
+
   const handleRegister = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
 
     try {
       const formData = new FormData(formRef.current);
@@ -37,14 +58,14 @@ const Register = ({ onBack, onLogin, switchForm }) => {
       {/* Back Button */}
       <button
         onClick={() => {
-          navigate("/auth/login");
+          navigate(`/auth/${"login"}/${"customer"}`);
         }}
         className="w-12 h-12 rounded-full border flex items-center justify-center hover:bg-[#8B2954] hover:text-white transition"
       >
         <IoArrowBack size={22} />
       </button>
 
-      <div className="flex flex-col md:flex-row justify-between items-center relative w-full">
+      <div className="flex flex-col md:flex-row justify-center gap-20 bg-white shadow-lg p-4 items-center relative w-full">
         {" "}
         <div className="flex flex-col w-full md:w-1/2">
           {/* Logo */}
@@ -55,11 +76,9 @@ const Register = ({ onBack, onLogin, switchForm }) => {
           {/* Heading */}
           <div className="text-center mt-4">
             <h1 className="text-4xl font-serif text-[#5B1933]">
-              Create Account
+              {content?.heading}
             </h1>
-            <p className="text-gray-500 mt-2">
-              Register to get started with Stylist Finder
-            </p>
+            <p className="text-gray-500 mt-2">{content?.subHeading}</p>
           </div>
 
           {/* Login */}
@@ -107,7 +126,7 @@ const Register = ({ onBack, onLogin, switchForm }) => {
         <p className="text-center mt-8 text-gray-600 block md:hidden">
           Already have an account?{" "}
           <button
-            onClick={() => navigate("/auth/login")}
+            onClick={() => navigate(`/auth/${"register"}/${userType}`)}
             className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
           >
             Login

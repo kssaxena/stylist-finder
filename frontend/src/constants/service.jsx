@@ -1,14 +1,6 @@
-import SkinCare from "../assets/Service/SkinCare.png";
-import BodyCare from "../assets/Service/BodyCare.png";
-import HairCare from "../assets/Service/HairCare.png";
-import Makeup from "../assets/Service/makeup.png";
-import Nail from "../assets/Service/Nail.png";
-import Threading from "../assets/Service/Threading.png";
-import Bridal from "../assets/Service/Bridal.png";
-import MensHaircut from "../assets/Service/MensHaircut.png";
-import BeardGrooming from "../assets/Service/BeardGrooming.png";
+
 import { GoVerified } from "react-icons/go";
-import { FaMapMarkerAlt, FaBookmark, FaHeart, FaStore } from "react-icons/fa";
+import { FaMapMarkerAlt, FaBookmark, FaHeart, FaStore, FaImages } from "react-icons/fa";
 import { CiBank } from "react-icons/ci";
 import { FaServicestack, FaUserCheck } from "react-icons/fa6";
 import { PiFlowerLotusFill } from "react-icons/pi";
@@ -25,7 +17,7 @@ export const services = [
 
     duration: "1 hr 30 mins",
 
-    image: Makeup,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/makeup.png?updatedAt=1784349572544`,
 
     description: "Ideal for parties, office events and functions.",
   },
@@ -43,7 +35,7 @@ export const services = [
 
     duration: "2 hrs",
 
-    image: Makeup,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/makeup.png?updatedAt=1784349572544`,
 
     description: "Premium HD bridal and party makeup.",
   },
@@ -61,7 +53,7 @@ export const services = [
 
     duration: "60 mins",
 
-    image: HairCare,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/HairCare.png?updatedAt=1784349573394`,
 
     description: "Professional hair spa for silky smooth hair.",
   },
@@ -79,7 +71,7 @@ export const services = [
 
     duration: "45 mins",
 
-    // image: Saree,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/HairCare.png?updatedAt=1784349573394`,
 
     description: "Traditional and modern saree draping.",
   },
@@ -97,7 +89,7 @@ export const services = [
 
     duration: "30 mins",
 
-    image: HairCare,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/MensHaircut.png?updatedAt=1784349573498`,
 
     description: "Professional haircut for men.",
   },
@@ -115,7 +107,7 @@ export const services = [
 
     duration: "20 mins",
 
-    image: BeardGrooming,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/BeardGrooming.png?updatedAt=1784349572974`,
 
     description: "Premium beard grooming.",
   },
@@ -210,7 +202,7 @@ export const StoreArray = [
   {
     id: 1,
     label: "Overview",
-    value: "overview",
+    value: "store_overview",
     icon: <GoVerified />,
   },
   {
@@ -254,7 +246,7 @@ export const StoreArray = [
     id: 6,
     label: " Images ",
     value: "images",
-    icon: <FaBookmark />,
+    icon: <FaImages />,
   },
   {
     id: 6,

@@ -21,7 +21,7 @@ function App() {
       <div className="pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/auth/:type" element={<Authentication />} />
+          <Route path="/auth/:type/:userType" element={<Authentication />} />
           <Route
             path={"/services/:location/:gender/:category"}
             element={<Service />}
@@ -35,8 +35,6 @@ function App() {
         </Routes>
       </div>
       {!hideFooter && <Footer />}
-
-     
     </div>
   );
 }

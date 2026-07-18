@@ -1,47 +1,4 @@
-// import React from "react";
-// import InputBox from "../components/Input";
-// import Button from "./Button";
-// import { motion, AnimatePresence } from "framer-motion";
-
-// const AppointmentForm = () => {
-//   return (
-//     <AnimatePresence>
-//       <motion.div
-//         // whileInView={{ opacity: 1, x: 0 }}
-//         // initial={{ opacity: 0, x: -100 }}
-//         // exit={{ opacity: 0, x: 100 }}
-//         // transition={{ type: "keyframes", duration: 0.2, ease:"easeInOut" }}
-//         className=""
-//       >
-//         <h2 className="text-2xl font-bold ">Your Location</h2>
-
-//         <InputBox
-//           type="text"
-//           LabelName="State"
-//           Placeholder="Enter your state name"
-//           className=""
-//         />
-
-//         <InputBox
-//           type="text"
-//           LabelName="City"
-//           Placeholder="Enter your city name"
-//           className=""
-//         />
-//         <InputBox
-//           type="text"
-//           LabelName="Pin Code"
-//           Placeholder="Enter your pin code"
-//           className=""
-//         />
-//         <Button LabelName="Save & Continue" className="w-full mt-4" />
-//       </motion.div>
-//     </AnimatePresence>
-//   );
-// };
-
-// export default AppointmentForm;
-
+import { toast } from "react-toastify";
 import React, { useState } from "react";
 import InputBox from "./Input";
 import Button from "./Button";
@@ -51,7 +8,6 @@ import { genderData } from "../constants/genderData";
 import { femaleServices } from "../constants/femaleServices";
 import { maleServices } from "../constants/maleServices";
 import { FaArrowLeft, FaArrowRight, FaLeaf } from "react-icons/fa";
-
 
 const AppointmentForm = ({ onClose }) => {
   // Step State
@@ -85,7 +41,7 @@ const AppointmentForm = ({ onClose }) => {
   // Step 2
   const handleGender = () => {
     if (!gender) {
-      alert("Please select gender");
+      toast.error("Please Select the gender !");
       return;
     }
 
@@ -265,8 +221,6 @@ const AppointmentForm = ({ onClose }) => {
                       : "border-gray-300"
                   }`}
                 >
-                
-
                   <button
                     checked={gender === item.name}
                     readOnly
@@ -345,7 +299,6 @@ const AppointmentForm = ({ onClose }) => {
                       : "border-gray-300"
                   }`}
                 >
-
                   <button
                     checked={service === item.title}
                     readOnly
