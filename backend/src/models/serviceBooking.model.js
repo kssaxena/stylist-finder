@@ -11,4 +11,4 @@ const bookingSchema = new mongoose.Schema({
   modeOfPayment: { type: String, enum: ["Online Payment", "Cash Payment"] },
 });
 
-export const ServiceBookings = mongoose.Model("ServiceBookings", bookingSchema);
+export const ServiceBookings = mongoose.model("ServiceBookings", bookingSchema);
