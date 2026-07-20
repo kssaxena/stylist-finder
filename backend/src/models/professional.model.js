@@ -66,7 +66,7 @@ const professionalSchema = new mongoose.Schema(
     // authentications
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
-    role: "Professional",
+    role: { type: String, default: "Professional" },
     currentlyUnderBooking: { type: Boolean, default: false },
 
     // admin controls

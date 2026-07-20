@@ -64,7 +64,7 @@ const storeSchema = new mongoose.Schema(
     // authentications
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
-    role: "Store",
+    role: { type: String, default: "Store" },
 
     // admin controls
     promotionLevel: {
