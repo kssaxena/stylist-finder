@@ -75,7 +75,7 @@ const registerStore = asyncHandler(async (req, res) => {
     );
 });
 
-const loginProfessional = asyncHandler(async (req, res) => {
+const loginStore = asyncHandler(async (req, res) => {
   const { contactNumber } = req.body;
   if (!contactNumber) throw new ApiError(400, "Invalid request");
   if (!validatePhone(contactNumber))
@@ -462,11 +462,9 @@ const submitKYCVerification = asyncHandler(async (req, res) => {
     );
 });
 
-
-
 export {
   registerStore,
-  loginProfessional,
+  loginStore,
   otpVerification,
   addAddress,
   updateAddress,
