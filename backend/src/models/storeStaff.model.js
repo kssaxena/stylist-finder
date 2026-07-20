@@ -13,6 +13,7 @@ const storeStaffSchema = new mongoose.Schema(
     profileImage: { url: String, fileId: String },
     designation: String,
     experience: String,
+    role: { type: String, default: "StoreStaff" },
 
     // kyc
     aadhar: {
@@ -35,4 +36,4 @@ const storeStaffSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export const StoreStaff = mongoose.Schema("StoreStaff", storeStaffSchema);
+export const StoreStaff = mongoose.model("StoreStaff", storeStaffSchema);

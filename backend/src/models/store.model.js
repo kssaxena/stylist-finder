@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const storeSchema = new mongoose.Schema(
   {
-    storeName: { type: String },
-    storeContactNumber: { type: String },
-    storeEmail: { type: String },
+    storeName: { type: String, required: true },
+    storeContactNumber: { type: String, required: true },
+    storeEmail: { type: String, required: true },
     address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
     bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankDetails" },
     storeStaffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "StoreStaff" }],
@@ -33,10 +33,11 @@ const storeSchema = new mongoose.Schema(
 
     // owner details
     owner: {
-      ownerName: { type: String, required: true },
-      ownerContact: { type: String, required: true },
-      ownerEmail: { type: String, required: true },
-      ownerAddress: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
+      ownerName: String,
+      ownerContact: String,
+      ownerEmail: String,
+      ownerAddress: String,
+      ownerKycSubmitted: { type: Boolean, default: false },
       aadhar: {
         number: { type: Number },
         image: {
@@ -63,9 +64,26 @@ const storeSchema = new mongoose.Schema(
     // authentications
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
-    role: "Store",
+    role: { type: String, default: "Store" },
 
     // admin controls
+    promotionLevel: {
+      type: String,
+      enum: [
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "none",
+      ],
+      default: "none",
+    },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     ownerKycSubmitted: { type: Boolean, default: false },
@@ -73,6 +91,8 @@ const storeSchema = new mongoose.Schema(
     storeKycSubmitted: { type: Boolean, default: false },
     storeKycComplete: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
+    isRegistrationFee: { type: String, default: "500" },
+    isRegistrationFeePaid: { type: Boolean, default: false },
     isSubscribed: { type: Boolean, default: true },
     subscription: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
 

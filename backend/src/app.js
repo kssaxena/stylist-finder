@@ -55,5 +55,12 @@ app.use((req, res, next) => {
 });
 
 // now importing routes and using them
+import customerRoutes from "./routes/customer.route.js";
+import professionalRoutes from "./routes/customer.route.js";
+import storeRoutes from "./routes/customer.route.js";
+
+app.use("/api/v1/customer", customerRoutes);
+app.use("/api/v1/professional", professionalRoutes);
+app.use("/api/v1/store", storeRoutes);
 
 export { app };

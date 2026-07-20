@@ -66,12 +66,31 @@ const professionalSchema = new mongoose.Schema(
     // authentications
     otp: { type: String, default: null },
     otpExpiry: { type: Date, default: null },
-    role: "Professional",
+    role: { type: String, default: "Professional" },
     currentlyUnderBooking: { type: Boolean, default: false },
 
     // admin controls
+    promotionLevel: {
+      type: String,
+      enum: [
+        "first",
+        "second",
+        "third",
+        "fourth",
+        "fifth",
+        "sixth",
+        "seventh",
+        "eighth",
+        "ninth",
+        "tenth",
+        "none",
+      ],
+      default: "none",
+    },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
+    isRegistrationFee: { type: String, default: "500" },
+    isRegistrationFeePaid: { type: Boolean, default: false },
     kycSubmitted: { type: Boolean, default: false },
     kycComplete: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
