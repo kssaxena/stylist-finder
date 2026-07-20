@@ -12,6 +12,7 @@ import {
   addBankDetails,
   addUPIid,
   dashboardData,
+  loginCustomer,
 } from "../controllers/customer.controller.js";
 
 import { VerifyCustomer } from "../middlewares/customer.middleware.js";
@@ -19,7 +20,7 @@ import { VerifyCustomer } from "../middlewares/customer.middleware.js";
 const router = Router();
 
 router.route("/register").post(registerCustomer);
-router.route("/login").post(registerCustomer);
+router.route("/login").post(loginCustomer);
 router
   .route("/otp/authentication/:verificationType/:customerId")
   .post(otpVerification);
@@ -51,3 +52,5 @@ router
 router
   .route("/get/dashboard/data/:customerId/:query")
   .get(VerifyCustomer, dashboardData);
+
+export default router;
