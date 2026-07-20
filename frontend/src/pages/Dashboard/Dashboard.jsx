@@ -22,7 +22,6 @@ import { GoVerified } from "react-icons/go";
 import { MdDomainVerification } from "react-icons/md";
 import { BsBank2 } from "react-icons/bs";
 
-
 import {
   Overview,
   SavedAddress,
