@@ -5,7 +5,7 @@ import InputBox from "./Input";
 import Button from "./Button";
 import Login from "./Login";
 import { useNavigate, useParams } from "react-router-dom";
-import { useToast } from "../components/ToastContext";
+import { useToast } from "../components/hooks/ToastContext";
 import { customerRegistrationInputs } from "../constants/constants";
 import { FetchData } from "../utils/FetchFromApi";
 import { parseErrorMessage } from "../utils/parseErrorMessage";

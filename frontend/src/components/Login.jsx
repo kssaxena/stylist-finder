@@ -26,7 +26,11 @@ const Login = ({ onRegister }) => {
       formRef.current.reset();
     } catch (err) {
       console.log(err);
-      showToast(parseErrorMessage(err.response.data));
+      showToast({
+        type: "error",
+        title: "Error",
+        message: parseErrorMessage(err.response.data),
+      });
     }
   };
 
