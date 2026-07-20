@@ -23,9 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 dist.zip
-
+.env
 
 
 # remove the below git ignore when local images are deleted 
-assets
 PinCOdeData (1).js
