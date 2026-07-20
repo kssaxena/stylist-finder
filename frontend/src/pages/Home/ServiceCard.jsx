@@ -1,8 +1,5 @@
 import { FaArrowDown, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { truncateString } from "../../utils/utility-functions";
-import SkinCare from "../../assets/Service/SkinCare.png";
-import HairCare from "../../assets/Service/HairCare.png";
-import Threading from "../../assets/Service/Threading.png";
 
 const services = [
   {

@@ -1,9 +1,9 @@
 import React from "react";
-import HeroVdo from "../../assets/HeroVdo.mp4";
+// import HeroVdo from "../../assets/HeroVdo.mp4";
 import Button from "../../components/Button";
 import { useState } from "react";
 import AppointmentForm from "../../components/AppointmentForm";
-import Popup from "../../components/Popup";
+import Popup from "../../components/ui/Popup";
 import ExploreServices from "../../components/ExplreServices";
 
 function Landing() {
@@ -20,8 +20,9 @@ function Landing() {
     setIsOpen(true);
   };
 
-  const closePopup = () => {https://ik.imagekit.io/jarvisai/Beauty%20Dump%20Folder/HeroVdo.mp4
-    setIsOpen(false);
+  const closePopup = () => {
+    //ik.imagekit.io/jarvisai/Beauty%20Dump%20Folder/HeroVdo.mp4
+    https: setIsOpen(false);
   };
   return (
     <div className="w-full h-[100vh] relative">
