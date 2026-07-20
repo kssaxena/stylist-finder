@@ -19,7 +19,11 @@ const Footer = () => {
           {/* Logo & Description */}
           <div className="space-y-4">
             <a href="/">
-              <img src={Logo} alt="Logo" className="h-16" />
+              <img
+                src={`https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750`}
+                alt="Logo"
+                className="h-16"
+              />
             </a>
 
             <p className="text-sm text-pink-100 leading-6 max-w-sm">
