@@ -106,9 +106,9 @@ const otpVerification = asyncHandler(async (req, res) => {
 
   if (verificationType === "registerVerification") {
     const { otp } = req.body;
-    const { customerId } = req.params;
+    const { professionalId } = req.params;
 
-    const user = await Customer.findById(customerId);
+    const user = await Customer.findById(professionalId);
     if (!user) throw new ApiError(401, "Unauthorized access");
 
     const now = new Date();

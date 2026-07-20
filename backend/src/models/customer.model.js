@@ -43,7 +43,7 @@ const customerSchema = new mongoose.Schema(
     // authentication
     otp: { type: String, default: null, select: false },
     otpExpiry: { type: Date, default: null, select: false },
-    role: "Customer",
+    role: { type: String, default: "Customer" },
     currentlyUnderBooking: { type: Boolean, default: false },
 
     // validation if the user has temporarily registered or not
