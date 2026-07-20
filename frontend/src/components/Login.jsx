@@ -1,46 +1,37 @@
 import React, { useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
-import Logo from "../assets/Logo.png";
+// import Logo from "../assets/Logo.png";
 import InputBox from "./Input";
 import Button from "./Button";
 import { useNavigate, useParams } from "react-router-dom";
 import LoginSvg from "../assets/Login.svg";
 import { FetchData } from "../utils/FetchFromApi";
 import { useRef } from "react";
+import { useToast } from "./hooks/ToastContext";
+import { parseErrorMessage } from "../utils/parseErrorMessage";
 
 const Login = ({ onRegister }) => {
   const navigate = useNavigate();
   const formRef = useRef();
   const { userType } = useParams("");
-  console.log(userType)
-
-  const [formData, setFormData] = useState({
-    number: "",
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const { showToast } = useToast();
 
   const handleLogin = async (e) => {
-    // e.preventDefault();
+    e.preventDefault();
     try {
       const formData = new FormData(formRef.current);
-      const response = await FetchData(`/customer/login`, "get", formData);
+      const response = await FetchData(`customer/login`, "post", formData);
 
       console.log(response);
       formRef.current.reset();
-    } catch (error) {
-      
+    } catch (err) {
+      console.log(err);
+      showToast(parseErrorMessage(err.response.data));
     }
   };
-  
 
   return (
-    <div className="w-full  rounded-3xl flex justify-center items-center lg:px-10 px-2">
+    <div className="w-full  rounded-3xl flex justify-center items-center lg:px-10 px-2 h-[90vh]">
       <div className="shadow-xl border border-neutral-100 rounded-3xl h-full w-full flex flex-row justify-center items-center lg:p-10 p-2">
         {" "}
         <div className="w-1/2 h-full hidden lg:flex justify-center items-center">
@@ -51,7 +42,13 @@ const Login = ({ onRegister }) => {
             {" "}
             {/* Logo */}
             <div className="flex justify-center">
-              <img src={Logo} alt="Logo" className="w-24 h-24 object-contain" />
+              <img
+                src={
+                  "https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"
+                }
+                alt="Logo"
+                className="w-24 h-24 object-contain"
+              />
             </div>
             {/* Heading */}
             <div className="text-center mt-4">
@@ -74,11 +71,6 @@ const Login = ({ onRegister }) => {
                 placeholder="Enter your contact number"
                 name="contactNumber"
                 type="text"
-                onChange={() => console.log("Input worked")}
-                onKeyDown={() => console.log("Input worked")}
-                onClick={() => console.log("Input worked")}
-                Value={formData.number}
-                onChange={handleChange}
               />
               <Button type="submit" LabelName="Login" className="w-full" />
             </form>
