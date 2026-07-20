@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { HiHome, HiMenu, HiX } from "react-icons/hi";
-import Logo from "../assets/Logo.png";
+// import Logo from "../assets/Logo.png";
 import Button from "./Button";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
@@ -89,7 +89,7 @@ const Header = () => {
       <div className="flex items-center justify-between ">
         {/* Logo */}
         <a href="/" className="md:h-14 md:w-14 h-10 w-10">
-          <img src={Logo} alt="Logo" className="h-full w-full" />
+          <img src={"https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"} alt="Logo" className="h-full w-full" />
         </a>
 
         <AccordionCard

@@ -1,6 +1,5 @@
 import React from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
-import Logo from "../assets/Logo.png";
 
 const Footer = () => {
   const quickLinks = [
