@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Button from "./components/Button";
 import InputBox from "./components/Input";
 import Header from "./components/Header";
@@ -11,13 +11,17 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 
 
 function App() {
+   const location = useLocation();
+
+   const hideFooter = location.pathname === "/dashboard"
+
   return (
     <div className="">
       <Header />
-      <div className="pt-24">
+      <div className="pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/auth/:type" element={<Authentication />} />
+          <Route path="/auth/:type/:userType" element={<Authentication />} />
           <Route
             path={"/services/:location/:gender/:category"}
             element={<Service />}
@@ -30,7 +34,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
-      <Footer />
+      {!hideFooter && <Footer />}
     </div>
   );
 }

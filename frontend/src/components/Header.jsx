@@ -110,7 +110,7 @@ const Header = () => {
                   LabelName="Login / Register"
                   variant="Secondary"
                   onClick={() => {
-                    navigate("/auth/login");
+                    navigate(`/auth/${"login"}/${"customer"}`);
                   }}
                 />
               ) : (

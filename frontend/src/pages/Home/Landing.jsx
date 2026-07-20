@@ -20,14 +20,14 @@ function Landing() {
     setIsOpen(true);
   };
 
-  const closePopup = () => {
+  const closePopup = () => {https://ik.imagekit.io/jarvisai/Beauty%20Dump%20Folder/HeroVdo.mp4
     setIsOpen(false);
   };
   return (
     <div className="w-full h-[100vh] relative">
       <div className="h-full w-full absolute -top-24 left-0">
         <video
-          src={HeroVdo}
+          src={`https://ik.https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/HeroVdo.mp4?updatedAt=1784349572125.io/jarvisai/Beauty%20Dump%20Folder/HeroVdo.mp4`}
           autoPlay
           muted
           loop
