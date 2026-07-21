@@ -9,28 +9,30 @@ import { FetchData } from "../utils/FetchFromApi";
 import { useRef } from "react";
 import { useToast } from "./hooks/ToastContext";
 import { parseErrorMessage } from "../utils/parseErrorMessage";
+import OtpVerificationPopup from "./ui/OtpVerificationPopup";
 
 const Login = ({ onRegister }) => {
   const navigate = useNavigate();
   const formRef = useRef();
   const { userType } = useParams("");
-  const { showToast } = useToast();
+  const { alertSuccess, alertError, alertInfo } = useToast({});
+  const [data, setData] = useState();
+  const [otpPopup, setOtpPopup] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData(formRef.current);
-      const response = await FetchData(`customer/login`, "post", formData);
-
+      const response = await FetchData(`${userType}/login`, "post", formData);
       console.log(response);
-      formRef.current.reset();
+      if (response.data.data.otpStatus === true) {
+        setOtpPopup(true);
+        formRef.current.reset();
+        setData(response.data.data);
+      }
+      alertInfo(response.data.message);
     } catch (err) {
-      console.log(err);
-      showToast({
-        type: "error",
-        title: "Error",
-        message: parseErrorMessage(err.response.data),
-      });
+      alertError(err?.response?.data);
     }
   };
 
@@ -61,7 +63,11 @@ const Login = ({ onRegister }) => {
               </h1>
 
               <p className="text-gray-500 mt-2">
-                Login to continue to Stylist Finder
+                Login as{" "}
+                <span className="capitalize font-semibold text-black">
+                  {userType}
+                </span>{" "}
+                & continue to Stylist Finder
               </p>
             </div>
             {/* Form */}
@@ -91,6 +97,13 @@ const Login = ({ onRegister }) => {
           </div>
         </div>
       </div>
+      <OtpVerificationPopup
+        isOpen={otpPopup}
+        userType={userType}
+        onClose={() => setOtpPopup(false)}
+        data={data}
+        verificationType="loginVerification"
+      />
     </div>
   );
 };

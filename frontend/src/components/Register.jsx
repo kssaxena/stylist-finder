@@ -14,7 +14,7 @@ import OtpVerificationPopup from "../components/ui/OtpVerificationPopup";
 const Register = () => {
   const navigate = useNavigate();
   const { userType } = useParams("");
-  const { alertSuccess, alertError, alertInfo } = useToast({});
+  const { alertSuccess, alertError, alertInfo } = useToast();
   const formRef = useRef();
   const [data, setData] = useState();
   const [otpPopup, setOtpPopup] = useState(false);
@@ -38,7 +38,7 @@ const Register = () => {
         "Build your professional profile, showcase your expertise, and grow your client base with Stylist Finder.",
     },
   };
-  const content = registerContent[userType] || registerContent.customer;
+  const content = registerContent[userType];
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -56,7 +56,7 @@ const Register = () => {
         formRef.current.reset();
         setData(response.data.data);
       }
-      alertInfo({ message: response.data.message });
+      alertInfo(response.data.message);
     } catch (err) {
       console.log(err);
       alertError({ message: err.response.data });
@@ -101,7 +101,7 @@ const Register = () => {
           <p className="text-center mt-8 text-gray-600 hidden md:block">
             Already have an account?{" "}
             <button
-              onClick={() => navigate("/auth/login")}
+              onClick={() => navigate(`/auth/${"login"}/${userType}`)}
               className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
             >
               Login
@@ -143,17 +143,18 @@ const Register = () => {
         <p className="text-center mt-8 text-gray-600 block md:hidden">
           Already have an account?{" "}
           <button
-            onClick={() => navigate(`/auth/${"register"}/${userType}`)}
+            onClick={() => navigate(`/auth/${"login"}/${userType}`)}
             className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
           >
             Login
           </button>
         </p>
       </div>
-      {console.log(data)}
+      {/* {console.log(data)} */}
 
       <OtpVerificationPopup
         isOpen={otpPopup}
+        userType={userType}
         onClose={() => setOtpPopup(false)}
         data={data}
         verificationType="registerVerification"
