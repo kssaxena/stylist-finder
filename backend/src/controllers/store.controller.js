@@ -28,16 +28,16 @@ const registerStore = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Name length is too long, please try short forms");
 
   const existingTempUser = await Store.findOne({
-    contactNumber: contactNumber,
+    storeContactNumber: contactNumber,
     isTemporaryRegistered: true,
   });
   if (existingTempUser) {
     const deleteUser = await Store.findOneAndDelete({
-      contactNumber: contactNumber,
+      storeContactNumber: contactNumber,
     });
   }
   const existingUser = await Store.findOne({
-    contactNumber: contactNumber,
+    storeContactNumber: contactNumber,
     isTemporaryRegistered: false,
   });
   if (existingUser)
@@ -77,6 +77,7 @@ const registerStore = asyncHandler(async (req, res) => {
 
 const loginStore = asyncHandler(async (req, res) => {
   const { contactNumber } = req.body;
+
   if (!contactNumber) throw new ApiError(400, "Invalid request");
   if (!validatePhone(contactNumber))
     throw new ApiError(400, "Invalid contact number");

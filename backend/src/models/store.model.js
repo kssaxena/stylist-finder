@@ -17,7 +17,7 @@ const storeSchema = new mongoose.Schema(
     serviceType: {
       type: String,
       enum: ["In House", "On Site", "Both (In house and On site)"],
-      default: "Both",
+      default: "Both (In house and On site)",
     },
     paymentOptions: {
       inStore: { type: String, enum: ["Online (Cards / UPI)", "Cash", "Both"] },
