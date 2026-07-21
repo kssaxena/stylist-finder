@@ -5,19 +5,20 @@ import InputBox from "./components/Input";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home/Home";
-import Authentication from "./pages/Authentication";
+import Authentication from "./pages/Auth/Authentication";
 import Service from "./pages/Services/Service";
 import Dashboard from "./pages/Dashboard/Dashboard";
-
+import ScrollToTop from "./components/hooks/ScrollToTop";
 
 function App() {
-   const location = useLocation();
+  const location = useLocation();
 
-   const hideFooter = location.pathname === "/dashboard"
+  const hideFooter = location.pathname === "/dashboard";
 
   return (
     <div className="">
       <Header />
+      <ScrollToTop />
       <div className="pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
