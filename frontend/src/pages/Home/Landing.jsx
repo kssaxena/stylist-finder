@@ -2,9 +2,9 @@ import React from "react";
 // import HeroVdo from "../../assets/HeroVdo.mp4";
 import Button from "../../components/Button";
 import { useState } from "react";
-import AppointmentForm from "../../components/AppointmentForm";
+// import AppointmentForm from "../../components/AppointmentForm";
 import Popup from "../../components/ui/Popup";
-import ExploreServices from "../../components/ExplreServices";
+import ExploreServices from "../../components/ExploreServices";
 
 function Landing() {
   const [isOpen, setIsOpen] = useState(false);

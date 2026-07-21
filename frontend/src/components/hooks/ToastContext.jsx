@@ -1,12 +1,42 @@
 import { createContext, useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { parseErrorMessage } from "../../utils/parseErrorMessage";
 
 const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {
   const [toast, setToast] = useState(null);
 
-  const showToast = ({ type = "success", title, message, duration = 3000 }) => {
+  const alertSuccess = ({
+    type = "success",
+    title = "Success !",
+    message,
+    duration = 5000,
+  }) => {
+    setToast({ type, title, message });
+
+    setTimeout(() => {
+      setToast(null);
+    }, duration);
+  };
+  const alertError = ({
+    type = "error",
+    title = "Error !",
+    message,
+    duration = 5000,
+  }) => {
+    setToast({ type, title, message });
+
+    setTimeout(() => {
+      setToast(null);
+    }, duration);
+  };
+  const alertInfo = ({
+    type = "info",
+    title = "Information !",
+    message,
+    duration = 5000,
+  }) => {
     setToast({ type, title, message });
 
     setTimeout(() => {
@@ -15,17 +45,23 @@ export const ToastProvider = ({ children }) => {
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider
+      value={{
+        alertSuccess,
+        alertError,
+        alertInfo,
+      }}
+    >
       {children}
 
-      {toast && (
-        <AnimatePresence>
+      <AnimatePresence>
+        {toast && (
           <motion.div
-            whileInView={{ opacity: 1, x: 0 }}
-            initial={{ opacity: 0, x: -100 }}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
-            transition={{ type: "spring", duration: 2, ease: "easeInOut" }}
-            className="fixed top-5 right-5 z-50 animate-slide-in"
+            transition={{ type: "spring" }}
+            className="fixed top-5 right-5 z-50"
           >
             <div
               className={`min-w-[320px] rounded-xl shadow-xl p-4 text-white ${
@@ -33,15 +69,19 @@ export const ToastProvider = ({ children }) => {
                   ? "bg-green-500"
                   : toast.type === "error"
                     ? "bg-red-500"
-                    : "bg-[#8B2954]"
+                    : "bg-[#22719b]"
               }`}
             >
               <h3 className="font-semibold">{toast.title}</h3>
-              <p className="text-sm">{toast.message}</p>
+              <p>
+                {toast.type === "error"
+                  ? parseErrorMessage(toast.message)
+                  : toast.message}
+              </p>
             </div>
           </motion.div>
-        </AnimatePresence>
-      )}
+        )}
+      </AnimatePresence>
     </ToastContext.Provider>
   );
 };

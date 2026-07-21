@@ -9,12 +9,15 @@ import { useToast } from "../components/hooks/ToastContext";
 import { customerRegistrationInputs } from "../constants/constants";
 import { FetchData } from "../utils/FetchFromApi";
 import { parseErrorMessage } from "../utils/parseErrorMessage";
+import OtpVerificationPopup from "../components/ui/OtpVerificationPopup";
 
 const Register = () => {
   const navigate = useNavigate();
   const { userType } = useParams("");
-  const { showToast } = useToast();
+  const { alertSuccess, alertError, alertInfo } = useToast({});
   const formRef = useRef();
+  const [data, setData] = useState();
+  const [otpPopup, setOtpPopup] = useState(false);
 
   const registerContent = {
     customer: {
@@ -48,10 +51,15 @@ const Register = () => {
         formData,
       );
       console.log(response);
-      // formRef.current.reset();
+      if (response.data.data.otpStatus === true) {
+        setOtpPopup(true);
+        formRef.current.reset();
+        setData(response.data.data);
+      }
+      alertInfo({ message: response.data.message });
     } catch (err) {
       console.log(err);
-      showToast(parseErrorMessage(err.response.data));
+      alertError({ message: err.response.data });
     }
   };
 
@@ -142,6 +150,14 @@ const Register = () => {
           </button>
         </p>
       </div>
+      {console.log(data)}
+
+      <OtpVerificationPopup
+        isOpen={otpPopup}
+        onClose={() => setOtpPopup(false)}
+        data={data}
+        verificationType="registerVerification"
+      />
     </div>
   );
 };

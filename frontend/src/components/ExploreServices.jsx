@@ -3,9 +3,9 @@ import InputBox from "./Input";
 import Button from "./Button";
 import { IoArrowForward } from "react-icons/io5";
 import popularCities from "../constants/PopularCity";
-import { genderData } from "../constants/genderData";
-import { femaleServices } from "../constants/femaleServices";
-import { maleServices } from "../constants/maleServices";
+import { genderData } from "../constants/constants";
+import { femaleServices } from "../constants/constants";
+import { maleServices } from "../constants/constants";
 import { FaArrowLeft, FaArrowRight, FaLeaf } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 

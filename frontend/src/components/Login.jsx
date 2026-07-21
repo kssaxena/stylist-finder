@@ -67,7 +67,7 @@ const Login = ({ onRegister }) => {
             {/* Form */}
             <form
               ref={formRef}
-              onClick={handleLogin}
+              onSubmit={handleLogin}
               className="mt-8 space-y-4"
             >
               <InputBox
