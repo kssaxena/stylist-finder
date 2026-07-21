@@ -3,18 +3,19 @@ import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
   const quickLinks = [
-    { name: "Home", path: "/" },
     { name: "Female Services", path: "/services/location/female/category" },
     { name: "Male Services", path: "/services/location/male/category" },
-    { name: "Media Coverage", path: "/dashboard" },
-    { name: "Contact", path: "#" },
+  ];
+  const usefulLinks = [
+    { name: "Store", path: `/auth/${"login"}/${"store"}` },
+    { name: "Professional", path: "/dashboard" },
   ];
 
   return (
     <footer className="bg-[#8B2954] text-white p text-xs">
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Top Footer */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
           {/* Logo & Description */}
           <div className="space-y-4">
             <a href="/">
@@ -37,6 +38,23 @@ const Footer = () => {
 
             <nav className="flex flex-col gap-3">
               {quickLinks.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.path}
+                  className="hover:text-pink-200 transition duration-300"
+                >
+                  {item.name}
+                </a>
+              ))}
+            </nav>
+          </div>
+          <div className="flex flex-col md:items-start">
+            <h3 className="text-lg font-semibold mb-4 h1">
+              Store / Professionals
+            </h3>
+
+            <nav className="flex flex-col gap-3">
+              {usefulLinks.map((item) => (
                 <a
                   key={item.name}
                   href={item.path}
@@ -88,6 +106,12 @@ const Footer = () => {
           </p>
 
           <div className="flex gap-6">
+            <a href="/" className="hover:text-white">
+              Home
+            </a>
+            <a href="#" className="hover:text-white">
+              Contact Us
+            </a>
             <a href="#" className="hover:text-white">
               Privacy Policy
             </a>
