@@ -91,7 +91,13 @@ const loginCustomer = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { otpStatus, otp }, "OTP sent successfully !"));
+    .json(
+      new ApiResponse(
+        200,
+        { user: { contactNumber }, otpStatus, otp },
+        "OTP sent successfully !",
+      ),
+    );
 });
 
 const otpVerification = asyncHandler(async (req, res) => {
@@ -110,8 +116,7 @@ const otpVerification = asyncHandler(async (req, res) => {
     if (now > user.otpExpiry)
       throw new ApiError(403, "OTP expired, please try again");
 
-    const matchOTP = user.otp === otp;
-    if (!matchOTP) throw new ApiError(403, "Invalid OTP");
+    if (otp != user.otp) throw new ApiError(400, "Invalid OTP");
 
     user.otp = null;
     user.otpExpiry = null;
@@ -139,17 +144,16 @@ const otpVerification = asyncHandler(async (req, res) => {
     if (!validatePhone(contactNumber))
       throw new ApiError(400, "Invalid contact number");
 
-    const user = await Customer.findOne({ contactNumber });
+    const user = await Customer.findOne({ contactNumber: contactNumber });
     if (!user) throw new ApiError(401, "Unauthorized access");
-    if (!user.otp || !user.otpExpiry)
-      throw new ApiError(400, "Please restart the registration process again");
 
     const now = new Date();
     if (now > user.otpExpiry)
       throw new ApiError(403, "OTP expired, please try again");
+    console.log(otp, user.otp);
+    console.log(user);
 
-    const matchOTP = user.otp === otp;
-    if (!matchOTP) throw new ApiError(403, "Invalid OTP");
+    if (otp != user.otp) throw new ApiError(400, "Invalid OTP");
 
     user.otp = null;
     user.otpExpiry = null;

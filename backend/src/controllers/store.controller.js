@@ -82,8 +82,11 @@ const loginStore = asyncHandler(async (req, res) => {
   if (!validatePhone(contactNumber))
     throw new ApiError(400, "Invalid contact number");
 
-  const user = await Store.findOne({ storeContactNumber: contactNumber });
-  if (!user) throw new ApiError(404, "Invalid user");
+  const storeUser = await Store.findOne({
+    storeContactNumber: contactNumber,
+    isTemporaryRegistered: false,
+  });
+  if (!storeUser) throw new ApiError(404, "Invalid storeUser");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   if (!otp) throw new ApiError(500, "Internal server error");
@@ -92,13 +95,22 @@ const loginStore = asyncHandler(async (req, res) => {
   const fiveMinutes = 5 * 60 * 1000;
   const expiresAt = new Date(currentDate.getTime() + fiveMinutes);
 
-  user.otp = otp;
-  user.otpExpiry = expiresAt;
-  await user.save();
+  storeUser.otp = otp;
+  storeUser.otpExpiry = expiresAt;
+  await storeUser.save();
+
+  // const user = contactNumber,
+  //   storeName;
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { otpStatus, otp }, "OTP sent successfully !"));
+    .json(
+      new ApiResponse(
+        200,
+        { user: { contactNumber }, otpStatus, otp },
+        "OTP sent successfully !",
+      ),
+    );
 });
 
 const otpVerification = asyncHandler(async (req, res) => {
@@ -106,6 +118,7 @@ const otpVerification = asyncHandler(async (req, res) => {
 
   if (verificationType === "registerVerification") {
     const { otp } = req.body;
+    console.log(otp);
     const { storeId } = req.params;
 
     const user = await Store.findById(storeId);
@@ -114,9 +127,7 @@ const otpVerification = asyncHandler(async (req, res) => {
     const now = new Date();
     if (now > user.otpExpiry)
       throw new ApiError(403, "OTP expired, please try again");
-
-    const matchOTP = user.otp === otp ? true : false;
-    if (!matchOTP === false) throw new ApiError(403, "Invalid OTP");
+    if (otp != user.otp) throw new ApiError(400, "Invalid OTP");
 
     user.otp = null;
     user.otpExpiry = null;
@@ -144,15 +155,14 @@ const otpVerification = asyncHandler(async (req, res) => {
     if (!validatePhone(contactNumber))
       throw new ApiError(400, "Invalid contact number");
 
-    const user = await Store.findOne({ contactNumber });
+    const user = await Store.findOne({ storeContactNumber: contactNumber });
     if (!user) throw new ApiError(401, "Unauthorized access");
 
     const now = new Date();
     if (now > user.otpExpiry)
       throw new ApiError(403, "OTP expired, please try again");
 
-    const matchOTP = user.otp === otp;
-    if (!matchOTP) throw new ApiError(403, "Invalid OTP");
+    if (otp != user.otp) throw new ApiError(400, "Invalid OTP");
 
     user.otp = null;
     user.otpExpiry = null;
