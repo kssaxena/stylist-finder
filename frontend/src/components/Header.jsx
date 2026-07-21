@@ -9,10 +9,13 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showUser, setShowUser] = useState(false);
+  const user = useSelector((state) => state.auth.user);
+  console.log(user);
 
   const navigate = useNavigate();
 
@@ -89,7 +92,13 @@ const Header = () => {
       <div className="flex items-center justify-between ">
         {/* Logo */}
         <a href="/" className="md:h-14 md:w-14 h-10 w-10">
-          <img src={"https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"} alt="Logo" className="h-full w-full" />
+          <img
+            src={
+              "https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"
+            }
+            alt="Logo"
+            className="h-full w-full"
+          />
         </a>
 
         <AccordionCard

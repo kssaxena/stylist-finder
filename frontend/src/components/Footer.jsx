@@ -8,7 +8,7 @@ const Footer = () => {
   ];
   const usefulLinks = [
     { name: "Store", path: `/auth/${"login"}/${"store"}` },
-    { name: "Professional", path: "/dashboard" },
+    { name: "Professional", path: `/auth/${"login"}/${"professional"}` },
   ];
 
   return (
