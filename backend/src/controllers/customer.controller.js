@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -537,6 +538,26 @@ const dashboardData = asyncHandler(async (req, res) => {
   }
 });
 
+const reLoginToken = asyncHandler(async (req, res) => {
+  const token = req.body.refreshToken;
+  if (!token) throw new ApiError(401, "Unauthorized request");
+
+  const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+  const user = await Customer.findById(decoded._id);
+  if (!user) throw new ApiError(401, "Invalid refresh token");
+
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      user,
+      tokens: { accessToken, refreshToken },
+    }),
+  );
+});
+
 export {
   registerCustomer,
   loginCustomer,
@@ -551,4 +572,5 @@ export {
   addBankDetails,
   addUPIid,
   dashboardData,
+  reLoginToken,
 };
