@@ -1,16 +1,22 @@
 export const parseErrorMessage = (responseText) => {
-  // Create a new DOM parser
-  const parser = new DOMParser();
+  try {
+    if (typeof responseText !== "string") {
+      return "Something went wrong";
+    }
 
-  // Parse the HTML string into a document object
-  const doc = parser.parseFromString(responseText, "text/html");
+    if (!responseText.includes("<pre>")) {
+      return responseText;
+    }
 
-  // Get the content inside the <pre> tag
-  const preTagContent = doc.querySelector("pre").innerHTML;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(responseText, "text/html");
 
-  // Extract the text before the first <br> tag
-  const errorMessage = preTagContent.split("<br>")[0];
+    const pre = doc.querySelector("pre");
 
-  // Return the clean error message (strip any HTML entities if needed)
-  return errorMessage;
+    if (!pre) return responseText;
+
+    return pre.innerHTML.split("<br>")[0];
+  } catch {
+    return "Something went wrong";
+  }
 };
