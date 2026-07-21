@@ -41,8 +41,8 @@ const customerSchema = new mongoose.Schema(
     isProfileComplete: { type: Boolean, default: false },
 
     // authentication
-    otp: { type: String, default: null, select: false },
-    otpExpiry: { type: Date, default: null, select: false },
+    otp: { type: String, default: null },
+    otpExpiry: { type: Date, default: null },
     role: { type: String, default: "Customer" },
     currentlyUnderBooking: { type: Boolean, default: false },
 
