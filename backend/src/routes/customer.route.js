@@ -13,6 +13,7 @@ import {
   addUPIid,
   dashboardData,
   loginCustomer,
+  reLoginToken,
 } from "../controllers/customer.controller.js";
 
 import { VerifyCustomer } from "../middlewares/customer.middleware.js";
@@ -21,6 +22,8 @@ const router = Router();
 
 router.route("/register").post(registerCustomer);
 router.route("/login").post(loginCustomer);
+router.route("/auth/re-login").post(reLoginToken);
+
 router
   .route("/otp/authentication/:verificationType/:customerId")
   .post(otpVerification);

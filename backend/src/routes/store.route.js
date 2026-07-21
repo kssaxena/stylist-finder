@@ -8,6 +8,7 @@ import {
   addBankDetails,
   updateProfile,
   submitKYCVerification,
+  reLoginToken,
 } from "../controllers/store.controller.js";
 
 import { upload } from "../middlewares/multer.middleware.js";
@@ -17,6 +18,7 @@ const router = Router();
 
 router.route("/register").post(registerStore);
 router.route("/login").post(loginStore);
+router.route("/auth/re-login").post(reLoginToken);
 router
   .route("/otp/authentication/:verificationType/:storeId")
   .post(otpVerification);
