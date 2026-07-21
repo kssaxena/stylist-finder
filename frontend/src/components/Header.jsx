@@ -9,15 +9,25 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { clearUser } from "../redux/slice/authSlice";
+import { useToast } from "./hooks/ToastContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showUser, setShowUser] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  console.log(user);
+  const { alertInfo } = useToast();
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.clear();
+    dispatch(clearUser());
+    alertInfo("You are logged out successfully");
+    navigate("/");
+  };
 
   const [isScrolled, setIsScrolled] = useState(false);
   // const location = useLocation();
@@ -100,6 +110,7 @@ const Header = () => {
             className="h-full w-full"
           />
         </a>
+        {user ? <Button LabelName="LogOut" onClick={() => logout()} /> : ""}
 
         <AccordionCard
           children={
