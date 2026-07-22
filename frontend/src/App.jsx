@@ -65,7 +65,7 @@ function App() {
   }, []);
 
   return (
-    <div className="">
+    <div className="font-para_regular">
       <Header />
       <ScrollToTop />
       <div className="pt-20">
