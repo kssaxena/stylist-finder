@@ -114,3 +114,27 @@ export const genderData = [
     icon: FaFemale,
   },
 ];
+export const AllServices = [
+  {
+    id: 1,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/SkinCare.png?updatedAt=1784349572669`,
+    title: "Facial Services",
+    description:
+      "Rejuvenate your skin with personalized facials, deep cleansing, hydration, and advanced skincare treatments for a healthy, radiant glow.",
+  },
+  {
+    id: 2,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/HairCare.png?updatedAt=1784349573394`,
+    title: "Hair Spa",
+    description:
+      "Transform your hair with professional haircuts, styling, spa treatments, smoothening, coloring, and nourishing hair therapies.",
+  },
+
+  {
+    id: 5,
+    image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Threading.png?updatedAt=1784349573029`,
+    title: "Threading & Waxing",
+    description:
+      "Experience precise eyebrow threading and smooth waxing services for silky, hair-free skin with long-lasting results.",
+  },
+];
