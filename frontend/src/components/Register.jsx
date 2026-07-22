@@ -50,7 +50,6 @@ const Register = () => {
         "post",
         formData,
       );
-      console.log(response);
       if (response.data.data.otpStatus === true) {
         setOtpPopup(true);
         formRef.current.reset();
@@ -58,7 +57,6 @@ const Register = () => {
       }
       alertInfo(response.data.message);
     } catch (err) {
-      console.log(err);
       alertError({ message: err.response.data });
     }
   };
@@ -150,7 +148,6 @@ const Register = () => {
           </button>
         </p>
       </div>
-      {/* {console.log(data)} */}
 
       <OtpVerificationPopup
         isOpen={otpPopup}

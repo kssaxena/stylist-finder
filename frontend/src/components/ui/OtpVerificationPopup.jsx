@@ -18,11 +18,9 @@ function OtpVerificationPopup({
   const formRef = useRef();
   const { alertSuccess, alertError, alertInfo } = useToast();
   const dispatch = useDispatch();
-  console.log(data);
 
   const verifyOtp = async (e) => {
     e.preventDefault();
-    console.log("UI worked");
     try {
       const formData = new FormData(formRef.current);
       const response = await FetchData(
@@ -30,7 +28,6 @@ function OtpVerificationPopup({
         "post",
         formData,
       );
-      console.log(response);
       const { user, tokens } = response.data.data;
 
       localStorage.setItem("AccessToken", tokens.accessToken);
@@ -44,7 +41,6 @@ function OtpVerificationPopup({
       onClose();
       alertSuccess(response.data.message || "Otp Verified successfully !");
     } catch (err) {
-      console.log(err);
       alertError(err?.response?.data);
     }
   };

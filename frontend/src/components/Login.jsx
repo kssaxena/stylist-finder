@@ -24,7 +24,6 @@ const Login = ({ onRegister }) => {
     try {
       const formData = new FormData(formRef.current);
       const response = await FetchData(`${userType}/login`, "post", formData);
-      console.log(response);
       if (response.data.data.otpStatus === true) {
         setOtpPopup(true);
         formRef.current.reset();

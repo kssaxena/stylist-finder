@@ -190,8 +190,6 @@ const ExploreServices = ({ onClose }) => {
                   key={item.id}
                   onClick={() => {
                     setService(item.value);
-                    console.log(service);
-                    console.log(item.title);
                     handleFinish();
                   }}
                   className={`cursor-pointer rounded-xl border p-4 flex items-center gap-4 transition
