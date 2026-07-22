@@ -1,8 +1,6 @@
 import React from "react";
-// import HeroVdo from "../../assets/HeroVdo.mp4";
 import Button from "../../components/Button";
 import { useState } from "react";
-// import AppointmentForm from "../../components/AppointmentForm";
 import Popup from "../../components/ui/Popup";
 import ExploreServices from "../../components/ExploreServices";
 
@@ -21,7 +19,6 @@ function Landing() {
   };
 
   const closePopup = () => {
-    //ik.imagekit.io/jarvisai/Beauty%20Dump%20Folder/HeroVdo.mp4
     https: setIsOpen(false);
   };
   return (
@@ -40,14 +37,14 @@ function Landing() {
         </video>
       </div>
       <div className="absolute top-0 left-0 h-full w-full flex flex-col justify-center items-center gap-5 text-white/80">
-        <p className="lg:text-lg text-sm text-center">
+        <p className="lg:text-lg text-sm text-center heading">
           Luxury Beauty & Wellness Studio{" "}
         </p>
-        <h1 className="lg:text-5xl text-3xl text-center p">
+        <h1 className="lg:text-5xl text-3xl text-center heading">
           Reveal Your Natural Beauty, <br /> Elevate{" "}
           <span className="font-bold ">Your Confidence.</span>
         </h1>
-        <p className="text-wrap text-sm text-center">
+        <p className="text-wrap paragraph text-center">
           Experience premium beauty treatments, expert makeup artistry, hair
           styling, skincare, and wellness services <br /> Tailored to make you
           look and feel your absolute best.
@@ -67,12 +64,6 @@ function Landing() {
               openExploreServices();
             }}
           />
-          {/* 
-          <Button
-            LabelName="Book Appointment for Someone"
-            onClick={openSomeoneAppointment}
-            variant="Secondary"
-          /> */}
         </div>
       </div>
       <Popup isOpen={isOpen} onClose={closePopup}>

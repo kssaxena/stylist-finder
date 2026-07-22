@@ -16,11 +16,11 @@ function Home() {
       <ServiceCard />
       <ChooseUs />
       {/* remove this below section when not needed */}
-      <div className="flex flex-col justify-center items-center gap-10">
+      <div className="flex flex-col justify-center items-center gap-5 px-2">
         <h1 className="font-medium text-3xl w-full text-center">
           Explore Our Services
         </h1>
-        <ServiceGrid services={demoService} className={"grid-cols-1 md:grid-cols-2"} />
+        <ServiceGrid services={demoService} className={"grid-cols-1"} />
         <Button
           LabelName="Explore More"
           onClick={() => navigate("/services/all")}
