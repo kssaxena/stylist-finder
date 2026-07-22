@@ -1,12 +1,8 @@
 import { GiHairStrands, GiLipstick, GiBodyBalance } from "react-icons/gi";
-
 import { FaSpa } from "react-icons/fa";
-
 import { MdFaceRetouchingNatural } from "react-icons/md";
 import { FaFemale, FaMale } from "react-icons/fa";
-
 import { FaCut, FaUserTie } from "react-icons/fa";
-
 import { GiBeard } from "react-icons/gi";
 
 export const femaleServices = [
@@ -114,6 +110,7 @@ export const genderData = [
     icon: FaFemale,
   },
 ];
+
 export const AllServices = [
   {
     id: 1,
@@ -136,5 +133,34 @@ export const AllServices = [
     title: "Threading & Waxing",
     description:
       "Experience precise eyebrow threading and smooth waxing services for silky, hair-free skin with long-lasting results.",
+  },
+];
+
+export const bookings = [
+  {
+    id: 1,
+    service: "Bridal Makeup",
+    professional: "Priya Sharma",
+    store: "Elite Beauty Salon",
+    location: "Ranchi",
+    date: "20 July 2025",
+    time: "11:00 AM",
+    amount: 4500,
+    status: "Upcoming",
+  },
+];
+
+export const activeBookings = [
+  {
+    id: 1,
+    service: "Luxury Hair Spa",
+    image: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800",
+    store: "Elite Beauty Salon",
+    professional: "Priya Sharma",
+    date: "28 July 2025",
+    time: "11:30 AM",
+    location: "Harmu Road, Ranchi",
+    status: "Professional On The Way",
+    phone: "+91 9876543210",
   },
 ];

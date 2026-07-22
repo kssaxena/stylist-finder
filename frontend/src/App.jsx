@@ -22,7 +22,7 @@ function App() {
   /* ================= AUTO LOGIN ================= */
 
   useEffect(() => {
-    const refreshToken = localStorage.getItem("RefreshToken");
+    const refreshToken = localStorage.getItem("refreshToken");
     if (!refreshToken) {
       dispatch(stopAuthLoading());
       return;
@@ -30,7 +30,7 @@ function App() {
     const reLogin = async () => {
       try {
         const role = localStorage.getItem("role");
-        const refreshToken = localStorage.getItem("RefreshToken");
+        const refreshToken = localStorage.getItem("refreshToken");
         if (!role || !refreshToken) {
           throw new Error("Missing auth data");
         }
@@ -49,8 +49,8 @@ function App() {
           refreshToken,
         });
         const { user, tokens } = res.data.data;
-        localStorage.setItem("AccessToken", tokens.accessToken);
-        localStorage.setItem("RefreshToken", tokens.refreshToken);
+        localStorage.setItem("accessToken", tokens.accessToken);
+        localStorage.setItem("refreshToken", tokens.refreshToken);
         dispatch(addUser(user));
       } catch (error) {
         console.log("Re-login failed:", error?.message);
