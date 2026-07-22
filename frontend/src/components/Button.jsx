@@ -12,7 +12,7 @@ const Button = ({
     <button
       type={type}
       onClick={onClick}
-      className={`${className} ${variant === "primary" ? Primary : Secondary} heading capitalize text-wrap text-center cursor-pointer flex justify-center items-center h-fit px-4 py-2 rounded-md`}
+      className={`${className} ${variant === "primary" ? Primary : Secondary} heading capitalize text-wrap text-center cursor-pointer flex justify-center items-center h-fit px-4 py-2 rounded-xl`}
     >
       {LabelName}
     </button>
