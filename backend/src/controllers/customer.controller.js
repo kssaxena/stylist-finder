@@ -7,6 +7,9 @@ import { Address } from "../models/address.model.js";
 import { BankDetails } from "../models/bankDetails.model.js";
 import { ServiceBookings } from "../models/serviceBooking.model.js";
 import { validatePhone } from "../validators/contactNumber.validator.js";
+import otpTemplate from "../template/otp.mail.template.js";
+import sendEmail from "../services/mail.service.js";
+import welcomeTemplate from "../template/welcome.mail.template.js";
 
 const registerCustomer = asyncHandler(async (req, res) => {
   const { contactNumber, name, email } = req.body;
@@ -58,6 +61,12 @@ const registerCustomer = asyncHandler(async (req, res) => {
   );
   if (!user)
     throw new ApiError(400, "Registration incomplete. Please try again later");
+
+  await sendEmail({
+    to: user?.email,
+    subject: "OTP Verification",
+    html: otpTemplate(user?.name, otp),
+  });
 
   return res
     .status(200)
@@ -126,6 +135,12 @@ const otpVerification = asyncHandler(async (req, res) => {
 
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
+
+    await sendEmail({
+      to: user?.email,
+      subject: "Welcome",
+      html: welcomeTemplate(user?.name),
+    });
 
     return res
       .status(200)
