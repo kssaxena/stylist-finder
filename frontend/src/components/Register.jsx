@@ -1,19 +1,23 @@
 import React, { useRef, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
-import Logo from "../assets/Logo.png";
+// import Logo from "../assets/Logo.png";
 import InputBox from "./Input";
 import Button from "./Button";
 import Login from "./Login";
 import { useNavigate, useParams } from "react-router-dom";
-import { useToast } from "../components/ToastContext";
+import { useToast } from "../components/hooks/ToastContext";
 import { customerRegistrationInputs } from "../constants/constants";
 import { FetchData } from "../utils/FetchFromApi";
+import { parseErrorMessage } from "../utils/parseErrorMessage";
+import OtpVerificationPopup from "../components/ui/OtpVerificationPopup";
 
 const Register = () => {
   const navigate = useNavigate();
   const { userType } = useParams("");
-  const { showToast } = useToast();
+  const { alertSuccess, alertError, alertInfo } = useToast();
   const formRef = useRef();
+  const [data, setData] = useState();
+  const [otpPopup, setOtpPopup] = useState(false);
 
   const registerContent = {
     customer: {
@@ -34,22 +38,26 @@ const Register = () => {
         "Build your professional profile, showcase your expertise, and grow your client base with Stylist Finder.",
     },
   };
- const content = registerContent[userType] || registerContent.customer;
+  const content = registerContent[userType];
 
   const handleRegister = async (e) => {
-    // e.preventDefault();
+    e.preventDefault();
 
     try {
       const formData = new FormData(formRef.current);
       const response = await FetchData(
-        `/${userType}/register`,
-        "get",
+        `${userType}/register`,
+        "post",
         formData,
       );
-      console.log(response);
-      formRef.current.reset();
+      if (response.data.data.otpStatus === true) {
+        setOtpPopup(true);
+        formRef.current.reset();
+        setData(response.data.data);
+      }
+      alertInfo(response.data.message);
     } catch (err) {
-      console.log(err);
+      alertError({ message: err.response.data });
     }
   };
 
@@ -70,7 +78,13 @@ const Register = () => {
         <div className="flex flex-col w-full md:w-1/2">
           {/* Logo */}
           <div className="flex justify-center">
-            <img src={Logo} alt="Logo" className="w-24 h-24 object-contain" />
+            <img
+              src={
+                "https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"
+              }
+              alt="Logo"
+              className="w-24 h-24 object-contain"
+            />
           </div>
 
           {/* Heading */}
@@ -85,7 +99,7 @@ const Register = () => {
           <p className="text-center mt-8 text-gray-600 hidden md:block">
             Already have an account?{" "}
             <button
-              onClick={() => navigate("/auth/login")}
+              onClick={() => navigate(`/auth/${"login"}/${userType}`)}
               className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
             >
               Login
@@ -93,9 +107,10 @@ const Register = () => {
           </p>
         </div>
         {/* Form */}
-        <form ref={formRef} onSubmit={handleRegister()}>
+        <form ref={formRef} onSubmit={handleRegister}>
           {customerRegistrationInputs.map((data, index) => (
             <InputBox
+              key={index}
               placeholder={data.placeholder}
               label={data.label}
               type={data.type}
@@ -126,13 +141,21 @@ const Register = () => {
         <p className="text-center mt-8 text-gray-600 block md:hidden">
           Already have an account?{" "}
           <button
-            onClick={() => navigate(`/auth/${"register"}/${userType}`)}
+            onClick={() => navigate(`/auth/${"login"}/${userType}`)}
             className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
           >
             Login
           </button>
         </p>
       </div>
+
+      <OtpVerificationPopup
+        isOpen={otpPopup}
+        userType={userType}
+        onClose={() => setOtpPopup(false)}
+        data={data}
+        verificationType="registerVerification"
+      />
     </div>
   );
 };

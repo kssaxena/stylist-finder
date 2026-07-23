@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const FetchData = async (url, method, data, file = false) => {
-  const Base_URL = `${process.env.DomainUrl}/api/v1`;
-  const AccessToken = localStorage.getItem("AccessToken");
+  const Base_URL = `${process.env.BackendDomainUrl}/api/v1`;
+  const AccessToken = localStorage.getItem("accessToken");
 
   const options = {
     headers: {

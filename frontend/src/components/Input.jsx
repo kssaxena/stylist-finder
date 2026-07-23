@@ -7,7 +7,7 @@ const InputBox = ({
   className = "",
   type = "text",
   name = "",
-  value ,
+  value,
   onChange,
   required = false,
   disabled = false,
@@ -28,7 +28,7 @@ const InputBox = ({
       {label && (
         <label
           htmlFor={name}
-          className={`block text-sm font-medium text-gray-700 mb-2 ${labelClassName}`}
+          className={`block text-sm font-medium text-gray-700 mb-2 capitalize ${labelClassName}`}
         >
           {label}
           {required && <span className="text-red-500">*</span>}

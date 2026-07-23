@@ -1,6 +1,11 @@
-
 import { GoVerified } from "react-icons/go";
-import { FaMapMarkerAlt, FaBookmark, FaHeart, FaStore, FaImages } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaBookmark,
+  FaHeart,
+  FaStore,
+  FaImages,
+} from "react-icons/fa";
 import { CiBank } from "react-icons/ci";
 import { FaServicestack, FaUserCheck } from "react-icons/fa6";
 import { PiFlowerLotusFill } from "react-icons/pi";
@@ -19,7 +24,11 @@ export const services = [
 
     image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/makeup.png?updatedAt=1784349572544`,
 
-    description: "Ideal for parties, office events and functions.",
+    description: [
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+    ],
   },
 
   {
@@ -37,7 +46,11 @@ export const services = [
 
     image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/makeup.png?updatedAt=1784349572544`,
 
-    description: "Premium HD bridal and party makeup.",
+    description: [
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+    ],
   },
 
   {
@@ -55,7 +68,11 @@ export const services = [
 
     image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/HairCare.png?updatedAt=1784349573394`,
 
-    description: "Professional hair spa for silky smooth hair.",
+    description: [
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+    ],
   },
 
   {
@@ -73,7 +90,11 @@ export const services = [
 
     image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/HairCare.png?updatedAt=1784349573394`,
 
-    description: "Traditional and modern saree draping.",
+    description: [
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+    ],
   },
 
   {
@@ -91,7 +112,11 @@ export const services = [
 
     image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/MensHaircut.png?updatedAt=1784349573498`,
 
-    description: "Professional haircut for men.",
+    description: [
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+    ],
   },
 
   {
@@ -109,7 +134,11 @@ export const services = [
 
     image: `https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/BeardGrooming.png?updatedAt=1784349572974`,
 
-    description: "Premium beard grooming.",
+    description: [
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, placeat? Mollitia quas consequatur fuga, voluptas perspiciatis nulla error ipsa! Voluptatum repudiandae cumque laudantium architecto quos asperiores perspiciatis odio, veniam illo.",
+    ],
   },
 ];
 
@@ -169,7 +198,7 @@ export const CustomerArray = [
     id: 4,
     label: "Favorite Store ",
     value: "favorite_store",
-    icon: <FaStore/>,
+    icon: <FaStore />,
   },
   {
     id: 5,

@@ -9,7 +9,6 @@ import { services as DemoService } from "../../constants/service";
 
 const Services = () => {
   const { location, gender, category } = useParams();
-  console.log(location, gender, category);
   const currentLocation = location?.toLowerCase();
 
   // Categories for selected gender

@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Navigate } from "react-router-dom";
-import Login from "../components/Login";
-import Register from "../components/Register";
+import Login from "../../components/Login";
+import Register from "../../components/Register";
 
 function Authentication() {
   const { userType, type } = useParams("");
@@ -10,7 +10,6 @@ function Authentication() {
   if (type !== "login" && type !== "register") {
     return <Navigate to="/auth/login" replace />;
   }
-
 
   return (
     <div className="h-full flex justify-center items-center">

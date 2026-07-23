@@ -34,41 +34,11 @@ import {
   FaMale,
   FaMarsDouble,
 } from "react-icons/fa";
-
 import { FaCloudUploadAlt, FaImage, FaCamera } from "react-icons/fa";
 import { useState } from "react";
+import { bookings, activeBookings } from "../../constants/constants";
 
-const bookings = [
-  {
-    id: 1,
-    service: "Bridal Makeup",
-    professional: "Priya Sharma",
-    store: "Elite Beauty Salon",
-    location: "Ranchi",
-    date: "20 July 2025",
-    time: "11:00 AM",
-    amount: 4500,
-    status: "Upcoming",
-  },
-];
-
-
-const activeBookings = [
-  {
-    id: 1,
-    service: "Luxury Hair Spa",
-    image: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800",
-    store: "Elite Beauty Salon",
-    professional: "Priya Sharma",
-    date: "28 July 2025",
-    time: "11:30 AM",
-    location: "Harmu Road, Ranchi",
-    status: "Professional On The Way",
-    phone: "+91 9876543210",
-  },
-];
-
-export const Overview = ({ data, role }) => {
+const Overview = ({ data, role }) => {
   return (
     <div className="space-y-6 w-full">
       {/* Header */}
@@ -246,11 +216,7 @@ export const Overview = ({ data, role }) => {
   );
 };
 
-/* =========================
-   Saved Address
-========================= */
-
-export const SavedAddress = (data, role) => {
+const SavedAddress = (data, role) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -330,10 +296,7 @@ export const SavedAddress = (data, role) => {
   );
 };
 
-/* =========================
-   Banking Details
-========================= */
-export const BankingDetails = (data, role) => {
+const BankingDetails = (data, role) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -439,11 +402,8 @@ export const BankingDetails = (data, role) => {
     </div>
   );
 };
-/* =========================
-   Booking
-========================= */
 
-export const Booking = (data, role) => {
+const Booking = (data, role) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -544,11 +504,7 @@ export const Booking = (data, role) => {
   );
 };
 
-/* =========================
-   Favorite Store
-========================= */
-
-export const FavoriteStore = (data, role) => {
+const FavoriteStore = (data, role) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -627,11 +583,7 @@ export const FavoriteStore = (data, role) => {
   );
 };
 
-/* =========================
-   Favorite Professional
-========================= */
-
-export const FavoriteProfessional = (data, role) => {
+const FavoriteProfessional = (data, role) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -718,11 +670,7 @@ export const FavoriteProfessional = (data, role) => {
   );
 };
 
-/* =========================
-   Quick Services
-========================= */
-
-export const Services = (data, role) => {
+const Services = (data, role) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -847,10 +795,7 @@ export const Services = (data, role) => {
   );
 };
 
-/* =========================
-   is profile complete
-========================= */
-export const IsProfileComplete = (data, role) => {
+const IsProfileComplete = (data, role) => {
   return (
     <div>
       <h1>Is Profile Complete componenet </h1>
@@ -858,11 +803,7 @@ export const IsProfileComplete = (data, role) => {
   );
 };
 
-/* =========================
-   Current Booking
-========================= */
-
-export const CurrentlyUnderBooking = (data, role) => {
+const CurrentlyUnderBooking = (data, role) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -994,11 +935,7 @@ export const CurrentlyUnderBooking = (data, role) => {
   );
 };
 
-/* =========================
-   Images
-========================= */
-
-export const Images = (data, role) => {
+const Images = (data, role) => {
   const [coverImage] = useState(
     "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1200",
   );
@@ -1094,12 +1031,7 @@ export const Images = (data, role) => {
   );
 };
 
-/* =========================
-   KYC
-========================= */
-export const KycDetails = (data, role) => {
- 
-
+const KycDetails = (data, role) => {
   return (
     <div className="w-full space-y-6">
       {/* Header */}
@@ -1243,4 +1175,18 @@ export const KycDetails = (data, role) => {
       </div>
     </div>
   );
+};
+
+export {
+  Overview,
+  SavedAddress,
+  BankingDetails,
+  Booking,
+  FavoriteStore,
+  FavoriteProfessional,
+  Services,
+  IsProfileComplete,
+  CurrentlyUnderBooking,
+  Images,
+  KycDetails,
 };
