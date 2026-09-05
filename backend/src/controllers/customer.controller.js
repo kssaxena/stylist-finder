@@ -150,9 +150,9 @@ const loginCustomer = asyncHandler(async (req, res) => {
 
 const passwordLogin = asyncHandler(async (req, res) => {
   const { contactNumber, email, password } = req.body;
-  if (!contactNumber || !email) throw new ApiError(400, "Invalid request ");
 
   if (contactNumber) {
+    if (!contactNumber) throw new ApiError(400, "Invalid request ");
     const user = await Customer.findOne({ contactNumber });
     if (!user) throw new ApiError(401, "Invalid credentials");
 
@@ -173,6 +173,7 @@ const passwordLogin = asyncHandler(async (req, res) => {
       );
   }
   if (email) {
+    if (!email) throw new ApiError(400, "Invalid request ");
     const user = await Customer.findOne({ email });
     if (!user) throw new ApiError(401, "Invalid credentials");
 

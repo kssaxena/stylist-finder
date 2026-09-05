@@ -1927,7 +1927,11 @@ const SavedAddress = ({ data, role, userId, handleReload, callData }) => {
                   >
                     <option value="">Select</option>
                     {role === "Customer"
-                      ? ["Home", "Friend's", "Others"]
+                      ? ["Home", "Friend's", "Others"].map((i, index) => (
+                          <option key={index} value={i}>
+                            {index + 1}. {i}
+                          </option>
+                        ))
                       : ["Address 1", "Address 2", "Address 3", "Others"].map(
                           (i, index) => (
                             <option key={index} value={i}>
