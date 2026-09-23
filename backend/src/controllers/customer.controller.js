@@ -14,6 +14,7 @@ import welcomeTemplate from "../template/welcome.mail.template.js";
 import { validateBankDetails } from "../validators/bankDetails.validator.js";
 import { StoreStaff } from "../models/storeStaff.model.js";
 import { Subscription } from "../models/subscription.model.js";
+import { validatePassword } from "../validators/password.validator.js";
 
 const registerCustomer = asyncHandler(async (req, res) => {
   const { contactNumber, name, email, password } = req.body;
@@ -897,6 +898,33 @@ const actionsForStore = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, {}, "Success"));
 });
 
+const changePassword = asyncHandler(async (req, res) => {
+  const { contactNumber, email, password } = req.body;
+  if (!contactNumber || !email || !password)
+    throw new ApiError(400, "Please fill all the required fields");
+
+  // const isPasswordValid = validatePassword(password);
+  // if (!isPasswordValid) {
+  //   throw new ApiError(400, "Invalid password");
+  // }
+
+  const user = await Customer.findOne({ contactNumber });
+  if (!user)
+    throw new ApiError(
+      400,
+      "Unable process this request at the moment please try again later",
+    );
+
+  user.password = password;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, {}, "Password changed successfully !, please login"),
+    );
+});
+
 export {
   registerCustomer,
   loginCustomer,
@@ -916,6 +944,7 @@ export {
   deleteBankDetails,
   getCustomerById,
   actionsForStore,
+  changePassword,
   dashboardData,
   reLoginToken,
 };
