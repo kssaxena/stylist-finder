@@ -20,6 +20,7 @@ import {
   passwordLogin,
   updatePassword,
   actionsForStore,
+  changePassword,
 } from "../controllers/customer.controller.js";
 
 import { VerifyCustomer } from "../middlewares/customer.middleware.js";
@@ -33,6 +34,7 @@ router.route("/login/via/password").post(passwordLogin);
 router.route("/auth/re-login").post(reLoginToken);
 router.route("/get/customer/data/:customerId").get(getCustomerById);
 router.route("/update/password/:userId").post(updatePassword);
+router.route("/update/change-password").post(changePassword);
 
 //private routes
 router

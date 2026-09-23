@@ -18,6 +18,8 @@ import {
   passwordLogin,
   updatePassword,
   deleteAddress,
+  changePassword,
+  getStoreById,
 } from "../controllers/store.controller.js";
 
 import { upload } from "../middlewares/multer.middleware.js";
@@ -30,6 +32,7 @@ router.route("/login").post(loginStore);
 router.route("/login/via/password").post(passwordLogin);
 router.route("/auth/re-login").post(reLoginToken);
 router.route("/update/password/:userId").post(updatePassword);
+router.route("/update/change-password").post(changePassword);
 router
   .route("/otp/authentication/:verificationType/:storeId")
   .post(otpVerification);
@@ -58,6 +61,7 @@ router.route("/update/submit-kyc/:storeId").post(
   VerifyStore,
   submitKYCVerification,
 );
+router.route("/get/store-by-id/store/:storeId").get(getStoreById);
 
 // store staff routes
 router
