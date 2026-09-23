@@ -333,9 +333,19 @@ const getServiceById = asyncHandler(async (req, res) => {
     });
   if (!service) throw new ApiError(400, "Unable to process request !");
 
+  const otherServices = await Services.find({ store: service.store })
+    .select("price coverImage name")
+    .limit(10);
+
   return res
     .status(200)
-    .json(new ApiResponse(200, service, "Data fetched successfully !"));
+    .json(
+      new ApiResponse(
+        200,
+        { service, otherServices },
+        "Data fetched successfully !",
+      ),
+    );
 });
 
 const updateStoreService = asyncHandler(async (req, res) => {

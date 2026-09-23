@@ -54,8 +54,10 @@ import {
 import AddressMap from "../../components/ui/AddressMap";
 import { MdOutlineVerified } from "react-icons/md";
 import StoreServiceCard from "../../components/ui/StoreServiceCard";
+import AccordionSection from "../../components/ui/Accordian";
+import { useNavigate } from "react-router-dom";
 
-const Overview = ({ data, role, userId, callData }) => {
+const Overview = ({ data, role, userId, callData, activeServices }) => {
   const [subscription, setSubscription] = useState([]);
   const [currentSubscriptionModel, setCurrentSubscriptionModel] =
     useState(null);
@@ -64,7 +66,13 @@ const Overview = ({ data, role, userId, callData }) => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [purchasingPlanId, setPurchasingPlanId] = useState(null);
   const { alertSuccess, alertError } = useToast();
+  const navigate = useNavigate();
+  const [openSection, setOpenSection] = useState("features");
   const subscriptionId = data?.store?.subscription?.subscriptionModel;
+
+  const toggleSection = (section) => {
+    setOpenSection((prev) => (prev === section ? null : section));
+  };
 
   const getSubscription = async () => {
     try {
@@ -251,6 +259,15 @@ const Overview = ({ data, role, userId, callData }) => {
             Welcome back! Here's a quick overview of your account.
           </p>
         </div>
+        {role === "Customer" ? (
+          <Button
+            LabelName="Browse services"
+            onClick={() => navigate("/services/all")}
+          />
+        ) : (
+          <Button LabelName="add service" onClick={activeServices} />
+        )}
+
         <button
           onClick={openProfilePopup}
           className="flex justify-center items-center gap-2 bg-[#8B2954] text-white px-5 py-3 rounded-xl hover:bg-[#742247] transition duration-300"
@@ -1083,358 +1100,11 @@ const Overview = ({ data, role, userId, callData }) => {
         ""
       ) : (
         <div>
-          {data?.store?.subscription?.subscriptionPurchased === false ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-stretch gap-4 px-5">
-              {subscription?.map((i, index) => (
-                <div
-                  key={i?._id || index}
-                  className="flex flex-col border border-[#8B2954] rounded-xl overflow-hidden w-full bg-white shadow-sm hover:shadow-lg transition"
-                >
-                  {/* ================= HEADER ================= */}
-                  <div className="bg-[#8B2954] w-full text-center px-4 py-6 text-white">
-                    <h1 className="text-3xl uppercase font-semibold">
-                      {i?.planName}
-                    </h1>
-
-                    <p className="font-light text-sm mt-1">{i?.tagline}</p>
-
-                    <span className="inline-block mt-3 bg-white/20 px-3 py-1 rounded-full text-xs uppercase">
-                      {i?.planFor}
-                    </span>
-                  </div>
-
-                  {/* ================= BODY ================= */}
-                  <div className="px-5 py-6 flex flex-col w-full gap-6">
-                    {/* ================= PRICE ================= */}
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="flex justify-center items-center flex-col gap-2">
-                        <div className="flex justify-center items-center gap-3">
-                          {i?.price?.discount > 0 && (
-                            <span className="text-sm line-through text-gray-400 flex items-center">
-                              <FaRupeeSign />
-                              {i?.price?.mrp}
-                            </span>
-                          )}
-
-                          {i?.price?.discount > 0 && (
-                            <span className="bg-[#8B2954] text-white px-2 py-1 rounded text-xs">
-                              {i?.price?.discount}% OFF
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-3xl font-semibold flex justify-center items-center gap-1 italic">
-                          <FaRupeeSign />
-                          {i?.price?.sellingPrice}
-                        </span>
-                      </div>
-
-                      {/* <p className="text-xs text-gray-500">
-                        ₹{i?.price?.sellingPrice} / month
-                      </p> */}
-
-                      {i?.validity?.months === 0 ? (
-                        ""
-                      ) : (
-                        <p className="text-sm font-semibold text-[#8B2954]">
-                          Valid for {i?.validity?.months} months
-                        </p>
-                      )}
-
-                      <p className="text-xs text-gray-500 capitalize">
-                        Renewal: {i?.validity?.renewalType}
-                      </p>
-                    </div>
-
-                    {/* ================= FEATURES ================= */}
-                    <div>
-                      <h2 className="font-semibold text-lg mb-2">
-                        Plan Features
-                      </h2>
-
-                      <div className="space-y-1 text-sm">
-                        {i?.features?.map((feature, featureIndex) => (
-                          <div
-                            key={featureIndex}
-                            className="flex items-start gap-2"
-                          >
-                            <span className="text-[#8B2954] font-bold">✓</span>
-
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* ================= BOOKING ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Booking</h2>
-
-                      <div className="text-sm space-y-1">
-                        <p>
-                          <strong>Status:</strong>{" "}
-                          {i?.booking?.enabled ? "Enabled" : "Disabled"}
-                        </p>
-
-                        <p>
-                          <strong>Advanced Booking:</strong>{" "}
-                          {i?.booking?.advancedBooking
-                            ? "Available"
-                            : "Not Available"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* ================= MANAGEMENT TOOLS ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Management Tools</h2>
-
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <span
-                          className={
-                            i?.managementTools?.analytics
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Analytics
-                        </span>
-
-                        <span
-                          className={
-                            i?.managementTools?.inventory
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Inventory
-                        </span>
-
-                        <span
-                          className={
-                            i?.managementTools?.staffAttendance
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Staff Attendance
-                        </span>
-
-                        <span
-                          className={
-                            i?.managementTools?.commissionTracking
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Commission Tracking
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ================= MARKETING ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Marketing</h2>
-
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <span
-                          className={
-                            i?.marketing?.couponManager
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Coupon Manager
-                        </span>
-
-                        <span
-                          className={
-                            i?.marketing?.reviews
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Reviews
-                        </span>
-
-                        <span
-                          className={
-                            i?.marketing?.smsWhatsapp
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● SMS / WhatsApp
-                        </span>
-
-                        <span
-                          className={
-                            i?.marketing?.socialPromotion
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Social Promotion
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ================= MEDIA LIMIT ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Media Limits</h2>
-
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <p>
-                          <strong>Photos:</strong>{" "}
-                          {i?.mediaLimit?.unlimitedPhotos
-                            ? "Unlimited"
-                            : i?.mediaLimit?.photos}
-                        </p>
-
-                        <p>
-                          <strong>Videos:</strong>{" "}
-                          {i?.mediaLimit?.unlimitedVideos
-                            ? "Unlimited"
-                            : i?.mediaLimit?.videos}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Service Limits</h2>
-                      <p className="text-sm">
-                        <strong>Services:</strong>{" "}
-                        {i?.serviceLimit?.unlimited
-                          ? "Unlimited"
-                          : (i?.serviceLimit?.count ?? 0)}
-                      </p>
-                    </div>
-
-                    {/* ================= FRANCHISE ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Franchise</h2>
-
-                      <div className="text-sm space-y-1">
-                        <p>
-                          <strong>Enabled:</strong>{" "}
-                          {i?.franchise?.enabled ? "Yes" : "No"}
-                        </p>
-
-                        <p>
-                          <strong>Enquiry Button:</strong>{" "}
-                          {i?.franchise?.enquiryButton ? "Yes" : "No"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* ================= VISIBILITY ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold mb-2">Visibility</h2>
-
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <span
-                          className={
-                            i?.visibility?.featured
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Featured
-                        </span>
-
-                        <span
-                          className={
-                            i?.visibility?.verifiedBadge
-                              ? "text-green-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          ● Verified Badge
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ================= SUPPORT ================= */}
-                    <div className="border-t pt-4 flex justify-between items-center">
-                      <span className="font-semibold">Support</span>
-
-                      <span className="capitalize bg-gray-100 px-3 py-1 rounded-full text-xs">
-                        {i?.support}
-                      </span>
-                    </div>
-
-                    {/* ================= FAQ ================= */}
-                    <div className="border-t pt-4">
-                      <h2 className="font-semibold text-lg mb-3">FAQs</h2>
-
-                      <div className="space-y-3">
-                        {i?.faqs?.map((faq, faqIndex) => (
-                          <div key={faq?._id || faqIndex} className="text-xs">
-                            <p className="font-semibold">
-                              {faqIndex + 1}. {faq?.question}
-                            </p>
-
-                            <p className="text-gray-600 mt-1">{faq?.answer}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ================= FOOTER ================= */}
-                  <div className="bg-[#8B2954] w-full flex flex-col justify-center items-center p-4 gap-3 mt-auto">
-                    <div className="text-white text-sm text-center">
-                      {i?.validity?.months === 0
-                        ? ""
-                        : `${i?.validity?.months} months`}
-                      {" • "}
-                      {i?.validity?.renewalType === "oneTime"
-                        ? "One Time Purchase"
-                        : i?.validity?.renewalType === "monthly"
-                          ? "Monthly Plan"
-                          : i?.validity?.renewalType === "yearly"
-                            ? "Yearly"
-                            : ""}
-                    </div>
-
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      LabelName={
-                        purchasingPlanId === i?._id
-                          ? "Opening payment..."
-                          : "Get Plan"
-                      }
-                      onClick={() => purchasePlan(i)}
-                      disabled={purchasingPlanId !== null}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
+          {data?.store?.subscription?.subscriptionPurchased === true ? (
             <div className="flex flex-col border border-[#8B2954] rounded-xl overflow-hidden w-full bg-white shadow-sm hover:shadow-lg transition">
-              {/* ================= HEADER ================= */}
-              <div className="bg-[#8B2954] w-full text-center px-4 py-6 text-white">
-                <h1 className="text-3xl uppercase font-semibold">
-                  {data?.subscription?.planName}{" "}
-                  <span className="capitalize bg-green-300 p-2 text-green-700 rounded-full text-xs">
-                    Purchased
-                  </span>
-                </h1>
-
-                <p className="font-light text-sm mt-1">
-                  {data?.subscription?.tagline}
-                </p>
-
-                <span className="inline-block mt-3 bg-white/20 px-3 py-1 rounded-full text-xs uppercase">
-                  {data?.subscription?.planFor}
-                </span>
-              </div>
-
-              {/* ================= BODY ================= */}
-              <div className="px-5 py-6 flex flex-col w-full gap-6">
-                {/* ================= PRICE ================= */}
-                <div className="flex flex-col items-center gap-1">
+              <div className="px-5 py-6 flex flex-col w-full">
+                {/* PRICE - Always visible */}
+                <div className="flex flex-col items-center gap-1 pb-6">
                   <div className="flex justify-center items-center flex-col gap-2">
                     <div className="flex justify-center items-center gap-3">
                       {data?.subscription?.price?.discount > 0 && (
@@ -1450,19 +1120,17 @@ const Overview = ({ data, role, userId, callData }) => {
                         </span>
                       )}
                     </div>
+
                     <span className="text-3xl font-semibold flex justify-center items-center gap-1 italic">
                       <FaRupeeSign />
                       {data?.subscription?.price?.sellingPrice}
                     </span>
+                    <span className="bg-green-300 text-green-700 p-1 rounded-md heading">
+                      PURCHASED
+                    </span>
                   </div>
 
-                  {/* <p className="text-xs text-gray-500">
-                    ₹{data?.subscription?.price?.sellingPrice} / month
-                  </p> */}
-
-                  {data?.subscription?.validity?.months === 0 ? (
-                    ""
-                  ) : (
+                  {data?.subscription?.validity?.months !== 0 && (
                     <p className="text-sm font-semibold text-[#8B2954]">
                       Valid for {data?.subscription?.validity?.months} months
                     </p>
@@ -1474,30 +1142,31 @@ const Overview = ({ data, role, userId, callData }) => {
                 </div>
 
                 {/* ================= FEATURES ================= */}
-                <div>
-                  <h2 className="font-semibold text-lg mb-2">Plan Features</h2>
 
-                  <div className="space-y-1 text-sm">
-                    {data?.subscription?.features?.map(
-                      (feature, featureIndex) => (
-                        <div
-                          key={featureIndex}
-                          className="flex items-start gap-2"
-                        >
-                          <span className="text-[#8B2954] font-bold">✓</span>
+                <AccordionSection
+                  title="Plan Features"
+                  isOpen={openSection === "features"}
+                  onClick={() => toggleSection("features")}
+                >
+                  <div className="space-y-2 text-sm">
+                    {data?.subscription?.features?.map((feature, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <span className="text-[#8B2954] font-bold">✓</span>
 
-                          <span>{feature}</span>
-                        </div>
-                      ),
-                    )}
+                        <span>{feature}</span>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                </AccordionSection>
 
                 {/* ================= BOOKING ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Booking</h2>
 
-                  <div className="text-sm space-y-1">
+                <AccordionSection
+                  title="Booking"
+                  isOpen={openSection === "booking"}
+                  onClick={() => toggleSection("booking")}
+                >
+                  <div className="text-sm space-y-2">
                     <p>
                       <strong>Status:</strong>{" "}
                       {data?.subscription?.booking?.enabled
@@ -1512,107 +1181,85 @@ const Overview = ({ data, role, userId, callData }) => {
                         : "Not Available"}
                     </p>
                   </div>
-                </div>
+                </AccordionSection>
 
-                {/* ================= MANAGEMENT TOOLS ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Management Tools</h2>
+                {/* ================= MANAGEMENT ================= */}
 
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <span
-                      className={
-                        data?.subscription?.managementTools?.analytics
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Analytics
-                    </span>
-
-                    <span
-                      className={
-                        data?.subscription?.managementTools?.inventory
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Inventory
-                    </span>
-
-                    <span
-                      className={
-                        data?.subscription?.managementTools?.staffAttendance
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Staff Attendance
-                    </span>
-
-                    <span
-                      className={
-                        data?.subscription?.managementTools?.commissionTracking
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Commission Tracking
-                    </span>
+                <AccordionSection
+                  title="Management Tools"
+                  isOpen={openSection === "management"}
+                  onClick={() => toggleSection("management")}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    {[
+                      [
+                        "Analytics",
+                        data?.subscription?.managementTools?.analytics,
+                      ],
+                      [
+                        "Inventory",
+                        data?.subscription?.managementTools?.inventory,
+                      ],
+                      [
+                        "Staff Attendance",
+                        data?.subscription?.managementTools?.staffAttendance,
+                      ],
+                      [
+                        "Commission Tracking",
+                        data?.subscription?.managementTools?.commissionTracking,
+                      ],
+                    ].map(([label, enabled]) => (
+                      <span
+                        key={label}
+                        className={enabled ? "text-green-600" : "text-gray-400"}
+                      >
+                        ● {label}
+                      </span>
+                    ))}
                   </div>
-                </div>
+                </AccordionSection>
 
                 {/* ================= MARKETING ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Marketing</h2>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <span
-                      className={
-                        data?.subscription?.marketing?.couponManager
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Coupon Manager
-                    </span>
-
-                    <span
-                      className={
-                        data?.subscription?.marketing?.reviews
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Reviews
-                    </span>
-
-                    <span
-                      className={
-                        data?.subscription?.marketing?.smsWhatsapp
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● SMS / WhatsApp
-                    </span>
-
-                    <span
-                      className={
-                        data?.subscription?.marketing?.socialPromotion
-                          ? "text-green-600"
-                          : "text-gray-400"
-                      }
-                    >
-                      ● Social Promotion
-                    </span>
+                <AccordionSection
+                  title="Marketing"
+                  isOpen={openSection === "marketing"}
+                  onClick={() => toggleSection("marketing")}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    {[
+                      [
+                        "Coupon Manager",
+                        data?.subscription?.marketing?.couponManager,
+                      ],
+                      ["Reviews", data?.subscription?.marketing?.reviews],
+                      [
+                        "SMS / WhatsApp",
+                        data?.subscription?.marketing?.smsWhatsapp,
+                      ],
+                      [
+                        "Social Promotion",
+                        data?.subscription?.marketing?.socialPromotion,
+                      ],
+                    ].map(([label, enabled]) => (
+                      <span
+                        key={label}
+                        className={enabled ? "text-green-600" : "text-gray-400"}
+                      >
+                        ● {label}
+                      </span>
+                    ))}
                   </div>
-                </div>
+                </AccordionSection>
 
-                {/* ================= MEDIA LIMIT ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Media Limits</h2>
+                {/* ================= MEDIA ================= */}
 
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                <AccordionSection
+                  title="Media Limits"
+                  isOpen={openSection === "media"}
+                  onClick={() => toggleSection("media")}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     <p>
                       <strong>Photos:</strong>{" "}
                       {data?.subscription?.mediaLimit?.unlimitedPhotos
@@ -1627,23 +1274,31 @@ const Overview = ({ data, role, userId, callData }) => {
                         : data?.subscription?.mediaLimit?.videos}
                     </p>
                   </div>
-                </div>
+                </AccordionSection>
 
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Service Limits</h2>
+                {/* ================= SERVICES ================= */}
+
+                <AccordionSection
+                  title="Service Limits"
+                  isOpen={openSection === "services"}
+                  onClick={() => toggleSection("services")}
+                >
                   <p className="text-sm">
                     <strong>Services:</strong>{" "}
                     {data?.subscription?.serviceLimit?.unlimited
                       ? "Unlimited"
                       : (data?.subscription?.serviceLimit?.count ?? 0)}
                   </p>
-                </div>
+                </AccordionSection>
 
                 {/* ================= FRANCHISE ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Franchise</h2>
 
-                  <div className="text-sm space-y-1">
+                <AccordionSection
+                  title="Franchise"
+                  isOpen={openSection === "franchise"}
+                  onClick={() => toggleSection("franchise")}
+                >
+                  <div className="text-sm space-y-2">
                     <p>
                       <strong>Enabled:</strong>{" "}
                       {data?.subscription?.franchise?.enabled ? "Yes" : "No"}
@@ -1656,13 +1311,16 @@ const Overview = ({ data, role, userId, callData }) => {
                         : "No"}
                     </p>
                   </div>
-                </div>
+                </AccordionSection>
 
                 {/* ================= VISIBILITY ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold mb-2">Visibility</h2>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                <AccordionSection
+                  title="Visibility"
+                  isOpen={openSection === "visibility"}
+                  onClick={() => toggleSection("visibility")}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     <span
                       className={
                         data?.subscription?.visibility?.featured
@@ -1683,65 +1341,381 @@ const Overview = ({ data, role, userId, callData }) => {
                       ● Verified Badge
                     </span>
                   </div>
-                </div>
+                </AccordionSection>
 
                 {/* ================= SUPPORT ================= */}
-                <div className="border-t pt-4 flex justify-between items-center">
-                  <span className="font-semibold">Support</span>
 
+                <AccordionSection
+                  title="Support"
+                  isOpen={openSection === "support"}
+                  onClick={() => toggleSection("support")}
+                >
                   <span className="capitalize bg-gray-100 px-3 py-1 rounded-full text-xs">
                     {data?.subscription?.support}
                   </span>
-                </div>
+                </AccordionSection>
 
                 {/* ================= FAQ ================= */}
-                <div className="border-t pt-4">
-                  <h2 className="font-semibold text-lg mb-3">FAQs</h2>
 
-                  <div className="space-y-3">
-                    {data?.subscription?.faqs?.map((faq, faqIndex) => (
-                      <div key={faq?._id || faqIndex} className="text-xs">
+                <AccordionSection
+                  title="FAQs"
+                  isOpen={openSection === "faq"}
+                  onClick={() => toggleSection("faq")}
+                >
+                  <div className="space-y-4">
+                    {data?.subscription?.faqs?.map((faq, index) => (
+                      <div key={faq?._id || index} className="text-sm">
                         <p className="font-semibold">
-                          {faqIndex + 1}. {faq?.question}
+                          {index + 1}. {faq?.question}
                         </p>
 
                         <p className="text-gray-600 mt-1">{faq?.answer}</p>
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* ================= FOOTER ================= */}
-              <div className="bg-[#8B2954] w-full flex flex-col justify-center items-center p-4 gap-3 mt-auto">
-                <div className="text-white text-sm text-center">
-                  {data?.subscription?.validity?.months === 0
-                    ? ""
-                    : `${data?.subscription?.validity?.months} months`}
-                  {" • "}
-                  {data?.subscription?.validity?.renewalType === "oneTime"
-                    ? "One Time Purchase"
-                    : data?.subscription?.validity?.renewalType === "monthly"
-                      ? "Monthly Plan"
-                      : data?.subscription?.validity?.renewalType === "yearly"
-                        ? "Yearly"
-                        : ""}
-                </div>
-
-                {/* <Button
-              variant="secondary"
-              className="w-full"
-              LabelName={
-                purchasingPlanId === data?.subscription?._id
-                  ? "Opening payment..."
-                  : "Get Plan"
-              }
-              onClick={() => purchasePlan(i)}
-              disabled={purchasingPlanId !== null}
-            /> */}
+                </AccordionSection>
               </div>
             </div>
+          ) : (
+            ""
           )}
+
+          {data?.store?.subscription?.subscriptionPurchased === false ? (
+            <h1 className="w-full text-center font-semibold text-2xl heading capitalize py-10">
+              purchase plan
+            </h1>
+          ) : (
+            <h1 className="w-full text-center font-semibold text-2xl heading capitalize py-10">
+              Upgrade plan
+            </h1>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-stretch gap-4 px-5">
+            {subscription?.map((i, index) => (
+              <div
+                key={i?._id || index}
+                className="flex flex-col border border-[#8B2954] rounded-xl overflow-hidden w-full bg-white shadow-sm hover:shadow-lg transition"
+              >
+                {/* ================= HEADER ================= */}
+                <div className="bg-[#8B2954] w-full text-center px-4 py-6 text-white">
+                  <h1 className="text-3xl uppercase font-semibold">
+                    {i?.planName}
+                  </h1>
+
+                  <p className="font-light text-sm mt-1">{i?.tagline}</p>
+
+                  <span className="inline-block mt-3 bg-white/20 px-3 py-1 rounded-full text-xs uppercase">
+                    {i?.planFor}
+                  </span>
+                </div>
+
+                {/* ================= BODY ================= */}
+                <div className="px-5 py-6 flex flex-col w-full gap-6">
+                  {/* ================= PRICE ================= */}
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex justify-center items-center flex-col gap-2">
+                      <div className="flex justify-center items-center gap-3">
+                        {i?.price?.discount > 0 && (
+                          <span className="text-sm line-through text-gray-400 flex items-center">
+                            <FaRupeeSign />
+                            {i?.price?.mrp}
+                          </span>
+                        )}
+
+                        {i?.price?.discount > 0 && (
+                          <span className="bg-[#8B2954] text-white px-2 py-1 rounded text-xs">
+                            {i?.price?.discount}% OFF
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-3xl font-semibold flex justify-center items-center gap-1 italic">
+                        <FaRupeeSign />
+                        {i?.price?.sellingPrice}
+                      </span>
+                    </div>
+
+                    {/* <p className="text-xs text-gray-500">
+                        ₹{i?.price?.sellingPrice} / month
+                      </p> */}
+
+                    {i?.validity?.months === 0 ? (
+                      ""
+                    ) : (
+                      <p className="text-sm font-semibold text-[#8B2954]">
+                        Valid for {i?.validity?.months} months
+                      </p>
+                    )}
+
+                    <p className="text-xs text-gray-500 capitalize">
+                      Renewal: {i?.validity?.renewalType}
+                    </p>
+                  </div>
+
+                  {/* ================= FEATURES ================= */}
+                  <div>
+                    <h2 className="font-semibold text-lg mb-2">
+                      Plan Features
+                    </h2>
+
+                    <div className="space-y-1 text-sm">
+                      {i?.features?.map((feature, featureIndex) => (
+                        <div
+                          key={featureIndex}
+                          className="flex items-start gap-2"
+                        >
+                          <span className="text-[#8B2954] font-bold">✓</span>
+
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ================= BOOKING ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Booking</h2>
+
+                    <div className="text-sm space-y-1">
+                      <p>
+                        <strong>Status:</strong>{" "}
+                        {i?.booking?.enabled ? "Enabled" : "Disabled"}
+                      </p>
+
+                      <p>
+                        <strong>Advanced Booking:</strong>{" "}
+                        {i?.booking?.advancedBooking
+                          ? "Available"
+                          : "Not Available"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* ================= MANAGEMENT TOOLS ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Management Tools</h2>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span
+                        className={
+                          i?.managementTools?.analytics
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Analytics
+                      </span>
+
+                      <span
+                        className={
+                          i?.managementTools?.inventory
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Inventory
+                      </span>
+
+                      <span
+                        className={
+                          i?.managementTools?.staffAttendance
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Staff Attendance
+                      </span>
+
+                      <span
+                        className={
+                          i?.managementTools?.commissionTracking
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Commission Tracking
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* ================= MARKETING ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Marketing</h2>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span
+                        className={
+                          i?.marketing?.couponManager
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Coupon Manager
+                      </span>
+
+                      <span
+                        className={
+                          i?.marketing?.reviews
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Reviews
+                      </span>
+
+                      <span
+                        className={
+                          i?.marketing?.smsWhatsapp
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● SMS / WhatsApp
+                      </span>
+
+                      <span
+                        className={
+                          i?.marketing?.socialPromotion
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Social Promotion
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* ================= MEDIA LIMIT ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Media Limits</h2>
+
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <p>
+                        <strong>Photos:</strong>{" "}
+                        {i?.mediaLimit?.unlimitedPhotos
+                          ? "Unlimited"
+                          : i?.mediaLimit?.photos}
+                      </p>
+
+                      <p>
+                        <strong>Videos:</strong>{" "}
+                        {i?.mediaLimit?.unlimitedVideos
+                          ? "Unlimited"
+                          : i?.mediaLimit?.videos}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Service Limits</h2>
+                    <p className="text-sm">
+                      <strong>Services:</strong>{" "}
+                      {i?.serviceLimit?.unlimited
+                        ? "Unlimited"
+                        : (i?.serviceLimit?.count ?? 0)}
+                    </p>
+                  </div>
+
+                  {/* ================= FRANCHISE ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Franchise</h2>
+
+                    <div className="text-sm space-y-1">
+                      <p>
+                        <strong>Enabled:</strong>{" "}
+                        {i?.franchise?.enabled ? "Yes" : "No"}
+                      </p>
+
+                      <p>
+                        <strong>Enquiry Button:</strong>{" "}
+                        {i?.franchise?.enquiryButton ? "Yes" : "No"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* ================= VISIBILITY ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold mb-2">Visibility</h2>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span
+                        className={
+                          i?.visibility?.featured
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Featured
+                      </span>
+
+                      <span
+                        className={
+                          i?.visibility?.verifiedBadge
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        ● Verified Badge
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* ================= SUPPORT ================= */}
+                  <div className="border-t pt-4 flex justify-between items-center">
+                    <span className="font-semibold">Support</span>
+
+                    <span className="capitalize bg-gray-100 px-3 py-1 rounded-full text-xs">
+                      {i?.support}
+                    </span>
+                  </div>
+
+                  {/* ================= FAQ ================= */}
+                  <div className="border-t pt-4">
+                    <h2 className="font-semibold text-lg mb-3">FAQs</h2>
+
+                    <div className="space-y-3">
+                      {i?.faqs?.map((faq, faqIndex) => (
+                        <div key={faq?._id || faqIndex} className="text-xs">
+                          <p className="font-semibold">
+                            {faqIndex + 1}. {faq?.question}
+                          </p>
+
+                          <p className="text-gray-600 mt-1">{faq?.answer}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ================= FOOTER ================= */}
+                <div className="bg-[#8B2954] w-full flex flex-col justify-center items-center p-4 gap-3 mt-auto">
+                  <div className="text-white text-sm text-center">
+                    {i?.validity?.months === 0
+                      ? ""
+                      : `${i?.validity?.months} months`}
+                    {" • "}
+                    {i?.validity?.renewalType === "oneTime"
+                      ? "One Time Purchase"
+                      : i?.validity?.renewalType === "monthly"
+                        ? "Monthly Plan"
+                        : i?.validity?.renewalType === "yearly"
+                          ? "Yearly"
+                          : ""}
+                  </div>
+
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    LabelName={
+                      purchasingPlanId === i?._id
+                        ? "Opening payment..."
+                        : "Get Plan"
+                    }
+                    onClick={() => purchasePlan(i)}
+                    disabled={purchasingPlanId !== null}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -2525,9 +2499,7 @@ const Booking = ({ data, role, userId, handleReload, callData }) => {
   useEffect(() => {
     callData();
   }, []);
-  // function getDateOnly(mongoDate) {
-  //   return new Date(mongoDate).toISOString().slice(0, 10);
-  // }
+
   const today = new Date()?.toISOString()?.slice(0, 10);
   const formRef = useRef();
   const [loading, setLoading] = useState(false);
@@ -2870,7 +2842,7 @@ const FavoriteProfessional = ({ data, role }) => {
   );
 };
 
-const Services = ({ data, role, userId, handleReload, callData }) => {
+const Services = ({ data, role, userId, handleReload, callData, showPlan }) => {
   const normalizedRole = (role || "").toLowerCase();
   const isCustomer = normalizedRole === "customer";
   const isStore = normalizedRole === "store";
@@ -3206,14 +3178,21 @@ const Services = ({ data, role, userId, handleReload, callData }) => {
                 Services{" "}
                 <span className="text-sm">({data?.service?.length})</span>
               </h1>
-              <Button
-                LabelName="Add New Service"
-                onClick={() => setShowForm(true)}
-              />
               <input
                 placeholder="Search Service..."
                 className="border rounded-lg px-4 py-2"
               />
+              <div className="flex items-center gap-4">
+                <Button
+                  LabelName="Add New Service"
+                  onClick={() => setShowForm(true)}
+                />
+                <Button
+                  LabelName="Browse plans"
+                  variant="secondary"
+                  onClick={showPlan}
+                />
+              </div>
             </div>
           ) : (
             "Please select a plan to add services"

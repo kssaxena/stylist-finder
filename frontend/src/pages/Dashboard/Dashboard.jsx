@@ -234,6 +234,9 @@ function Dashboard() {
         <main className="w-full h-full p-1 lg:p-5">
           {activeSection === "overview" && (
             <Overview
+              activeServices={() => {
+                setActiveSection("services");
+              }}
               data={data}
               role={localStorage.role}
               userId={userId}
@@ -295,6 +298,10 @@ function Dashboard() {
           )}
           {activeSection === "services" && (
             <Services
+              showPlan={() => {
+                alertInfo("Please scroll down for browsing the plan");
+                setActiveSection("overview");
+              }}
               callData={() => fetchDashboardData({ query: "services" })}
               data={data}
               role={localStorage.role}

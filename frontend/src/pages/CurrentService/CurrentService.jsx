@@ -32,6 +32,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { IoMdPricetag } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { BsChevronDown } from "react-icons/bs";
+import CustomerServiceCard from "../../components/ui/CustomerServiceCard";
 
 const AccordionCard = ({ description, isScrolled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -141,6 +142,7 @@ const CurrentService = () => {
   const userId = user?._id;
   const navigate = useNavigate();
   const { alertInfo } = useToast();
+  const [otherServices, setOtherServices] = useState([]);
 
   const ServiceInfo = [
     {
@@ -205,7 +207,8 @@ const CurrentService = () => {
         `services/get/service/by-id/${serviceId}`,
         "get",
       );
-      setServices(response.data.data);
+      setServices(response.data.data.service);
+      setOtherServices(response.data.data.otherServices);
     } catch (err) {
       // console.log(err.response.data);
     } finally {
@@ -463,34 +466,55 @@ const CurrentService = () => {
               ))}
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-center py-10 md:px-40 md:py-20 bg-neutral-100">
-              {/* Store Details */}
-              <div className="flex justify-center items-center gap-2">
-                <strong className="heading">Store: </strong>
-                <button className="hover:text-blue-500 hover:underline cursor-pointer">
-                  {services?.store?.storeName}
-                </button>
-              </div>
-              {services?.executive ? (
-                <div className="flex justify-center items-center bg-neutral-200 p-2 rounded-xl gap-4">
-                  <div className="w-20 h-20 rounded-full overflow-hidden">
-                    <img
-                      src={services?.executive?.profileImage?.url}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <h1 className="flex flex-col justify-center items-start heading">
-                    <strong className="paragraph">Executive details: </strong>
-                    <span>{services?.executive?.name}</span>
-                    <span>
-                      {services?.executive?.designation} |{" "}
-                      {services?.executive?.experience}
-                    </span>
-                  </h1>
+            <div className="bg-neutral-100 py-10 flex justify-center items-center flex-col">
+              <h1 className="text-2xl heading ">
+                Explore more services of this store
+              </h1>
+              <div className="flex flex-col md:flex-row justify-between items-center w-full pl-10">
+                <div className="flex justify-center items-center lg:items-start flex-col">
+                  <strong className="heading">Visit store: </strong>{" "}
+                  <button
+                    onClick={() =>
+                      navigate(`/stores/${services?.store?._id}/current-store`)
+                    }
+                    className="hover:text-blue-500 hover:underline cursor-pointer"
+                  >
+                    {services?.store?.storeName}
+                  </button>
+                  {services?.executive ? (
+                    <div className="flex justify-center items-center bg-neutral-200 p-2 rounded-xl gap-4">
+                      <div className="w-20 h-20 rounded-full overflow-hidden">
+                        <img
+                          src={services?.executive?.profileImage?.url}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <h1 className="flex flex-col justify-center items-start heading">
+                        <strong className="paragraph">
+                          Executive details:{" "}
+                        </strong>
+                        <span>{services?.executive?.name}</span>
+                        <span>
+                          {services?.executive?.designation} |{" "}
+                          {services?.executive?.experience}
+                        </span>
+                      </h1>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
-              ) : (
-                ""
-              )}
+                <div className="w-full lg:w-[80vw] overflow-scroll flex p-5 gap-3">
+                  {otherServices.map((service) => (
+                    <div key={service._id} className="w-fit">
+                      <CustomerServiceCard
+                        service={service}
+                        currentServicePage={true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

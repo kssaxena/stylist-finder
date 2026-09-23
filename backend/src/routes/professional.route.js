@@ -16,6 +16,7 @@ import {
   dashboardData,
   reLoginToken,
   passwordLogin,
+  changePassword,
   updatePassword,
 } from "../controllers/professional.controller.js";
 
@@ -29,6 +30,8 @@ router.route("/login").post(loginProfessional);
 router.route("/login/via/password").post(passwordLogin);
 router.route("/auth/re-login").post(reLoginToken);
 router.route("/update/password/:userId").post(updatePassword);
+router.route("/update/change-password").post(changePassword);
+
 router
   .route("/otp/authentication/:verificationType/:professionalId")
   .post(otpVerification);

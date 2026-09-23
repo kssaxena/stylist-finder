@@ -13,6 +13,7 @@ import { addUser, clearUser, stopAuthLoading } from "./redux/slice/authSlice";
 import { FetchData } from "./utils/FetchFromApi";
 import Service from "./pages/Services/Service";
 import CurrentService from "./pages/CurrentService/CurrentService";
+import StoreProfessional from "./pages/StoreProfessional/StoreProfessional";
 import ServiceBooking from "./pages/ServiceBooking/ServiceBooking";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import TermsAndConditions from "./pages/CMS/TermsAndConditions";
@@ -89,6 +90,10 @@ function App() {
           <Route
             path="/services/:serviceId/current-service"
             element={<CurrentService />}
+          />
+          <Route
+            path="/stores/:storeId/current-store"
+            element={<StoreProfessional />}
           />
           <Route
             path="/services/book-service/:serviceName/:serviceId/:userId"

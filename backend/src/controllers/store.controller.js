@@ -21,6 +21,7 @@ import { PaymentTransaction } from "../models/paymentTransaction.models.js";
 import sendEmail from "../services/mail.service.js";
 import otpTemplate from "../template/otp.mail.template.js";
 import welcomeTemplate from "../template/welcome.mail.template.js";
+import { validatePassword } from "../validators/password.validator.js";
 
 const registerStore = asyncHandler(async (req, res) => {
   const { name, contactNumber, email, password } = req.body;
@@ -28,6 +29,15 @@ const registerStore = asyncHandler(async (req, res) => {
   if (!contactNumber) throw new ApiError(400, "Please enter contact number");
   if (!validatePhone(contactNumber))
     throw new ApiError(400, "Invalid contact number");
+
+  // password validation
+  if (!validatePassword(password)) {
+    throw new ApiError(
+      400,
+      "Invalid password, Must be at least 8 characters, contain 1 uppercase, 1 lowercase, 1 digit, and 1 special character",
+    );
+    return ApiError(400, "Invalid request");
+  }
 
   // name validation
   if (!name) throw new ApiError(400, "Please enter your name");
@@ -157,6 +167,36 @@ const updatePassword = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Password updated successfully !"));
   }
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+  const { contactNumber, email, password } = req.body;
+  if (!contactNumber || !email || !password)
+    throw new ApiError(400, "Please fill all the required fields");
+
+  // const isPasswordValid = validatePassword(password);
+  // if (!isPasswordValid) {
+  //   throw new ApiError(400, "Invalid password");
+  // }
+
+  const user = await Store.findOne({
+    storeContactNumber: contactNumber,
+    // storeEmail: email,
+  });
+  if (!user)
+    throw new ApiError(
+      400,
+      "Unable process this request at the moment please try again later",
+    );
+
+  user.password = password;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, {}, "Password changed successfully !, please login"),
+    );
 });
 
 const passwordLogin = asyncHandler(async (req, res) => {
@@ -1010,6 +1050,30 @@ const deleteGalleryImage = asyncHandler(async (req, res) => {
     );
 });
 
+const getStoreById = asyncHandler(async (req, res) => {
+  const { storeId } = req.params;
+  if (!storeId) throw new ApiError(400, "Invalid request");
+
+  const store = await Store.findById(storeId)
+    .select(
+      "storeName storeContactNumber storeEmail storeTimings images isVerified services",
+    )
+    .populate("address services");
+  if (!store) throw new ApiError(400, "Store not found ");
+
+  const services = await Services.find({ store: storeId }).sort({
+    createdAt: -1,
+  });
+  if (!services)
+    throw new ApiError(400, "Unable to get services of this store");
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { store, services }, "Data fetched successfully !"),
+    );
+});
+
 export {
   registerStore,
   loginStore,
@@ -1028,5 +1092,7 @@ export {
   deleteGalleryImage,
   getStaffForService,
   registrationFeePaid,
+  changePassword,
+  getStoreById,
   dashboardData,
 };
