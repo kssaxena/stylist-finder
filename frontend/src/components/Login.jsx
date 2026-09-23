@@ -23,6 +23,8 @@ const Login = ({ onRegister }) => {
   const [otpNumber, setOTPNumber] = useState("");
   const [loginWithPassword, setLoginWithPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
+  const [popup, setPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const handleLoginWithOtp = async (e) => {
@@ -64,6 +66,27 @@ const Login = ({ onRegister }) => {
       alertInfo(response.data.message);
     } catch (err) {
       alertError(err?.response?.data);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    try {
+      setLoading(true);
+      const formData = new FormData(formRef.current);
+      const response = await FetchData(
+        `${userType}/update/change-password`,
+        "post",
+        formData,
+      );
+      console.log(response.data.data);
+      alertSuccess(response.data.message);
+      navigate("/");
+      formRef.current.reset();
+    } catch (err) {
+      console.log(err.response.data);
+      alertError(err.response.data);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,7 +160,7 @@ const Login = ({ onRegister }) => {
             {loginWithPassword === true ? (
               <p className="text-center mt-8 text-gray-600 space-x-6">
                 <button
-                  onClick={() => setLoginWithPassword(true)}
+                  onClick={() => setPopup(true)}
                   className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
                 >
                   Forgot password ?
@@ -171,6 +194,34 @@ const Login = ({ onRegister }) => {
           </div>
         </div>
       </div>
+      {popup && (
+        <div className="w-full h-screen z-50 bg-black/80 flex justify-center items-center absolute top-0 left-0">
+          <form
+            ref={formRef}
+            onSubmit={handleChangePassword}
+            className="bg-white rounded-xl p-5 w-[85vw] lg:w-96"
+          >
+            <h1>Forget password</h1>
+            <InputBox label="contact number" name="contactNumber" type="text" />
+            <InputBox label="email" name="email" type="email" />
+            <InputBox label="new password" name="password" type="password" />
+            <div className="flex justify-center items-center gap-2">
+              <Button
+                variant="secondary"
+                LabelName="cancel"
+                onClick={() => {
+                  formRef.current.reset();
+                  setPopup(false);
+                }}
+              />
+              <Button
+                LabelName={loading ? "Please wait" : "Reset"}
+                type="submit"
+              />
+            </div>
+          </form>
+        </div>
+      )}
       <OtpVerificationPopup
         isOpen={otpPopup}
         userType={userType}
