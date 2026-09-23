@@ -5,7 +5,7 @@ import Button from "../Button";
 import { truncateString } from "../../utils/utility-functions";
 import { useNavigate } from "react-router-dom";
 
-const CustomerServiceCard = ({ service }) => {
+const CustomerServiceCard = ({ service, currentServicePage = false }) => {
   const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
   return (
@@ -42,9 +42,13 @@ const CustomerServiceCard = ({ service }) => {
             className="heading text-xl mb-2 line-clamp-2 cursor-pointer"
           >
             {service?.name}{" "}
-            <span className="paragraph text-[10px] ">
-              by {service?.store?.storeName}
-            </span>
+            {currentServicePage === false ? (
+              <span className="paragraph text-[10px] ">
+                by {service?.store?.storeName}
+              </span>
+            ) : (
+              ""
+            )}
           </h2>
 
           {/* Rating */}
@@ -93,18 +97,21 @@ const CustomerServiceCard = ({ service }) => {
           </div>
 
           {/* INCLUSIONS */}
+          {service?.serviceInclusion?.length > 0 ? (
+            <div className="mb-4">
+              <h4 className="heading text-sm mb-2">Includes</h4>
 
-          <div className="mb-4">
-            <h4 className="heading text-sm mb-2">Includes</h4>
-
-            <ul className="space-y-1">
-              {service?.serviceInclusion?.slice(0, 2).map((item, index) => (
-                <li key={index} className="text-sm text-neutral-600">
-                  • {truncateString(item, 40)}
-                </li>
-              ))}
-            </ul>
-          </div>
+              <ul className="space-y-1">
+                {service?.serviceInclusion?.slice(0, 2).map((item, index) => (
+                  <li key={index} className="text-sm text-neutral-600">
+                    • {truncateString(item, 40)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            ""
+          )}
 
           {/* Spacer */}
 
