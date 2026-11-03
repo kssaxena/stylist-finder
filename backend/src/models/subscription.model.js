@@ -57,6 +57,11 @@ const subscriptionSchema = new mongoose.Schema(
       unlimitedVideos: Boolean,
     },
 
+    serviceLimit: {
+      count: { type: Number, default: 0, min: 0 },
+      unlimited: { type: Boolean, default: false },
+    },
+
     booking: {
       enabled: Boolean,
       advancedBooking: Boolean,

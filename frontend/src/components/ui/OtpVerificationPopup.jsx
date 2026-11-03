@@ -7,6 +7,7 @@ import { useToast } from "../hooks/ToastContext";
 import { useDispatch } from "react-redux";
 import { addUser, clearUser } from "../../redux/slice/authSlice";
 import { useNavigate } from "react-router-dom";
+import { formatAccountNumberDisplay } from "../../utils/utility-functions";
 
 function OtpVerificationPopup({
   isOpen,
@@ -15,6 +16,7 @@ function OtpVerificationPopup({
   verificationType = "",
   userType,
   otpNumber, // delete this input when the sms config is complete
+  redirectTo,
 }) {
   const [otp, setOtp] = useState("");
   const formRef = useRef();
@@ -77,7 +79,7 @@ function OtpVerificationPopup({
       dispatch(addUser(user));
       formRef.current.reset();
       onClose();
-      navigate(`/dashboard`);
+      navigate(redirectTo || "/dashboard");
       alertSuccess(response.data.message || "Otp Verified successfully !");
     } catch (err) {
       alertError(err?.response?.data);
@@ -100,13 +102,13 @@ function OtpVerificationPopup({
             </p>
 
             <p className="font-semibold text-[#8B2954] mt-1">
-              {data?.user?.contactNumber}
-              <span className="px-5">Paste this OTP:{otpNumber}</span>
+              {formatAccountNumberDisplay(data?.user?.contactNumber)} and on
+              your email
+              {/* <span className="px-5">Paste this OTP:{otpNumber}</span> */}
             </p>
             <Countdown
               duration={1}
               onComplete={() => {
-                console.log("Time over");
                 // resendOTP();
                 setShowButton(true);
               }}

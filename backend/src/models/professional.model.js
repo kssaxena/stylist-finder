@@ -1,12 +1,15 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const professionalSchema = new mongoose.Schema(
   {
     // initials for registration
     name: { type: String, required: true, trim: true },
     contactNumber: { type: String, required: true, trim: true },
-    email: { type: String, required: true, trim: true },
+    email: { type: String, trim: true },
+    password: { type: String },
+
     gender: {
       type: String,
       enum: ["Male", "Female", "Prefer not to say"],
@@ -46,7 +49,7 @@ const professionalSchema = new mongoose.Schema(
     kycDetails: {
       aadhar: {
         verified: { type: Boolean, default: false },
-        number: { type: Number },
+        number: { type: String },
         image: {
           front: { url: String, fileId: String },
           back: { url: String, fileId: String },
@@ -54,12 +57,12 @@ const professionalSchema = new mongoose.Schema(
       },
       pan: {
         verified: { type: Boolean, default: false },
-        number: { type: Number },
+        number: { type: String },
         image: { url: String, fileId: String },
       },
       gst: {
         verified: { type: Boolean, default: false },
-        number: { type: Number },
+        number: { type: String },
         image: { url: String, fileId: String },
       },
     },
@@ -117,6 +120,15 @@ const professionalSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+professionalSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+professionalSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
 
 professionalSchema.methods.generateAccessToken = function () {
   return jwt.sign(

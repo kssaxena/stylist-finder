@@ -24,6 +24,15 @@ The project focuses on delivering a seamless, responsive, and aesthetically plea
 - Promotional appointment section
 - Professional footer with quick links
 - Optimized for desktop, tablet, and mobile devices
+- Single-vendor e-commerce catalog with product search, categories, inventory, and order fulfilment
+
+## 🛍️ E-commerce
+
+- Open **E-Com** from the mobile bottom navigation to browse and filter products.
+- Services and products share one persistent cart; each type has its own checkout flow so appointment dates and delivery addresses are handled correctly.
+- Customers can review product order and delivery status from the store.
+- Admins manage the product catalog, prices, images, activation, and available stock in the **E-commerce products & stock** dashboard section, and update paid order fulfilment in **E-commerce orders**.
+- Product checkout uses the existing Razorpay integration and verifies prices and available inventory on the server.
 
 ---
 

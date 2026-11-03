@@ -23,13 +23,98 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { MdOutlineAccessTime } from "react-icons/md";
-import { HiOutlineOfficeBuilding } from "react-icons/hi";
+import { HiHeart, HiOutlineOfficeBuilding } from "react-icons/hi";
 import ServiceDetailsSkeleton from "./CurrentServiceSkeleton";
 import Button from "../../components/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "../../components/hooks/ToastContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { IoMdPricetag } from "react-icons/io";
+import { IoClose } from "react-icons/io5";
+import { BsChevronDown } from "react-icons/bs";
+import CustomerServiceCard from "../../components/ui/CustomerServiceCard";
+import { FaCartPlus } from "react-icons/fa";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import {
+  addToCart,
+  toggleFavorite,
+} from "../../redux/slice/shoppingSlice";
+
+const AccordionCard = ({ description, isScrolled = false }) => {
+  const [isOpen, setIsOpen] = useState(description?.length > 5 ? true : false);
+
+  const iconColor = isScrolled ? "text-gray-200" : "text-gray-500";
+
+  return (
+    <div className="w-full">
+      <div className="w-full rounded-2xl backdrop-blur-3xl bg-neutral-100 overflow-hidden">
+        {/* Header */}
+        <button
+          type="button"
+          // onClick={() =>
+          //   description.length > 5
+          //     ? setIsOpen(true)
+          //     : setIsOpen((prev) => !prev)
+          // }
+          onClick={() => setIsOpen((prev) => !prev)}
+          aria-expanded={isOpen}
+          className=" w-full flex items-center justify-between gap-4 px-5 py-4 text-left cursor-pointer hover:bg-neutral-200/60 transition-colors"
+        >
+          <span className="font-semibold text-gray-800">Description</span>
+
+          <motion.div
+            animate={{
+              rotate: isOpen ? 180 : 0,
+            }}
+            transition={{
+              duration: 0.25,
+              ease: "easeInOut",
+            }}
+            className={iconColor}
+          >
+            <BsChevronDown className="text-lg" />
+          </motion.div>
+        </button>
+
+        {/* Description */}
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{
+                height: 0,
+                opacity: 0,
+              }}
+              animate={{
+                height: "auto",
+                opacity: 1,
+              }}
+              exit={{
+                height: 0,
+                opacity: 0,
+              }}
+              transition={{
+                height: {
+                  duration: 0.35,
+                  ease: [0.4, 0, 0.2, 1],
+                },
+                opacity: {
+                  duration: 0.2,
+                },
+              }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-5 pt-1">
+                <p className="text-gray-600 leading-7 whitespace-pre-line">
+                  {description || "No description available."}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
 
 const EmptyState = () => {
   return (
@@ -53,14 +138,23 @@ const CurrentService = () => {
   const [popup, setPopup] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const user = useSelector((state) => state.auth.user);
+  const { cartItems, favoriteServices } = useSelector(
+    (state) => state.shopping,
+  );
   const userId = user?._id;
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { alertInfo } = useToast();
+  const { alertInfo, alertSuccess } = useToast();
+  const [otherServices, setOtherServices] = useState([]);
+  const isInCart = cartItems.some((item) => item._id === services?._id);
+  const isFavorite = favoriteServices.some(
+    (item) => item._id === services?._id,
+  );
 
   const ServiceInfo = [
     {
       title: "Category",
-      value: services?.category,
+      value: services?.category?.title,
       icon: <FaTag />,
     },
     {
@@ -120,9 +214,10 @@ const CurrentService = () => {
         `services/get/service/by-id/${serviceId}`,
         "get",
       );
-      setServices(response.data.data);
+      setServices(response.data.data.service);
+      setOtherServices(response.data.data.otherServices);
     } catch (err) {
-      console.log(err.response.data);
+      // console.log(err.response.data);
     } finally {
       setLoading(false);
     }
@@ -145,6 +240,9 @@ const CurrentService = () => {
               <div>
                 {/* Main Image */}
                 <div className="relative group overflow-hidden rounded-xl">
+                  {/* <div className="absolute top-4 left-4 bg-white/90 px-1 py-1 rounded-full text-sm font-semibold">
+                    <HiHeart className="" />
+                  </div> */}
                   <img
                     src={services?.coverImage?.[selectedImage]?.url}
                     alt={services?.name}
@@ -181,31 +279,85 @@ const CurrentService = () => {
                 <div className=" flex flex-col items gap-6">
                   {/* Header */}
                   <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mt-3 heading">
+                    <h1 className="text-2xl font-bold text-gray-900 mt-3 heading w-fit capitalize">
                       {services?.name}
                     </h1>
 
                     <div className="text-right">
-                      <h2 className="text-2xl font-bold text-gray-900">
-                        ₹{services?.charges}
-                      </h2>
+                      <h3 className="heading text-2xl text-[#d65f92]">
+                        {services?.price?.discount === 0 ? (
+                          ""
+                        ) : (
+                          <div className="flex justify-center items-center gap-3">
+                            <span className="line-through text-lg">
+                              ₹ {services?.price?.mrp}
+                            </span>
+                            <span className="bg-green-300 text-xs text-green-800 rounded-full px-2 py-1">
+                              {services?.price?.discount}%off
+                            </span>
+                          </div>
+                        )}
+                        {/* {services?.charges || services?.price?.sellingPrice}₹ */}
+                        ₹{" "}
+                        {Number(
+                          services?.charges ||
+                            services?.price?.sellingPrice ||
+                            0,
+                        ).toLocaleString("en-IN")}
+                      </h3>
 
-                      <Button
-                        LabelName="Book now"
-                        onClick={() => {
-                          user
-                            ? navigate(
-                                `/services/book-service/${services?.name}/${services?._id}/${userId}`,
-                              )
-                            : alertInfo(
-                                "Please login or register to continue !",
-                              );
-                          setPopup(true);
-                          setTimeout(() => {
-                            setPopup(false);
-                          }, 5000);
-                        }}
-                      />
+                      <div className="flex flex-wrap justify-end gap-2 mt-3">
+                        <Button
+                          LabelName={
+                            <span className="flex items-center gap-2">
+                              <FaCartPlus />
+                              {isInCart ? "In cart" : "Add to cart"}
+                            </span>
+                          }
+                          variant="secondary"
+                          onClick={() => {
+                            if (isInCart) {
+                              alertInfo("This service is already in your cart.");
+                              return;
+                            }
+                            dispatch(addToCart(services));
+                            alertSuccess("Service added to your cart.");
+                          }}
+                        />
+                        <Button
+                          LabelName={
+                            <span className="flex items-center gap-2">
+                              {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
+                              {isFavorite ? "Favorited" : "Favorite"}
+                            </span>
+                          }
+                          variant="secondary"
+                          onClick={() => {
+                            dispatch(toggleFavorite(services));
+                            alertInfo(
+                              isFavorite
+                                ? "Service removed from favorites."
+                                : "Service added to favorites.",
+                            );
+                          }}
+                        />
+                        <Button
+                          LabelName="Book now"
+                          onClick={() => {
+                            user
+                              ? navigate(
+                                  `/services/book-service/${services?.name}/${services?._id}/${userId}`,
+                                )
+                              : alertInfo(
+                                  "Please login or register to continue !",
+                                );
+                            setPopup(true);
+                            setTimeout(() => {
+                              setPopup(false);
+                            }, 5000);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -214,7 +366,7 @@ const CurrentService = () => {
                   <div className="grid grid-cols-2 place-items-center gap-2">
                     <div className="flex items-center gap-2 bg-white border border-neutral-100 rounded-xl px-2 py-1 shadow-sm">
                       <FaMarsStroke className="text-[#8B2954]" />
-                      <span className="">{services?.category}</span>
+                      <span className="">{services?.category?.title}</span>
                     </div>
                     <div className="flex items-center gap-2 bg-white border border-neutral-100 rounded-xl px-2 py-1 shadow-sm">
                       <FaFemale className="text-[#8B2954]" />
@@ -261,6 +413,7 @@ const CurrentService = () => {
                       </span>
                     </div>
                   </div>
+                  <AccordionCard description={services?.description} />
                 </div>
               </div>
             </div>
@@ -355,30 +508,55 @@ const CurrentService = () => {
                 </div>
               ))}
             </div>
-            {/* service store and executive details */}
-            <div className="flex flex-col md:flex-row justify-between items-center py-10 md:px-40 md:py-20 bg-neutral-100">
-              {/* Store Details */}
-              <div className="flex justify-center items-center gap-2">
-                <strong className="heading">Store: </strong>
-                <button className="hover:text-blue-500 hover:underline cursor-pointer">
-                  {services?.store?.storeName}
-                </button>
-              </div>
-              <div className="flex justify-center items-center bg-neutral-200 p-2 rounded-xl gap-4">
-                <div className="w-20 h-20 rounded-full overflow-hidden">
-                  <img
-                    src={services?.executive?.profileImage?.url}
-                    className="h-full w-full object-cover"
-                  />
+
+            <div className="bg-neutral-100 py-10 flex justify-center items-center flex-col">
+              <h1 className="text-2xl heading ">
+                Explore more services of this store
+              </h1>
+              <div className="flex flex-col md:flex-row justify-between items-center w-full pl-10">
+                <div className="flex justify-center items-center lg:items-start flex-col">
+                  <strong className="heading">Visit store: </strong>{" "}
+                  <button
+                    onClick={() =>
+                      navigate(`/stores/${services?.store?._id}/current-store`)
+                    }
+                    className="hover:text-blue-500 hover:underline cursor-pointer capitalize"
+                  >
+                    {services?.store?.storeName}
+                  </button>
+                  {services?.executive ? (
+                    <div className="flex justify-center items-center bg-neutral-200 p-2 rounded-xl gap-4">
+                      <div className="w-20 h-20 rounded-full overflow-hidden">
+                        <img
+                          src={services?.executive?.profileImage?.url}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <h1 className="flex flex-col justify-center items-start heading">
+                        <strong className="paragraph">
+                          Executive details:{" "}
+                        </strong>
+                        <span>{services?.executive?.name}</span>
+                        <span>
+                          {services?.executive?.designation} |{" "}
+                          {services?.executive?.experience}
+                        </span>
+                      </h1>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
-                <h1 className="flex flex-col justify-center items-start heading">
-                  <strong className="paragraph">Executive details: </strong>
-                  <span>{services?.executive?.name}</span>
-                  <span>
-                    {services?.executive?.designation} |{" "}
-                    {services?.executive?.experience}
-                  </span>
-                </h1>
+                <div className="w-full lg:w-[80vw] overflow-scroll flex p-5 gap-3">
+                  {otherServices.map((service) => (
+                    <div key={service._id} className="w-fit">
+                      <CustomerServiceCard
+                        service={service}
+                        currentServicePage={true}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

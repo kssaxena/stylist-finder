@@ -3,24 +3,33 @@ import { IoArrowBack } from "react-icons/io5";
 // import Logo from "../assets/Logo.png";
 import InputBox from "./Input";
 import Button from "./Button";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import LoginSvg from "../assets/Login.svg";
 import { FetchData } from "../utils/FetchFromApi";
 import { useRef } from "react";
 import { useToast } from "./hooks/ToastContext";
 import { parseErrorMessage } from "../utils/parseErrorMessage";
 import OtpVerificationPopup from "./ui/OtpVerificationPopup";
+import { useDispatch } from "react-redux";
+import { addUser, clearUser } from "../redux/slice/authSlice";
 
 const Login = ({ onRegister }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const formRef = useRef();
   const { userType } = useParams("");
   const { alertSuccess, alertError, alertInfo } = useToast({});
   const [data, setData] = useState();
   const [otpPopup, setOtpPopup] = useState(false);
   const [otpNumber, setOTPNumber] = useState("");
+  const [loginWithPassword, setLoginWithPassword] = useState(true);
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetRequested, setResetRequested] = useState(false);
+  const [popup, setPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
-  const handleLogin = async (e) => {
+  const handleLoginWithOtp = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData(formRef.current);
@@ -34,6 +43,71 @@ const Login = ({ onRegister }) => {
       alertInfo(response.data.message);
     } catch (err) {
       alertError(err?.response?.data);
+    }
+  };
+
+  const handleLoginWithPassword = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData(formRef.current);
+      const response = await FetchData(
+        `${userType}/login/via/password`,
+        "post",
+        formData,
+      );
+      const { user, tokens } = response.data.data;
+
+      localStorage.setItem("accessToken", tokens.accessToken);
+      localStorage.setItem("refreshToken", tokens.refreshToken);
+      localStorage.setItem("role", user.role);
+
+      dispatch(clearUser());
+      dispatch(addUser(user));
+      formRef.current.reset();
+      navigate(location.state?.from?.pathname || "/dashboard");
+      alertInfo(response.data.message);
+    } catch (err) {
+      alertError(err?.response?.data);
+    }
+  };
+
+  const handleRequestPasswordReset = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const formData = Object.fromEntries(new FormData(formRef.current));
+      const response = await FetchData(
+        `${userType}/password-reset/request`,
+        "post",
+        formData,
+      );
+      alertInfo(response.data.message);
+      setResetRequested(true);
+    } catch (err) {
+      alertError(err?.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmPasswordReset = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const formData = Object.fromEntries(new FormData(formRef.current));
+      const response = await FetchData(
+        `${userType}/password-reset/confirm`,
+        "post",
+        formData,
+      );
+      alertSuccess(response.data.message);
+      formRef.current.reset();
+      setResetRequested(false);
+      setPopup(false);
+    } catch (err) {
+      alertError(err?.response?.data);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,7 +125,7 @@ const Login = ({ onRegister }) => {
             <div className="flex justify-center">
               <img
                 src={
-                  "https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"
+                  "https://ik.imagekit.io/cuteandglow/WhatsApp%20Image%202026-09-11%20at%208.26.34%20AM.jpeg"
                 }
                 alt="Logo"
                 className="w-24 h-24 object-contain"
@@ -74,8 +148,12 @@ const Login = ({ onRegister }) => {
             {/* Form */}
             <form
               ref={formRef}
-              onSubmit={handleLogin}
-              className="mt-8 space-y-4"
+              onSubmit={
+                loginWithPassword === true
+                  ? handleLoginWithPassword
+                  : handleLoginWithOtp
+              }
+              className="mt-8"
             >
               <InputBox
                 label="contact Number"
@@ -83,13 +161,58 @@ const Login = ({ onRegister }) => {
                 name="contactNumber"
                 type="text"
               />
+              {loginWithPassword === true ? (
+                <InputBox
+                  required={loginWithPassword === true ? true : false}
+                  label="Password"
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  onClick={() =>
+                    alertInfo(
+                      "Password should be of min 8 characters, it should include at-least 1 uppercase, 1 lowercase, 1 special character, 1 number",
+                    )
+                  }
+                />
+              ) : (
+                ""
+              )}
+
               <Button type="submit" LabelName="Login" className="w-full" />
             </form>
-            {/* Register */}
+            {loginWithPassword === true ? (
+              <p className="text-center mt-8 text-gray-600 space-x-6">
+                <button
+                  onClick={() => setPopup(true)}
+                  className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
+                >
+                  Forgot password ?
+                </button>
+                <button
+                  onClick={() => setLoginWithPassword(false)}
+                  className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
+                >
+                  Login with OTP
+                </button>
+              </p>
+            ) : (
+              <p className="text-center mt-8 text-gray-600">
+                <button
+                  onClick={() => setLoginWithPassword(true)}
+                  className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
+                >
+                  Login with password
+                </button>
+              </p>
+            )}
             <p className="text-center mt-8 text-gray-600">
               Don't have an account?{" "}
               <button
-                onClick={() => navigate(`/auth/${"register"}/${userType}`)}
+                onClick={() =>
+                  navigate(`/auth/${"register"}/${userType}`, {
+                    state: location.state,
+                  })
+                }
                 className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
               >
                 Register
@@ -98,6 +221,67 @@ const Login = ({ onRegister }) => {
           </div>
         </div>
       </div>
+      {popup && (
+        <div className="w-full h-screen z-50 bg-black/80 flex justify-center items-center absolute top-0 left-0">
+          <form
+            ref={formRef}
+            onSubmit={
+              resetRequested
+                ? handleConfirmPasswordReset
+                : handleRequestPasswordReset
+            }
+            className="bg-white rounded-xl p-5 w-[85vw] lg:w-96"
+          >
+            <h1>{resetRequested ? "Reset password" : "Forgot password"}</h1>
+            <InputBox
+              label={
+                userType === "store" ? "Store contact number" : "Contact number"
+              }
+              name="contactNumber"
+              type="text"
+            />
+            <InputBox label="Email" name="email" type="email" />
+            {resetRequested && (
+              <>
+                <InputBox label="Email reset code" name="otp" type="text" />
+                <InputBox
+                  label="New password"
+                  name="newPassword"
+                  type="password"
+                  passwordHint
+                />
+                <InputBox
+                  label="Confirm password"
+                  name="confirmPassword"
+                  type="password"
+                />
+              </>
+            )}
+            <div className="flex justify-center items-center gap-2">
+              <Button
+                variant="secondary"
+                LabelName="cancel"
+                onClick={() => {
+                  formRef.current.reset();
+                  setPopup(false);
+                  setResetRequested(false);
+                }}
+              />
+              <Button
+                LabelName={
+                  loading
+                    ? "Please wait"
+                    : resetRequested
+                      ? "Reset password"
+                      : "Send reset code"
+                }
+                type="submit"
+                disabled={loading}
+              />
+            </div>
+          </form>
+        </div>
+      )}
       <OtpVerificationPopup
         isOpen={otpPopup}
         userType={userType}
@@ -105,6 +289,7 @@ const Login = ({ onRegister }) => {
         data={data}
         verificationType="loginVerification"
         otpNumber={otpNumber}
+        redirectTo={location.state?.from?.pathname}
       />
     </div>
   );

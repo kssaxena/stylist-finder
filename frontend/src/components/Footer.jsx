@@ -27,9 +27,9 @@ const Footer = () => {
           <div className="space-y-4 w-fit">
             <a href="/">
               <img
-                src={`https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750`}
+                src={`https://ik.imagekit.io/cuteandglow/WhatsApp%20Image%202026-09-11%20at%208.26.34%20AM.jpeg`}
                 alt="Logo"
-                className="h-16"
+                className="h-16 object-contain"
               />
             </a>
             <h2>
@@ -40,8 +40,7 @@ const Footer = () => {
             </h2>
 
             <p className="text-sm text-pink-100 leading-6 max-w-sm">
-              Experience luxury beauty and wellness services designed to
-              rejuvenate your mind, body, and confidence.
+              Any parlour near you, now at your fingertips.
             </p>
           </div>
 

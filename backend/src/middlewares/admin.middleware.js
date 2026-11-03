@@ -18,3 +18,16 @@ export const VerifyAdmin = asyncHandler(async (req, _, next) => {
   req.user = user;
   next();
 });
+
+export const VerifyAdminSection = (sectionLabel) =>
+  asyncHandler(async (req, _, next) => {
+    const admin = req.user;
+    if (
+      admin?.role !== "admin" &&
+      admin?.restrictedAccess === true &&
+      !admin.sectionList?.includes(sectionLabel)
+    ) {
+      throw new ApiError(403, "You are not authorized to access this admin section.");
+    }
+    next();
+  });

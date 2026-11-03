@@ -32,6 +32,11 @@ const InputBox = ({
         >
           {label}
           {required && <span className="text-red-500">*</span>}
+          {required === false ? (
+            <span className="text-xs px-2">(Optional)</span>
+          ) : (
+            ""
+          )}
         </label>
       )}
 

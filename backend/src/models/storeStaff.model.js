@@ -4,9 +4,9 @@ const storeStaffSchema = new mongoose.Schema(
   {
     store: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
 
-    name: { type: String, required: true },
-    contactNumber: { type: String, required: true },
-    email: { type: String, required: true },
+    name: { type: String },
+    contactNumber: { type: String },
+    email: { type: String },
     specialization: String,
     otherServices: [String],
     address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },

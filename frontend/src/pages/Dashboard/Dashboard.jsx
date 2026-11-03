@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoLogOut } from "react-icons/io5";
-import {
-  CustomerArray,
-  StoreArray,
-  ProfessionalArray,
-} from "../../constants/service";
 import { FaHome, FaBars } from "react-icons/fa";
 import {
   Overview,
   SavedAddress,
   BankingDetails,
   Booking,
-  IsProfileComplete,
-  CurrentlyUnderBooking,
+  PaymentDetails,
   FavoriteStore,
   FavoriteProfessional,
   Services,
@@ -25,22 +19,30 @@ import { FetchData } from "../../utils/FetchFromApi";
 import Button from "../../components/Button";
 import { DashboardSectionList } from "../../constants/Constants.jsx";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUser, updateUser } from "../../redux/slice/authSlice.js";
+import { clearUser } from "../../redux/slice/authSlice.js";
 import { useToast } from "../../components/hooks/ToastContext.jsx";
-import RegistrationFeeModal from "../../components/ui/RegistrationFeePopup.jsx";
+import Popup from "../../components/ui/Popup.jsx";
+import InputBox from "../../components/Input.jsx";
+import { useRef } from "react";
+import { clearAuthStorage } from "../../utils/utility-functions";
 
 function Dashboard() {
   const role = localStorage.getItem("role");
+  const formRef = useRef();
   const [activeSection, setActiveSection] = useState(
     () => localStorage.getItem("activeSection") || "overview",
   );
   const [data, setData] = useState([]);
+  const subscriptionId =
+    data?.store?.subscription?.subscriptionModel ||
+    sessionStorage.getItem("subscriptionId");
+  const [subscriptionDetails, setSubscriptionDetails] = useState(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const userId = user?._id;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { alertInfo } = useToast();
+  const { alertSuccess, alertInfo } = useToast();
 
   const fetchDashboardData = async ({ query }) => {
     try {
@@ -50,11 +52,32 @@ function Dashboard() {
         "get",
       );
       setData(response.data.data);
+      if (!sessionStorage.getItem("subscriptionId")) {
+        sessionStorage.setItem(
+          "subscriptionId",
+          response.data?.data?.store?.subscription?.subscriptionModel,
+        );
+      }
     } catch (err) {
-      // console.log(err);
-      console.log(err.response);
+      // console.log(err.response);
     }
   };
+
+  const getSubscriptionDetails = async () => {
+    try {
+      const response = await FetchData(
+        `subscription/get/subscription/details/by-id/${subscriptionId}`,
+        "get",
+      );
+      setSubscriptionDetails(response.data.data);
+    } catch (err) {
+      // console.log(err.response.data);
+    }
+  };
+
+  useEffect(() => {
+    getSubscriptionDetails();
+  }, [subscriptionId]);
 
   const mobileNavItems = DashboardSectionList.filter((item) =>
     item.roles.includes(role),
@@ -65,41 +88,39 @@ function Dashboard() {
   ).slice(4);
 
   const logout = () => {
-    localStorage.clear();
+    clearAuthStorage();
     dispatch(clearUser());
     alertInfo("You are logged out successfully");
     navigate("/");
   };
 
-  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
-  const [checkingPayment, setCheckingPayment] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   useEffect(() => {
-    if (!user || role !== "Store") return;
-    console.log(user);
-    setShowRegistrationModal(!user.isRegistrationFeePaid);
-    setCheckingPayment(false);
-  }, [user, role]);
+    const password = user?.password;
+    if (!password && password?.length === 0) {
+      setShowPasswordModal(true);
+    }
+  }, [user]);
 
-  const markRegistrationFeePaid = async () => {
+  const updatePassword = async () => {
     try {
       const userRole = role.toLowerCase();
+      const formData = new FormData(formRef.current);
       const response = await FetchData(
-        `${userRole}/update/registration-fee-paid/true/${userId}`,
+        `${userRole}/update/password/${userId}`,
         "post",
+        formData,
       );
-      console.log(response);
+      formRef.current.reset();
+      // console.log(response);
+      alertSuccess(response.data.message);
+      setShowPasswordModal(false);
     } catch (err) {
-      console.log(err.response.data);
+      // console.log(err.response.data);
+      setShowPasswordModal(false);
     }
   };
 
-  const handleRegistrationSuccess = async () => {
-    markRegistrationFeePaid();
-    // dispatch(updateUser(response.data.data));
-    fetchDashboardData({ query: "overview" });
-
-    setShowRegistrationModal(false);
-  };
   return user ? (
     <div className={`relative p-2 flex w-full items-start h-[90vh] `}>
       <aside className="hidden md:flex sticky w-[25vw] h-full bg-[#8B2954] rounded-xl flex-col items-start justify-between text-white py-6 px-5">
@@ -156,6 +177,7 @@ function Dashboard() {
               setActiveSection(item.query);
               fetchDashboardData({ query: item.query });
               localStorage.setItem("activeSection", item.query);
+              setShowMoreMenu(false);
             }}
             className={`flex flex-col items-center justify-center transition ${activeSection === item.query ? "text-[#8B2954]" : "text-gray-500"}`}
           >
@@ -173,7 +195,7 @@ function Dashboard() {
       {/* More Menu */}
 
       {showMoreMenu && (
-        <>
+        <div className="h-fit">
           <div
             className="fixed inset-0 bg-black/40 z-40 md:hidden"
             onClick={() => setShowMoreMenu(false)}
@@ -182,15 +204,22 @@ function Dashboard() {
           <div className="fixed bottom-16 left-0 w-full bg-white rounded-t-3xl p-5 z-50 md:hidden">
             <div className="w-14 h-1 rounded-full bg-gray-300 mx-auto mb-5"></div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 h-fit">
+              <button
+                onClick={() => logout()}
+                className="bg-white text-neutral-800 flex justify-start items-center rounded-lg py-2 gap-2 px-10 w-full cursor-pointer"
+              >
+                <IoLogOut />
+                Logout
+              </button>
               {moreNavItems.map((item) => (
                 <button
                   key={item.query}
                   onClick={() => {
                     setActiveSection(item.query);
-                    setShowMoreMenu(false);
                     fetchDashboardData({ query: item.query });
                     localStorage.setItem("activeSection", item.query);
+                    setShowMoreMenu(false);
                   }}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-gray-100"
                 >
@@ -201,14 +230,24 @@ function Dashboard() {
               ))}
             </div>
           </div>
-        </>
+        </div>
       )}
-      <div className="h-full w-full">
+      <div className="overflow-scroll h-full w-full">
         <main className="w-full h-full p-1 lg:p-5">
           {activeSection === "overview" && (
             <Overview
+              activeServices={() => {
+                setActiveSection("services");
+              }}
+              activeAddress={() => {
+                setActiveSection("address");
+              }}
+              activeBookings={() => {
+                setActiveSection("bookings");
+              }}
               data={data}
               role={localStorage.role}
+              userId={userId}
               callData={() => fetchDashboardData({ query: "overview" })}
               // userId={userId}
               // handleReload={() => fetchDashboardData({ query: "address" })}
@@ -241,6 +280,15 @@ function Dashboard() {
               handleReload={() => fetchDashboardData({ query: "bankDetails" })}
             />
           )}
+          {activeSection === "payments" && (
+            <PaymentDetails
+              callData={() => fetchDashboardData({ query: "payments" })}
+              data={data}
+              role={localStorage.role}
+              userId={userId}
+              handleReload={() => fetchDashboardData({ query: "payments" })}
+            />
+          )}
           {activeSection === "storeStaff" && (
             <StoreStaffs
               callData={() => fetchDashboardData({ query: "storeStaff" })}
@@ -258,6 +306,10 @@ function Dashboard() {
           )}
           {activeSection === "services" && (
             <Services
+              showPlan={() => {
+                alertInfo("Please scroll down for browsing the plan");
+                setActiveSection("overview");
+              }}
               callData={() => fetchDashboardData({ query: "services" })}
               data={data}
               role={localStorage.role}
@@ -266,20 +318,44 @@ function Dashboard() {
             />
           )}
           {activeSection === "images" && (
-            <Images data={data} role={localStorage.role} />
+            <Images
+              callData={() => fetchDashboardData({ query: "images" })}
+              data={data}
+              role={localStorage.role}
+              userId={userId}
+              subscription={subscriptionDetails}
+              handleReload={() => fetchDashboardData({ query: "images" })}
+            />
           )}
           {activeSection === "kyc" && (
-            <KycDetails data={data} role={localStorage.role} />
+            <KycDetails
+              callData={() => fetchDashboardData({ query: "kyc" })}
+              data={data}
+              role={localStorage.role}
+              storeId={userId}
+              handleReload={() => fetchDashboardData({ query: "kyc" })}
+            />
           )}
         </main>
       </div>
       <div>
-        {showRegistrationModal && (
+        {showPasswordModal && (
           <div>
-            <RegistrationFeeModal
-              store={user}
-              onSuccess={handleRegistrationSuccess}
-            />
+            <Popup center={true} onClose={() => setShowPasswordModal(false)}>
+              <form
+                ref={formRef}
+                onSubmit={updatePassword}
+                className="w-full md:w-1/2 h-fit flex flex-col justify-center items-center p-4 border rounded-xl gap-5"
+              >
+                <h1>Update Password</h1>
+                <InputBox
+                  type="password"
+                  label="Update password"
+                  name="password"
+                />
+                <Button LabelName="update password" type="submit" />
+              </form>
+            </Popup>
           </div>
         )}
       </div>

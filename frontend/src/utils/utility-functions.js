@@ -5,6 +5,28 @@ export function truncateString(str, length) {
   return str;
 }
 
+export function clearAuthStorage() {
+  ["accessToken", "refreshToken", "role", "activeSection"].forEach((key) =>
+    localStorage.removeItem(key),
+  );
+}
+
+export function formatAccountNumberDisplay(str) {
+  if (str?.length > 9) {
+    return str?.slice(0, 2) + "XXXXXX" + str?.slice(8, 10);
+  }
+  return str;
+}
+
+export function formatEmailDisplay(str) {
+  if (str?.length) {
+    return (
+      str?.slice(0, 2) + "XXXXXX" + str?.slice(str?.length - 9, str?.length)
+    );
+  }
+  return str;
+}
+
 // Convert MongoDB date → DD/MM/YY
 function formatDate(mongoDate) {
   const date = new Date(mongoDate);

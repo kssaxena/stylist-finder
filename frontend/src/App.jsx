@@ -1,32 +1,39 @@
-import { useEffect, useState } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
-import Button from "./components/Button";
-import InputBox from "./components/Input";
+import { useEffect } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home/Home";
 import Authentication from "./pages/Auth/Authentication";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ScrollToTop from "./components/hooks/ScrollToTop";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addUser, clearUser, stopAuthLoading } from "./redux/slice/authSlice";
 import { FetchData } from "./utils/FetchFromApi";
 import Service from "./pages/Services/Service";
 import CurrentService from "./pages/CurrentService/CurrentService";
+import StoreProfessional from "./pages/StoreProfessional/StoreProfessional";
 import ServiceBooking from "./pages/ServiceBooking/ServiceBooking";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import TermsAndConditions from "./pages/CMS/TermsAndConditions";
 import Policy from "./pages/CMS/Policy";
 import AdminAuth from "./pages/Auth/AdminAuth";
 import CurrentDataShowcase from "./pages/AdminCurrentDataShowcase/page";
+import BeautyAcademy from "./pages/BeautyCourse/BeautyAcademy";
+import FranchiseModels from "./pages/Franchise/FranchiseModels";
+import BottomNavigation from "./components/BottomNavigator";
+import Cart from "./pages/Cart";
+import FavoriteServices from "./pages/FavoriteServices";
+import CartCheckout from "./pages/CartCheckout";
+import { clearAuthStorage } from "./utils/utility-functions";
+import EcomHome from "./pages/E-Com/pages/home/EcomHome";
+import ProductDetails from "./pages/E-Com/pages/ProductDetails";
+import ProductOrders from "./pages/E-Com/pages/ProductOrders";
 
 function App() {
   const location = useLocation();
   const hideFooterRoutes = ["/dashboard", "/admin/dashboard"];
   const hideFooter = hideFooterRoutes.includes(location.pathname);
-  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const isHome = location.pathname === "/";
   /* ================= AUTO LOGIN ================= */
 
   useEffect(() => {
@@ -65,7 +72,7 @@ function App() {
         dispatch(addUser(user));
       } catch (error) {
         console.log("Re-login failed:", error?.message);
-        localStorage.clear();
+        clearAuthStorage();
         dispatch(clearUser());
       } finally {
         dispatch(stopAuthLoading());
@@ -73,7 +80,7 @@ function App() {
     };
 
     reLogin();
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="font-para_regular">
@@ -84,11 +91,26 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
+
+          <Route
+            path="/franchise/franchise-info"
+            element={<FranchiseModels />}
+          />
+          <Route path="/course/course-info" element={<BeautyAcademy />} />
+
           <Route path="/auth/:type/:userType" element={<Authentication />} />
           <Route path="/services/all" element={<Service />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/cart/checkout" element={<CartCheckout />} />
+          <Route path="/cart/secure-checkout" element={<Cart />} />
+          <Route path="/customer/favorite" element={<FavoriteServices />} />
           <Route
             path="/services/:serviceId/current-service"
             element={<CurrentService />}
+          />
+          <Route
+            path="/stores/:storeId/current-store"
+            element={<StoreProfessional />}
           />
           <Route
             path="/services/book-service/:serviceName/:serviceId/:userId"
@@ -114,9 +136,25 @@ function App() {
             element={<AdminAuth resetPassword={true} />}
           />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+          {/* ========================= E-COM ================================== */}
+
+          <Route path="/e-commerce" element={<EcomHome />} />
+          <Route
+            path="/e-commerce/products/:productId"
+            element={<ProductDetails />}
+          />
+          <Route path="/e-commerce/orders" element={<ProductOrders />} />
+          <Route path="/e-com/home" element={<Navigate to="/e-commerce" replace />} />
+          <Route
+            path="/e-com/current-product/:productId"
+            element={<ProductDetails />}
+          />
+          <Route path="/e-com" element={<Navigate to="/e-commerce" replace />} />
         </Routes>
       </div>
       {!hideFooter && <Footer />}
+      <BottomNavigation />
     </div>
   );
 }

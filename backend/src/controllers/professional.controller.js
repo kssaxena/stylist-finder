@@ -9,6 +9,11 @@ import { validatePhone } from "../validators/contactNumber.validator.js";
 import { UploadImages } from "../utils/imageKit.io.js";
 import { ServiceBookings } from "../models/serviceBooking.model.js";
 import { Services } from "../models/service.model.js";
+import { PaymentTransaction } from "../models/paymentTransaction.models.js";
+import sendEmail from "../services/mail.service.js";
+import otpTemplate from "../template/otp.mail.template.js";
+import accountCreation from "../template/accountCreation.mail.template.js";
+import welcomeTemplate from "../template/welcome.mail.template.js";
 import {
   validateAadhaar,
   validateGST,
@@ -17,7 +22,8 @@ import {
 import { validateBankDetails } from "../validators/bankDetails.validator.js";
 
 const registerProfessional = asyncHandler(async (req, res) => {
-  const { contactNumber, name, email } = req.body;
+  const { contactNumber, name, email, password } = req.body;
+  const normalizedEmail = email?.trim() || "";
 
   // contact number validation
   if (!contactNumber) throw new ApiError(400, "Please enter contact number");
@@ -45,26 +51,48 @@ const registerProfessional = asyncHandler(async (req, res) => {
   if (existingUser)
     throw new ApiError(403, "You are already registered please login");
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  if (!otp) throw new ApiError(500, "Internal server error");
-  const otpStatus = otp ? true : false;
-  const currentDate = new Date();
-  const fiveMinutes = 5 * 60 * 1000;
-  const expiresAt = new Date(currentDate.getTime() + fiveMinutes);
+  const otp = normalizedEmail
+    ? Math.floor(100000 + Math.random() * 900000).toString()
+    : null;
+  if (normalizedEmail && !otp) throw new ApiError(500, "Internal server error");
+  const otpStatus = Boolean(otp);
+  const expiresAt = otp ? new Date(Date.now() + 5 * 60 * 1000) : null;
 
   const newUser = await Professional.create({
     name: name,
+    password: password,
     contactNumber: contactNumber,
-    email: email,
+    email: normalizedEmail || undefined,
     otp: otp,
     otpExpiry: expiresAt,
+    isTemporaryRegistered: Boolean(otp),
   });
 
-  const user = await Professional.findOne({
-    contactNumber: contactNumber,
-  }).select("name contactNumber email");
+  const user = await Professional.findById(newUser._id).select(
+    "name contactNumber email role",
+  );
   if (!user)
     throw new ApiError(400, "Registration incomplete. Please try again later");
+
+  if (!otp) {
+    const accessToken = newUser.generateAccessToken();
+    const refreshToken = newUser.generateRefreshToken();
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(
+          201,
+          { user, otpStatus: false, tokens: { accessToken, refreshToken } },
+          "Registration successful.",
+        ),
+      );
+  }
+
+  await sendEmail({
+    to: user?.email,
+    subject: "OTP Verification",
+    html: accountCreation(user?.name, otp),
+  });
 
   return res
     .status(200)
@@ -85,6 +113,11 @@ const loginProfessional = asyncHandler(async (req, res) => {
 
   const user = await Professional.findOne({ contactNumber: contactNumber });
   if (!user) throw new ApiError(404, "Invalid user");
+  if (!user.email)
+    throw new ApiError(
+      400,
+      "This account has no email address. Please log in with your password.",
+    );
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   if (!otp) throw new ApiError(500, "Internal server error");
@@ -97,6 +130,12 @@ const loginProfessional = asyncHandler(async (req, res) => {
   user.otpExpiry = expiresAt;
   await user.save();
 
+  await sendEmail({
+    to: user?.email,
+    subject: "OTP Verification",
+    html: otpTemplate(user?.name, otp),
+  });
+
   return res
     .status(200)
     .json(
@@ -106,6 +145,79 @@ const loginProfessional = asyncHandler(async (req, res) => {
         "OTP sent successfully !",
       ),
     );
+});
+
+const updatePassword = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { password } = req.body;
+
+  if (!userId || !password)
+    throw new ApiError(400, "Please fill the correct value");
+
+  const user = await Professional.findById(userId);
+  const userPassword = user.password;
+  if (!userPassword) {
+    user.password = password;
+    await user.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password saved successfully !"));
+  }
+  if (userPassword || user.password.length <= 1) {
+    user.password = password;
+    await user.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password updated successfully !"));
+  }
+});
+
+const passwordLogin = asyncHandler(async (req, res) => {
+  const { contactNumber, email, password } = req.body;
+  if (!contactNumber) throw new ApiError(400, "Invalid request ");
+
+  if (contactNumber) {
+    const user = await Professional.findOne({ contactNumber });
+    if (!user) throw new ApiError(401, "Invalid credentials");
+
+    const isValid = await user.comparePassword(password);
+    if (!isValid) throw new ApiError(401, "Incorrect Password !");
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { user, tokens: { accessToken, refreshToken } },
+          "Logged in successful !",
+        ),
+      );
+  }
+  if (email) {
+    const user = await Professional.findOne({ email });
+    if (!user) throw new ApiError(401, "Invalid credentials");
+
+    const isValid = await user.comparePassword(password);
+    if (!isValid) throw new ApiError(401, "Incorrect Password !");
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { user, tokens: { accessToken, refreshToken } },
+          "Logged in successful !",
+        ),
+      );
+  }
 });
 
 const otpVerification = asyncHandler(async (req, res) => {
@@ -131,6 +243,12 @@ const otpVerification = asyncHandler(async (req, res) => {
 
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
+
+    await sendEmail({
+      to: user?.email,
+      subject: "Welcome",
+      html: welcomeTemplate(user?.name),
+    });
 
     return res
       .status(200)
@@ -179,19 +297,36 @@ const otpVerification = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const { about, specialization, gender, serviceType, paymentOptions } =
-    req.body;
+  const {
+    name,
+    contactNumber,
+    email,
+    about,
+    specialization,
+    gender,
+    serviceType,
+    paymentOptions,
+  } = req.body;
   const { professionalId } = req.params;
-  if (!professionalId || !about || !specialization)
-    throw new ApiError(400, "Invalid request, please try again later");
+  if (!professionalId || !name || !contactNumber)
+    throw new ApiError(400, "Name and contact number are required");
+  if (!validatePhone(contactNumber))
+    throw new ApiError(400, "Invalid contact number");
+  if (name.length > 50) throw new ApiError(400, "Name length is too long");
 
   const user = await Professional.findById(professionalId);
   if (!user) throw new ApiError(404, "Invalid user");
 
   const specialServiceName = specialization
-    ? specialization.split(",").map((s) => s.trim())
+    ? specialization
+        .split(",")
+        .map((service) => service.trim())
+        .filter(Boolean)
     : [];
 
+  user.name = name;
+  user.contactNumber = contactNumber;
+  user.email = email?.trim() || null;
   user.about = about;
   user.specialization = specialServiceName;
   user.gender = gender;
@@ -500,6 +635,15 @@ const dashboardData = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, address, "Data fetched successfully !"));
   }
+  if (query === "payments") {
+    const payments = await PaymentTransaction.find({ user: professionalId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, payments, "Payments fetched successfully !"));
+  }
   if (query === "bankDetails") {
     const bankDetails = await BankDetails.findOne({
       professional: professionalId,
@@ -541,12 +685,12 @@ const submitKYCVerification = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Aadhar and Pan numbers are required for KYC");
 
   //   validators
-  if (validateAadhaar(aadharNumber) === !true)
+  if (!validateAadhaar(aadharNumber).valid)
     throw new ApiError(401, "Invalid AADHAR number");
-  if (validatePAN(panNumber) === !true)
+  if (!validatePAN(panNumber).valid)
     throw new ApiError(401, "Invalid PAN number");
   if (gstNumber) {
-    if (validateGST(gstNumber) === !true)
+    if (!validateGST(gstNumber).valid)
       throw new ApiError(401, "Invalid GST number");
   }
 
@@ -659,6 +803,8 @@ const reLoginToken = asyncHandler(async (req, res) => {
 export {
   registerProfessional,
   loginProfessional,
+  updatePassword,
+  passwordLogin,
   otpVerification,
   updateProfile,
   addAddress,

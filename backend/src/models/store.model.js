@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const storeSchema = new mongoose.Schema(
   {
     storeName: { type: String, required: true },
     storeContactNumber: { type: String, required: true },
-    storeEmail: { type: String, required: true },
-    address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
+    storeEmail: { type: String },
+    password: { type: String },
+    address: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
     bank: { type: mongoose.Schema.Types.ObjectId, ref: "BankDetails" },
     storeStaffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "StoreStaff" }],
     services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Services" }],
@@ -40,25 +42,25 @@ const storeSchema = new mongoose.Schema(
       ownerAddress: String,
       ownerKycSubmitted: { type: Boolean, default: false },
       aadhar: {
-        number: { type: Number },
+        number: { type: String },
         image: {
           front: { url: String, fileId: String },
           back: { url: String, fileId: String },
         },
       },
       pan: {
-        number: { type: Number },
+        number: { type: String },
         image: { url: String, fileId: String },
       },
     },
 
     // store kyc
     pan: {
-      number: { type: Number },
+      number: { type: String },
       image: { url: String, fileId: String },
     },
     gst: {
-      number: { type: Number },
+      number: { type: String },
       image: { url: String, fileId: String },
     },
 
@@ -116,6 +118,15 @@ const storeSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+storeSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+storeSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
 
 storeSchema.methods.generateAccessToken = function () {
   return jwt.sign(

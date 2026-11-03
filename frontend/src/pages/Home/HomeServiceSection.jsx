@@ -4,6 +4,10 @@ import CustomerServiceCard from "../../components/ui/CustomerServiceCard";
 const HomeServiceSection = ({ title, services }) => {
   const navigate = useNavigate();
 
+  if (!Array.isArray(services) || services.length === 0) {
+    return null;
+  }
+
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -19,9 +23,9 @@ const HomeServiceSection = ({ title, services }) => {
         </button>
       </div>
 
-      <div className="flex gap-4 overflow-scroll scrollbar-hide pb-2 w-full">
+      <div className="flex gap-4 overflow-scroll scrollbar-hide pb-2 w-full justify-start items-start">
         {services.map((service) => (
-          <div key={service._id} className=" w-full">
+          <div key={service._id} className="w-fit">
             <CustomerServiceCard service={service} />
           </div>
         ))}

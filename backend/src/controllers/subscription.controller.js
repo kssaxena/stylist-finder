@@ -2,9 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Subscription } from "../models/subscription.model.js";
-import { Customer } from "../models/customer.model.js";
 import { Store } from "../models/store.model.js";
-import { Professional } from "../models/professional.model.js";
 import { Admin } from "../models/admin.model.js";
 
 const createSubscription = asyncHandler(async (req, res) => {
@@ -27,6 +25,7 @@ const createSubscription = asyncHandler(async (req, res) => {
     price = {},
     support = "basic",
     mediaLimit = {},
+    serviceLimit = {},
     booking = {},
     visibility = {},
     franchise = {},
@@ -39,8 +38,8 @@ const createSubscription = asyncHandler(async (req, res) => {
   if (
     !planName ||
     !planFor ||
-    !price.mrp ||
-    !price.sellingPrice ||
+    price.mrp === undefined ||
+    price.sellingPrice === undefined ||
     !validity.months
   ) {
     throw new ApiError(400, "Required fields are missing.");
@@ -78,6 +77,11 @@ const createSubscription = asyncHandler(async (req, res) => {
       unlimitedVideos: Boolean(mediaLimit.unlimitedVideos),
     },
 
+    serviceLimit: {
+      count: Number(serviceLimit.count || 0),
+      unlimited: Boolean(serviceLimit.unlimited),
+    },
+
     booking: {
       enabled: Boolean(booking.enabled),
       advancedBooking: Boolean(booking.advancedBooking),
@@ -110,7 +114,7 @@ const createSubscription = asyncHandler(async (req, res) => {
     features,
     faqs,
 
-    isActive: isActive === "true",
+    // isActive: isActive === "true",
   });
 
   return res
@@ -155,52 +159,99 @@ const purchaseSubscription = asyncHandler(async (req, res) => {
   const subscription = await Subscription.findById(subscriptionId);
   if (!subscription) throw new ApiError(400, "Subscription not available");
 
-  switch (subscription.planFor) {
-    case "customer": {
-      const customer = await Customer.findByIdAndUpdate(userId, {
-        subscription: {
-          subscriptionModel: subscriptionId,
-          subscriptionPurchased: true,
-          subscriptionValidity: Date.now() * 100,
-        },
-      });
-      if (!customer) throw new ApiError(400, "Unable to process request");
-
-      return res
-        .status(200)
-        .json(new ApiResponse(200, {}, "Subscription purchase confirmed"));
-    }
-    case "store": {
-      const store = await Store.findByIdAndUpdate(userId, {
-        subscription: {
-          subscriptionModel: subscriptionId,
-          subscriptionPurchased: true,
-          subscriptionValidity: Date.now() * 100,
-        },
-      });
-      if (!store) throw new ApiError(400, "Unable to process request");
-
-      return res
-        .status(200)
-        .json(new ApiResponse(200, {}, "Subscription purchase confirmed"));
-    }
-    case "professional": {
-      const professional = await Professional.findByIdAndUpdate(userId, {
-        subscription: {
-          subscriptionModel: subscriptionId,
-          subscriptionPurchased: true,
-          subscriptionValidity: Date.now() * 100,
-        },
-      });
-      if (!professional) throw new ApiError(400, "Unable to process request");
-
-      return res
-        .status(200)
-        .json(new ApiResponse(200, {}, "Subscription purchase confirmed"));
-    }
-    default:
-      throw new ApiError(400, "Invalid session or query");
+  if (
+    subscription.planFor !== "store" ||
+    subscription.price.sellingPrice > 0 ||
+    req.user?._id?.toString() !== userId.toString()
+  ) {
+    throw new ApiError(400, "Invalid complimentary subscription purchase");
   }
+
+  const validity = new Date();
+  validity.setMonth(validity.getMonth() + (subscription.validity.months || 0));
+  const store = await Store.findByIdAndUpdate(
+    userId,
+    {
+      subscription: {
+        subscriptionModel: subscriptionId,
+        subscriptionPurchased: true,
+        subscriptionValidity: validity,
+      },
+    },
+    { new: true },
+  );
+  if (!store) throw new ApiError(400, "Unable to process request");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Complimentary subscription activated"));
+});
+
+const getSubscriptionById = asyncHandler(async (req, res) => {
+  const { subscriptionId } = req.params;
+  const subscription = await Subscription.findById(subscriptionId);
+  if (!subscription) throw new ApiError(400, "Data not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, subscription, "Data fetched successfully !"));
+});
+
+const updateSubscription = asyncHandler(async (req, res) => {
+  const { subscriptionId } = req.params;
+  const subscription = await Subscription.findById(subscriptionId);
+  if (!subscription) throw new ApiError(404, "Subscription not found");
+  if (!req.body.parsingData)
+    throw new ApiError(400, "Subscription data is missing.");
+
+  const parsed = JSON.parse(req.body.parsingData);
+  const { planName, planFor, customModelFor, tagline, isActive } = req.body;
+  const updated = await Subscription.findByIdAndUpdate(
+    subscriptionId,
+    {
+      planName,
+      planFor,
+      customModel:
+        req.body.customModel === "true" ||
+        planFor === "custom" ||
+        Boolean(customModelFor),
+      customModelFor,
+      tagline,
+      validity: {
+        months: Number(parsed.validity?.months),
+        renewalType: parsed.validity?.renewalType || "yearly",
+      },
+      price: {
+        mrp: Number(parsed.price?.mrp),
+        discount: Number(parsed.price?.discount || 0),
+        sellingPrice: Number(parsed.price?.sellingPrice),
+      },
+      support: parsed.support || "basic",
+      mediaLimit: {
+        photos: Number(parsed.mediaLimit?.photos || 0),
+        videos: Number(parsed.mediaLimit?.videos || 0),
+        unlimitedPhotos: Boolean(parsed.mediaLimit?.unlimitedPhotos),
+        unlimitedVideos: Boolean(parsed.mediaLimit?.unlimitedVideos),
+      },
+      serviceLimit: {
+        count: Number(parsed.serviceLimit?.count || 0),
+        unlimited: Boolean(parsed.serviceLimit?.unlimited),
+      },
+      booking: parsed.booking || {},
+      visibility: parsed.visibility || {},
+      franchise: parsed.franchise || {},
+      managementTools: parsed.managementTools || {},
+      marketing: parsed.marketing || {},
+      features: parsed.features || [],
+      faqs: parsed.faqs || [],
+      isActive: isActive === "true",
+    },
+    { new: true, runValidators: true },
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updated, "Subscription updated successfully."));
 });
 
 export {
@@ -208,4 +259,6 @@ export {
   getSubscriptionByMadeFor,
   getAllSubscription,
   purchaseSubscription,
+  getSubscriptionById,
+  updateSubscription,
 };

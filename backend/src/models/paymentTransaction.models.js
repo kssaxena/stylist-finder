@@ -31,9 +31,15 @@ const paymentTransactionSchema = new mongoose.Schema(
 
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Store",
+      refPath: "userModel",
       required: true,
       index: true,
+    },
+    userModel: {
+      type: String,
+      enum: ["Store", "Customer", "Professional"],
+      default: "Store",
+      required: true,
     },
 
     amount: {

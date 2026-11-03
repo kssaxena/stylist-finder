@@ -1,88 +1,83 @@
 import React, { useEffect, useState } from "react";
-import { GiBodyBalance, GiDress } from "react-icons/gi";
-import { FaHandSparkles, FaPaintBrush, FaRegStar } from "react-icons/fa";
-import { PiHairDryerFill } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import InputBox from "../../components/Input";
 import { BsGeoAlt, BsSearch } from "react-icons/bs";
-import {
-  GiLipstick,
-  GiHairStrands,
-  GiNails,
-  GiRazor,
-  GiMeditation,
-  GiMirrorMirror,
-} from "react-icons/gi";
-import { FaSpa, FaEye } from "react-icons/fa";
+import { saveCoordinates } from "../../utils/location-service";
+import { FetchData } from "../../utils/FetchFromApi";
+import Button from "../../components/Button";
+import { useToast } from "../../components/hooks/ToastContext";
 
-const serviceTags = [
-  {
-    id: 1,
-    tagName: "Bridal & Event Makeup",
-    query: "Hair",
-    icon: GiLipstick,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_34_09%20PM.png",
-  },
-  {
-    id: 2,
-    tagName: "Hair Styling & Treatments",
-    query: "Hair",
-    icon: GiHairStrands,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_46_27%20PM.png",
-  },
-  {
-    id: 3,
-    tagName: "Skin Care & Facials",
-    query: "Skin",
-    icon: FaSpa,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_24_29%20PM.png",
-  },
-  {
-    id: 4,
-    tagName: "Hand & Feet Care",
-    query: "Body",
-    icon: GiNails,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_31_30%20PM.png",
-  },
-  {
-    id: 5,
-    tagName: "Waxing & Hair Removal",
-    query: "Nails",
-    icon: GiRazor,
-    image: "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2001_05_29%20PM.png",
-  },
-  {
-    id: 6,
-    tagName: "Eye & Brow Enhancements",
-    query: "Makeup",
-    icon: FaEye,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_40_22%20PM.png",
-  },
-  {
-    id: 7,
-    tagName: "Body Wellness",
-    query: "Bride",
-    icon: GiMeditation,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_43_17%20PM.png",
-  },
-  {
-    id: 8,
-    tagName: "Pre-Grooming Packages",
-    query: "Bride",
-    icon: GiMirrorMirror,
-    image:
-      "https://ik.imagekit.io/cuteandglow/ChatGPT%20Image%20Aug%2019,%202026,%2012_46_27%20PM.png",
-  },
-];
+const prepareCategories = (categories = []) => {
+  if (!Array.isArray(categories)) {
+    return {
+      items: [],
+      columns: 3,
+    };
+  }
+
+  const items = [...categories];
+
+  // Randomly remove items until target length
+  const removeRandomItems = (array, targetLength) => {
+    const result = [...array];
+
+    while (result.length > targetLength) {
+      const randomIndex = Math.floor(Math.random() * result.length);
+      result.splice(randomIndex, 1);
+    }
+
+    return result;
+  };
+
+  console.log(categories);
+
+  if (items.length >= 9) {
+    return {
+      items: removeRandomItems(items, 9),
+      columns: 3,
+    };
+  }
+
+  if (items.length >= 6) {
+    return {
+      items: removeRandomItems(items, 6),
+      columns: 3,
+    };
+  }
+
+  if (items.length >= 4) {
+    return {
+      items: removeRandomItems(items, 3),
+      columns: 3,
+    };
+  }
+
+  return {
+    items: [],
+    columns: 4,
+  };
+};
 
 const MobileServiceTags = () => {
   const navigate = useNavigate();
+  const { alertInfo } = useToast();
+  const [search, setSearch] = useState("");
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await FetchData(
+          "category-subcategory/get/categories/all",
+          "get",
+        );
+        setCategories(response.data.data);
+      } catch (err) {}
+    };
+
+    getAllCategories();
+  }, []);
+
+  const { items: sanitizedCategories, columns } = prepareCategories(categories);
 
   const [city, setCity] = useState(sessionStorage.getItem("userCity") || "");
   const [locationMessage, setLocationMessage] = useState(
@@ -137,8 +132,6 @@ const MobileServiceTags = () => {
   };
 
   const detectLocation = () => {
-    if (sessionStorage.getItem("userCity")) return;
-
     if (!navigator.geolocation) {
       setLocationMessage("Your browser doesn't support location.");
       setShowManualInput(true);
@@ -149,6 +142,10 @@ const MobileServiceTags = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        saveCoordinates({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
         reverseGeocode(position.coords.latitude, position.coords.longitude);
       },
       (error) => {
@@ -182,7 +179,7 @@ const MobileServiceTags = () => {
   };
 
   useEffect(() => {
-    if (!city) detectLocation();
+    detectLocation();
   }, []);
 
   useEffect(() => {
@@ -208,6 +205,13 @@ const MobileServiceTags = () => {
 
     return () => clearTimeout(timer);
   }, [manualCity]);
+
+  const onSearchSubmit = () => {
+    localStorage.clear("homeClickedSearch");
+    localStorage.setItem("homeClickedSearch", search.toLowerCase());
+    navigate("/services/all");
+    setSearch("");
+  };
 
   return (
     <div className="w-full h-full px-4 py-4">
@@ -277,14 +281,27 @@ const MobileServiceTags = () => {
       </div>
 
       {/* Search */}
-      <div className="w-full relative">
-        <InputBox placeholder="Search your desired service here" type="text" />
-        <BsSearch className="absolute top-6 right-5 text-neutral-700" />
-      </div>
+      <form className="w-full relative" onSubmit={onSearchSubmit}>
+        <InputBox
+          placeholder="Search your desired service here"
+          type="text"
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button
+          className="absolute top-[1.12rem] rounded-full right-2 text-neutral-700 bg-neutral-200 p-2"
+          type="submit"
+        >
+          <BsSearch />
+        </button>
+      </form>
 
       {/* Categories */}
-      <div className="grid grid-cols-4 gap-y-4 border py-5 rounded-xl shadow-md border-neutral-200">
-        {serviceTags.map((item) => {
+      <div
+        className={`grid ${
+          columns === 3 ? "grid-cols-3" : "grid-cols-3"
+        } gap-y-4 border py-5 rounded-xl shadow-md border-neutral-200`}
+      >
+        {sanitizedCategories.map((item) => {
           const Icon = item.icon;
 
           return (
@@ -294,25 +311,43 @@ const MobileServiceTags = () => {
             >
               <div
                 onClick={() => {
-                  localStorage.setItem("homeClickedCategory", item.query);
+                  localStorage.clear("homeClickedCategory");
+                  localStorage.setItem("homeClickedCategory", item?._id);
                   navigate("/services/all");
                 }}
                 className="w-24 h-24 rounded-2xl flex items-center justify-center shadow-md"
               >
                 {/* <Icon className="text-3xl text-[#8B2954]" /> */}
                 <img
-                  src={item.image}
+                  src={item?.image?.url}
                   className="w-full h-full object-contain"
                 />
               </div>
 
               <span className="text-gray-600 text-center leading-4 text-xs">
-                {item.tagName}
+                {item?.title}
               </span>
             </div>
           );
         })}
       </div>
+      <div className="flex justify-between items-center w-full py-5 px-10">
+        <Button
+          LabelName="Avail franchise"
+          onClick={() => navigate("/franchise/franchise-info")}
+        />
+
+        <Button
+          LabelName="beauty course"
+          onClick={() => navigate("/course/course-info")}
+        />
+      </div>
+      <Button
+        LabelName="Register Parlor / Stores"
+        className="w-full"
+        variant="secondary"
+        onClick={() => navigate("/auth/register/store")}
+      />
     </div>
   );
 };

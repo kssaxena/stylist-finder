@@ -16,23 +16,44 @@ import {
   reLoginToken,
   deleteBankDetails,
   getCustomerById,
+  updateProfile,
+  passwordLogin,
+  updatePassword,
+  actionsForStore,
 } from "../controllers/customer.controller.js";
 
 import { VerifyCustomer } from "../middlewares/customer.middleware.js";
+import { Customer } from "../models/customer.model.js";
+import { createPasswordResetHandlers } from "../controllers/passwordReset.controller.js";
 
 const router = Router();
+const passwordReset = createPasswordResetHandlers({
+  Model: Customer,
+  identityFields: { contactNumber: "contactNumber", email: "email" },
+  emailField: "email",
+  nameField: "name",
+});
 
 //public routes
 router.route("/register").post(registerCustomer);
 router.route("/login").post(loginCustomer);
+router.route("/login/via/password").post(passwordLogin);
 router.route("/auth/re-login").post(reLoginToken);
 router.route("/get/customer/data/:customerId").get(getCustomerById);
+router.route("/update/password/:userId").post(updatePassword);
+router
+  .route("/password-reset/request")
+  .post(passwordReset.requestPasswordReset);
+router
+  .route("/password-reset/confirm")
+  .post(passwordReset.confirmPasswordReset);
 
 //private routes
 router
   .route("/otp/authentication/:verificationType/:customerId")
   .post(otpVerification);
 router.route("/update/gender/:customerId").post(VerifyCustomer, updateGender);
+router.route("/update/profile/:customerId").post(VerifyCustomer, updateProfile);
 router
   .route("/update/add/alternate-contact-number/:customerId")
   .post(VerifyCustomer, addAlternateContactNumber);
@@ -49,8 +70,11 @@ router
   .route("/update/modify-address/:customerId/:addressId")
   .post(VerifyCustomer, updateAddress);
 router
-  .route("/update/delete-address/:customerId/:addressId")
-  .post(VerifyCustomer, deleteAddress);
+  .route("/update/action-on-store/:action/:keyId/:customerId")
+  .post(VerifyCustomer, actionsForStore);
+router
+  .route("/update/delete-address/:addressId/:customerId")
+  .delete(VerifyCustomer, deleteAddress);
 router
   .route("/update/add-bank-details/:customerId")
   .post(VerifyCustomer, addBankDetails);

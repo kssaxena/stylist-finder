@@ -82,23 +82,33 @@ export const customerRegistrationInputs = [
   {
     label: "Name",
     storeLabel: "Store Name",
-    placeholder: "Enter your name",
+    placeholder: "Enter name",
     name: "name",
     type: "text",
   },
   {
     label: "Contact Number",
-    storeLabel: "Store Number",
-    placeholder: "Enter your contact number",
+    storeLabel: "Store Contact Number",
+    placeholder: "Enter contact number",
     name: "contactNumber",
     type: "text",
   },
   {
     label: "Email",
     storeLabel: "Store Email",
-    placeholder: "Enter your email",
+    placeholder: "Enter email",
     name: "email",
     type: "email",
+    // required: false,
+  },
+  {
+    label: "Password",
+    storeLabel: "Password",
+    placeholder: "",
+    name: "password",
+    type: "password",
+    passwordIndication: true,
+    placeholder: "Eg: Abcd@123",
   },
 ];
 
@@ -171,6 +181,11 @@ export const activeBookings = [
 
 export const adminDashboardSection = [
   {
+    query: "enquiries",
+    label: "Enquiries",
+    count: 0,
+  },
+  {
     query: "customer",
     label: "Customer",
     count: 0,
@@ -186,6 +201,11 @@ export const adminDashboardSection = [
     query: "professional",
     label: "Professional",
     icon: FaUserAlt,
+    count: 0,
+  },
+  {
+    query: "categories",
+    label: "Categories",
     count: 0,
   },
   {
@@ -209,8 +229,28 @@ export const adminDashboardSection = [
     count: 0,
   },
   {
+    query: "payments",
+    label: "Payments",
+    count: 0,
+  },
+  {
     query: "adminsQuery",
     label: "Admins",
+    count: 0,
+  },
+  {
+    query: "franchise",
+    label: "Franchise",
+    count: 0,
+  },
+  {
+    query: "products",
+    label: "E-commerce products & stock",
+    count: 0,
+  },
+  {
+    query: "product_orders",
+    label: "E-commerce orders",
     count: 0,
   },
 ];
@@ -241,5 +281,115 @@ export const homeBanners = [
     subtitle: "Hair Care",
     description: "Professional hair spa treatments starting at ₹499.",
     link: "/services/all?category=Hair%20Styling%20%26%20Treatments",
+  },
+];
+
+export const formInputs = [
+  {
+    label: "Name",
+    name: "name",
+    type: "text",
+    required: true,
+    placeholder: "Enter franchise name",
+  },
+  {
+    label: "Subtitle name",
+    name: "subtitle",
+    type: "text",
+    required: false,
+    placeholder: "Eg: Efficient & Compact",
+  },
+  {
+    label: "Total budget",
+    name: "budget",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹10 Lakhs - ₹15 Lakhs",
+  },
+  {
+    label: "Franchise fee",
+    name: "franchiseFee",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹2L - ₹3L",
+  },
+  {
+    label: "interior cost",
+    name: "interior",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹4L - ₹5L",
+  },
+  {
+    label: "equipment provided",
+    name: "equipment",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹2.5L - ₹3L",
+  },
+  {
+    label: "stock provided",
+    name: "stock",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹1L - ₹1.5L",
+  },
+  {
+    label: "marketing expenses",
+    name: "marketing",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹50,000",
+  },
+  {
+    label: "working Capital",
+    name: "workingCapital",
+    type: "text",
+    required: false,
+    placeholder: "Eg: ₹1,00,000",
+  },
+  {
+    label: "space required",
+    name: "space",
+    type: "text",
+    required: false,
+    placeholder: "Eg: 300-500 Sq Ft",
+  },
+  {
+    label: "staff requirement",
+    name: "staff",
+    type: "text",
+    required: false,
+    placeholder: "Eg: 2-3",
+  },
+  {
+    label: "ROI",
+    name: "roi",
+    type: "text",
+    required: false,
+    placeholder: "Eg: 14-18 Months",
+  },
+  {
+    label: "location ",
+    name: "location",
+    type: "text",
+    required: false,
+    placeholder:
+      "Eg: Semi-urban areas, small towns (Tier-2/3 cities), or residential societies.",
+  },
+  {
+    label: "services provided",
+    name: "services",
+    type: "text",
+    required: false,
+    placeholder:
+      "Eg: Basic hair styling, threading, waxing, standard facials, manicures and pedicures.",
+  },
+  {
+    label: "advantage",
+    name: "advantage",
+    type: "text",
+    required: false,
+    placeholder: "Explain all the advantage you are providing",
   },
 ];

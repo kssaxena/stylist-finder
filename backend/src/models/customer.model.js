@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const customerSchema = new mongoose.Schema(
   {
@@ -7,6 +8,7 @@ const customerSchema = new mongoose.Schema(
     name: { type: String, required: true },
     contactNumber: { type: String, required: true },
     email: { type: String },
+    password: { type: String },
 
     // extra details
     gender: {
@@ -62,6 +64,15 @@ const customerSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+customerSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+customerSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
 
 customerSchema.methods.generateAccessToken = function () {
   return jwt.sign(

@@ -22,6 +22,8 @@ const adminSchema = new mongoose.Schema(
     sectionList: [{ type: String }],
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: true },
+    otp: { type: String, default: null },
+    otpExpiry: { type: Date, default: null },
   },
   { timestamps: true },
 );

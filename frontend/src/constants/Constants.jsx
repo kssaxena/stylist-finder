@@ -1,7 +1,9 @@
 import { BsBank2 } from "react-icons/bs";
 import {
   FaAward,
+  FaCreditCard,
   FaHeart,
+  FaHome,
   FaImages,
   FaMapMarkerAlt,
   FaServicestack,
@@ -39,7 +41,7 @@ export const ChooseUs = [
 export const DashboardSectionList = [
   {
     label: "Overview",
-    icon: <GoVerified />,
+    icon: <FaHome />,
     query: "overview",
     roles: ["Customer", "Store", "Professional"],
   },
@@ -59,6 +61,12 @@ export const DashboardSectionList = [
     label: "Bank Details",
     icon: <BsBank2 />,
     query: "bankDetails",
+    roles: ["Customer", "Store", "Professional"],
+  },
+  {
+    label: "Payment Details",
+    icon: <FaCreditCard />,
+    query: "payments",
     roles: ["Customer", "Store", "Professional"],
   },
   {

@@ -147,7 +147,7 @@ const Policy = () => {
             </p>
 
             <p>
-              <strong>Phone:</strong> +91-7520355515
+              <strong>Phone:</strong> +91-9288225515
             </p>
 
             <p className="pt-3">
@@ -170,7 +170,6 @@ const Policy = () => {
           <h1 className="text-3xl md:text-5xl font-bold">
             Razorpay Payment Policy
           </h1>
-
         </div>
 
         {/* Policy Sections */}
@@ -191,7 +190,6 @@ const Policy = () => {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

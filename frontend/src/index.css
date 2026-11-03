@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Mooli&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap");
 
 @import "tailwindcss";
 
@@ -79,4 +79,31 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 2px;
+  padding: 1px;
+  height: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #18181b08;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #8b2954;
+  border-radius: 1px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #8b2954;
 }

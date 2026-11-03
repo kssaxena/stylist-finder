@@ -37,7 +37,7 @@ const CustomerProfileCard = ({
       );
       reload();
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     } finally {
       stopLoading();
     }
@@ -68,7 +68,7 @@ const CustomerProfileCard = ({
 
       {/* Details */}
 
-      <div className="grid md:grid-cols-2 gap-6 p-8">
+      <div className="grid md:grid-cols-2 gap-2 p-4">
         <InfoCard
           icon={<FaUser size={18} />}
           title="Gender"
@@ -117,7 +117,7 @@ const CustomerProfileCard = ({
 
       {/* Statistics */}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 px-8 pb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-8 pb-8">
         <StatCard title="Addresses" value={customer?.address?.length || 0} />
 
         <StatCard title="Bookings" value={customer?.bookings?.length || 0} />

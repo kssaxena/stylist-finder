@@ -1,20 +1,22 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
 // import Logo from "../assets/Logo.png";
 import InputBox from "./Input";
 import Button from "./Button";
-import Login from "./Login";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "../components/hooks/ToastContext";
 import { customerRegistrationInputs } from "../constants/constants";
 import { FetchData } from "../utils/FetchFromApi";
-import { parseErrorMessage } from "../utils/parseErrorMessage";
 import OtpVerificationPopup from "../components/ui/OtpVerificationPopup";
+import { useDispatch } from "react-redux";
+import { addUser, clearUser } from "../redux/slice/authSlice";
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { userType } = useParams("");
   const { alertSuccess, alertError, alertInfo } = useToast();
+  const dispatch = useDispatch();
   const formRef = useRef();
   const [data, setData] = useState();
   const [otpPopup, setOtpPopup] = useState(false);
@@ -51,11 +53,22 @@ const Register = () => {
         "post",
         formData,
       );
-      if (response.data.data.otpStatus === true) {
+      const result = response.data.data;
+      if (result.otpStatus === true) {
         setOtpPopup(true);
         formRef.current.reset();
-        setData(response.data.data);
-        setOTPNumber(response.data.data.otp);
+        setData(result);
+        setOTPNumber(result.otp);
+      } else if (result.tokens && result.user) {
+        localStorage.setItem("accessToken", result.tokens.accessToken);
+        localStorage.setItem("refreshToken", result.tokens.refreshToken);
+        localStorage.setItem("role", result.user.role);
+        dispatch(clearUser());
+        dispatch(addUser(result.user));
+        formRef.current.reset();
+        navigate(location.state?.from?.pathname || "/dashboard");
+        alertSuccess(response.data.message);
+        return;
       }
       alertInfo(response.data.message);
     } catch (err) {
@@ -68,7 +81,9 @@ const Register = () => {
       {/* Back Button */}
       <button
         onClick={() => {
-          navigate(`/auth/${"login"}/${"customer"}`);
+          navigate(`/auth/${"login"}/${"customer"}`, {
+            state: location.state,
+          });
         }}
         className="w-12 h-12 rounded-full border flex items-center justify-center hover:bg-[#8B2954] hover:text-white transition"
       >
@@ -82,7 +97,7 @@ const Register = () => {
           <div className="flex justify-center">
             <img
               src={
-                "https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"
+                "https://ik.imagekit.io/cuteandglow/WhatsApp%20Image%202026-09-11%20at%208.26.34%20AM.jpeg"
               }
               alt="Logo"
               className="w-24 h-24 object-contain"
@@ -101,7 +116,11 @@ const Register = () => {
           <p className="text-center mt-8 text-gray-600 hidden md:block">
             Already have an account?{" "}
             <button
-              onClick={() => navigate(`/auth/${"login"}/${userType}`)}
+              onClick={() =>
+                navigate(`/auth/${"login"}/${userType}`, {
+                  state: location.state,
+                })
+              }
               className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
             >
               Login
@@ -112,6 +131,7 @@ const Register = () => {
         <form ref={formRef} onSubmit={handleRegister}>
           {customerRegistrationInputs.map((data, index) => (
             <InputBox
+              placeholder={data.placeholder}
               key={index}
               label={
                 userType === "customer"
@@ -124,6 +144,14 @@ const Register = () => {
               }
               type={data.type}
               name={data.name}
+              required={data.required}
+              onClick={() =>
+                data.passwordIndication === true
+                  ? alertInfo(
+                      "Password should be of min 8 characters, it should include at-least 1 uppercase, 1 lowercase, 1 special character, 1 number",
+                    )
+                  : ""
+              }
             />
           ))}
           <div className="flex items-start gap-3 py-4">
@@ -150,7 +178,11 @@ const Register = () => {
         <p className="text-center mt-8 text-gray-600 block md:hidden">
           Already have an account?{" "}
           <button
-            onClick={() => navigate(`/auth/${"login"}/${userType}`)}
+            onClick={() =>
+              navigate(`/auth/${"login"}/${userType}`, {
+                state: location.state,
+              })
+            }
             className="text-[#8B2954] font-semibold hover:underline cursor-pointer"
           >
             Login
@@ -165,6 +197,7 @@ const Register = () => {
         data={data}
         verificationType="registerVerification"
         otpNumber={otpNumber}
+        redirectTo={location.state?.from?.pathname}
       />
     </div>
   );

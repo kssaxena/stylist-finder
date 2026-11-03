@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FaSearch,
   FaFilter,
@@ -8,11 +8,27 @@ import {
 } from "react-icons/fa";
 import Button from "../../../components/Button";
 import { motion, AnimatePresence } from "framer-motion";
+import { FetchData } from "../../../utils/FetchFromApi";
 
 const ServiceFilters = ({ filters, setFilters }) => {
   const [search, setSearch] = useState(filters.search);
   const [isOpen, setIsOpen] = useState(false);
   const [rotate, setRotate] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const getAllCategoriesName = async () => {
+      try {
+        const response = await FetchData(
+          "category-subcategory/get/categories/name-all",
+          "get",
+        );
+        setCategories(response.data.data);
+      } catch (err) {}
+    };
+
+    getAllCategoriesName();
+  }, []);
 
   // Debounce Search
   useEffect(() => {
@@ -37,6 +53,8 @@ const ServiceFilters = ({ filters, setFilters }) => {
 
   const clearFilters = () => {
     setSearch("");
+    setFilters("");
+    localStorage.clear("homeClickedCategory");
 
     setFilters({
       page: 1,
@@ -47,6 +65,11 @@ const ServiceFilters = ({ filters, setFilters }) => {
       sortBy: "latest",
     });
   };
+
+  const catName = useMemo(() => {
+    const q = filters?.category;
+    return categories.filter((cat) => `${cat?._id}`.includes(q));
+  }, [filters, categories]);
 
   return (
     <div className="bg-white rounded-2xl shadow border border-neutral-200 p-5 mb-8">
@@ -93,11 +116,11 @@ const ServiceFilters = ({ filters, setFilters }) => {
                 className="rounded-xl border border-neutral-200 px-3 py-2 focus:border-[#d65f92] outline-none"
               >
                 <option value="">All Categories</option>
-                <option value="Hair">Hair</option>
-                <option value="Skin">Skin</option>
-                <option value="Makeup">Makeup</option>
-                <option value="Spa">Spa</option>
-                <option value="Nails">Nails</option>
+                {categories?.map((i, index) => (
+                  <option key={index} value={i?._id}>
+                    {i?.title}
+                  </option>
+                ))}
               </select>
               <select
                 value={filters.serviceFor}
@@ -121,8 +144,7 @@ const ServiceFilters = ({ filters, setFilters }) => {
               </select>
               <Button
                 onClick={() => {
-                  setFilters("");
-                  localStorage.clear("homeClickedCategory");
+                  clearFilters();
                 }}
                 variant="secondary"
                 LabelName={
@@ -142,7 +164,7 @@ const ServiceFilters = ({ filters, setFilters }) => {
           <div>
             {filters.category && (
               <span className="px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-xs">
-                Category : {filters.category}
+                Category : {catName[0]?.title}
               </span>
             )}
           </div>

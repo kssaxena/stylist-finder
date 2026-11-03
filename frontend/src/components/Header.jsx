@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { HiHome, HiMenu, HiX } from "react-icons/hi";
-// import Logo from "../assets/Logo.png";
-import Button from "./Button";
-import { FaMapMarkerAlt } from "react-icons/fa";
-import { FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { HiHome } from "react-icons/hi";
+import { FiUser } from "react-icons/fi";
 import { AnimatePresence, motion, px } from "framer-motion";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearUser } from "../redux/slice/authSlice";
 import { useToast } from "./hooks/ToastContext";
 import { BsGeoAlt } from "react-icons/bs";
+import { FaHeart, FaShoppingCart } from "react-icons/fa";
 import InputBox from "./Input";
+import { saveCoordinates } from "../utils/location-service";
 
 const AccordionCard = ({ children, isScrolled }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -59,6 +56,8 @@ const AccordionCard = ({ children, isScrolled }) => {
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
+  const cartCount = useSelector((state) => state.shopping.cartItems.length);
+  const userRole = user?.role.toLowerCase();
   const { alertInfo } = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -145,6 +144,10 @@ const Header = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        saveCoordinates({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
         reverseGeocode(position.coords.latitude, position.coords.longitude);
       },
       (error) => {
@@ -178,7 +181,9 @@ const Header = () => {
   };
 
   useEffect(() => {
-    if (!city) detectLocation();
+    if (!sessionStorage.getItem("userCity")) {
+      detectLocation();
+    }
   }, []);
 
   useEffect(() => {
@@ -218,19 +223,46 @@ const Header = () => {
         <a href="/" className="h-full flex justify-center items-center gap-2">
           <img
             src={
-              "https://ik.imagekit.io/parikrama/media-library-export-18-7-2026-10-8-9-690%20(1)/Logo.png?updatedAt=1784349570750"
+              "https://ik.imagekit.io/cuteandglow/WhatsApp%20Image%202026-09-11%20at%208.26.34%20AM.jpeg"
             }
             alt="Logo"
-            className="h-16 w-16"
+            className="h-16 w-16 object-contain"
           />
-          <span className="logo_style">Cute & Glow</span>
+          <span
+            className={`logo_style ${isScrolled ? " text-[#F3DB8F]" : "text-black"}`}
+          >
+            Cute & Glow
+          </span>
         </a>
         <AccordionCard isScrolled={isScrolled}>
           <div className="flex items-center justify-between md:gap-4 gap-2 bg-[#8B2954] rounded-full h-11 px-1 w-fit">
             <a href="/" className="text-white hover:text-pink-200 transition">
               <HiHome />
             </a>
-            <div className="hidden bg-white w-[20vw] rounded-xl p-1 lg:block">
+            {/* <button
+              type="button"
+              aria-label="Favorite services"
+              onClick={() => navigate("/customer/favorite")}
+              className="relative text-white hover:text-pink-200 transition"
+            >
+              <FaHeart />
+            </button> */}
+            <button
+              type="button"
+              aria-label="Cart"
+              onClick={() => navigate("/cart")}
+              className="relative text-white hover:text-pink-200 transition"
+            >
+              <FaShoppingCart />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-600 text-white text-[10px] leading-4">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            <div
+              className={`${city ? "" : "absolute top-0 right-0"} hidden bg-white w-[20vw] rounded-xl p-1 lg:block`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <BsGeoAlt className="text-[#8B2954]" />
@@ -297,7 +329,9 @@ const Header = () => {
             {user ? (
               <button
                 onClick={() => {
-                  navigate("/dashboard");
+                  navigate(
+                    userRole === "admin" ? "/admin/dashboard" : "/dashboard",
+                  );
                 }}
                 className="flex justify-center items-start rounded-full py-1 px-3 bg-white text-black cursor-pointer"
               >

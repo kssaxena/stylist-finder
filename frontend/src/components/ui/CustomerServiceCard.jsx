@@ -4,10 +4,43 @@ import { FaClock, FaStar } from "react-icons/fa";
 import Button from "../Button";
 import { truncateString } from "../../utils/utility-functions";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { FaCartPlus } from "react-icons/fa";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { addToCart, toggleFavorite } from "../../redux/slice/shoppingSlice";
+import { useToast } from "../hooks/ToastContext";
 
-const CustomerServiceCard = ({ service }) => {
+const CustomerServiceCard = ({ service, currentServicePage = false }) => {
   const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { alertSuccess, alertInfo } = useToast();
+  const { cartItems, favoriteServices } = useSelector(
+    (state) => state.shopping,
+  );
+  const isInCart = cartItems.some((item) => item._id === service?._id);
+  const isFavorite = favoriteServices.some(
+    (item) => item._id === service?._id,
+  );
+
+  const handleAddToCart = () => {
+    if (isInCart) {
+      alertInfo("This service is already in your cart.");
+      return;
+    }
+    dispatch(addToCart(service));
+    alertSuccess("Service added to your cart.");
+  };
+
+  const handleToggleFavorite = () => {
+    dispatch(toggleFavorite(service));
+    alertInfo(
+      isFavorite
+        ? "Service removed from favorites."
+        : "Service added to favorites.",
+    );
+  };
+
   return (
     <>
       <div className="w-[90vw] lg:w-[30vw] group bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm hover:shadow-xl duration-300 flex flex-col h-full">
@@ -28,6 +61,32 @@ const CustomerServiceCard = ({ service }) => {
               {service?.serviceFor || "Everyone"}
             </span>
           </div>
+          <div className="absolute top-3 left-3 flex gap-2">
+            <button
+              type="button"
+              aria-label={
+                isFavorite ? "Remove from favorites" : "Add to favorites"
+              }
+              onClick={(event) => {
+                event.stopPropagation();
+                handleToggleFavorite();
+              }}
+              className="rounded-full bg-white/95 p-2 text-xl text-[#8B2954] shadow"
+            >
+              {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
+            </button>
+            <button
+              type="button"
+              aria-label={isInCart ? "Already in cart" : "Add to cart"}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleAddToCart();
+              }}
+              className="rounded-full bg-white/95 p-2 text-lg text-[#8B2954] shadow"
+            >
+              <FaCartPlus />
+            </button>
+          </div>
         </div>
 
         {/* BODY */}
@@ -42,9 +101,13 @@ const CustomerServiceCard = ({ service }) => {
             className="heading text-xl mb-2 line-clamp-2 cursor-pointer"
           >
             {service?.name}{" "}
-            <span className="paragraph text-[10px] ">
-              by {service?.store?.storeName}
-            </span>
+            {currentServicePage === false ? (
+              <span className="paragraph text-[10px] ">
+                by {service?.store?.storeName}
+              </span>
+            ) : (
+              ""
+            )}
           </h2>
 
           {/* Rating */}
@@ -66,7 +129,22 @@ const CustomerServiceCard = ({ service }) => {
               <p className="text-xs text-neutral-500">Starts From</p>
 
               <h3 className="heading text-2xl text-[#d65f92]">
-                ₹{Number(service?.charges || 0).toLocaleString("en-IN")}
+                {service?.price?.discount === 0 ? (
+                  ""
+                ) : (
+                  <div className="flex justify-center items-center gap-3">
+                    <span className="line-through text-lg">
+                      ₹ {service?.price?.mrp}
+                    </span>
+                    <span className="bg-green-300 text-xs text-green-800 rounded-full px-2 py-1">
+                      {service?.price?.discount}%off
+                    </span>
+                  </div>
+                )}
+                {/* {service?.charges || service?.price?.sellingPrice}₹ */}₹{" "}
+                {Number(
+                  service?.charges || service?.price?.sellingPrice || 0,
+                ).toLocaleString("en-IN")}
               </h3>
             </div>
 
@@ -78,18 +156,21 @@ const CustomerServiceCard = ({ service }) => {
           </div>
 
           {/* INCLUSIONS */}
+          {service?.serviceInclusion?.length > 0 ? (
+            <div className="mb-4">
+              <h4 className="heading text-sm mb-2">Includes</h4>
 
-          <div className="mb-4">
-            <h4 className="heading text-sm mb-2">Includes</h4>
-
-            <ul className="space-y-1">
-              {service?.serviceInclusion?.slice(0, 2).map((item, index) => (
-                <li key={index} className="text-sm text-neutral-600">
-                  • {truncateString(item, 40)}
-                </li>
-              ))}
-            </ul>
-          </div>
+              <ul className="space-y-1">
+                {service?.serviceInclusion?.slice(0, 2).map((item, index) => (
+                  <li key={index} className="text-sm text-neutral-600">
+                    • {truncateString(item, 40)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            ""
+          )}
 
           {/* Spacer */}
 
@@ -102,6 +183,18 @@ const CustomerServiceCard = ({ service }) => {
               LabelName="quick view"
               variant="outline"
               onClick={() => setShowDetails(true)}
+            />
+
+            <Button
+              LabelName={isInCart ? "In cart" : "Add to cart"}
+              variant="secondary"
+              onClick={handleAddToCart}
+            />
+
+            <Button
+              LabelName={isFavorite ? "Favorited" : "Add to favorites"}
+              variant="secondary"
+              onClick={handleToggleFavorite}
             />
 
             <Button

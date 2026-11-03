@@ -1,14 +1,24 @@
-import React from "react";
-import { useEffect, useState, useMemo, useRef } from "react";
-import Button from "../../components/Button";
+import { useState, useMemo } from "react";
 import InputBox from "../../components/Input";
-import { FetchData } from "../../utils/FetchFromApi";
-import { parseErrorMessage } from "../../utils/parseErrorMessage";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
-import { truncateString } from "../../utils/utility-functions";
+import { Link } from "react-router-dom";
 
 const TABLE_CONFIG = {
+  enquiries: {
+    text: "Verified Enquiries",
+    searchKeys: ["name", "email", "contactNumber", "type", "interest"],
+    columns: [
+      { header: "Type", key: "type" },
+      { header: "Interest", key: "interest" },
+      { header: "Name", key: "name" },
+      { header: "Email", key: "email" },
+      { header: "Contact Number", key: "contactNumber" },
+      {
+        header: "Received",
+        key: "createdAt",
+        render: (value) => new Date(value).toLocaleString("en-IN"),
+      },
+    ],
+  },
   customer: {
     text: "Customer",
     searchKeys: ["name", "contactNumber", "email"],
@@ -33,12 +43,23 @@ const TABLE_CONFIG = {
     ],
   },
 
+  categories: {
+    text: "Categories",
+    searchKeys: ["name", "isActive", "admin?.name"],
+    viewRoute: (id) => `/admin/current/${"category"}/${id}`,
+    columns: [
+      { header: "Name", key: "title" },
+      { header: "Subcategories", key: "subcategories.length" },
+      { header: "Actions", key: "actions" },
+    ],
+  },
+
   activeService: {
     text: "Active Services",
     searchKeys: ["category", "serviceFor", "store.storeName"],
     viewRoute: (id) => `/admin/current/${"service"}/${id}`,
     columns: [
-      { header: "Category", key: "category" },
+      { header: "Category", key: "category.title" },
       { header: "Service For", key: "serviceFor" },
       {
         header: "In House",
@@ -55,7 +76,7 @@ const TABLE_CONFIG = {
     searchKeys: ["category", "serviceFor", "store.storeName"],
     viewRoute: (id) => `/admin/current/${"service"}/${id}`,
     columns: [
-      { header: "Category", key: "category" },
+      { header: "Category", key: "category.title" },
       { header: "Service For", key: "serviceFor" },
       {
         header: "In House",
@@ -66,7 +87,6 @@ const TABLE_CONFIG = {
       { header: "Actions", key: "actions" },
     ],
   },
-
   pricing: {
     text: "Subscriptions",
     searchKeys: ["planName", "planFor"],
@@ -87,7 +107,6 @@ const TABLE_CONFIG = {
       { header: "Actions", key: "actions" },
     ],
   },
-
   booking: {
     text: "Bookings",
     searchKeys: ["service.name", "bookingAmount"],
@@ -108,6 +127,34 @@ const TABLE_CONFIG = {
       { header: "Actions", key: "actions" },
     ],
   },
+  payments: {
+    text: "Payment Details",
+    searchKeys: [
+      "transactionNumber",
+      "module",
+      "paymentStatus",
+      "gatewayPaymentId",
+    ],
+    viewRoute: (id) => `#`,
+    // viewRoute: (id) => `/admin/current/${"customer"}/${id}`,
+    columns: [
+      { header: "Transaction ID", key: "transactionNumber" },
+      { header: "Module", key: "module" },
+      {
+        header: "Amount",
+        key: "amount",
+        render: (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`,
+      },
+      { header: "Status", key: "paymentStatus" },
+      {
+        header: "Date",
+        key: "paymentDate",
+        render: (value) =>
+          value ? new Date(value).toLocaleString("en-IN") : "-",
+      },
+      { header: "Actions", key: "actions" },
+    ],
+  },
   adminsQuery: {
     text: "Admins",
     searchKeys: ["name", "contactNumber", "employeeId"],
@@ -119,21 +166,27 @@ const TABLE_CONFIG = {
       { header: "Actions", key: "actions" },
     ],
   },
+  franchise: {
+    text: "Franchise",
+    searchKeys: ["name", "store.storeContactNumber", "store.storeName"],
+    viewRoute: (id) => `/admin/current/${"franchise"}/${id}`,
+    columns: [
+      { header: "Name", key: "name" },
+      { header: "Store name", key: "store.storeName" },
+      { header: "Store contact number", key: "store.storeContactNumber" },
+      { header: "Actions", key: "actions" },
+    ],
+  },
 };
 
 const DashboardTable = ({ TableData, tableRole = "", Text }) => {
   const TableHeader = TABLE_CONFIG[tableRole];
-
   const [search, setSearch] = useState("");
-
   const getNestedValue = (obj, path) =>
     path.split(".").reduce((acc, key) => acc?.[key], obj);
-
   const filterData = useMemo(() => {
     if (!search.trim()) return TableData;
-
     const q = search.toLowerCase();
-
     return TableData.filter((row) =>
       TableHeader.searchKeys.some((key) =>
         String(getNestedValue(row, key) ?? "")
@@ -145,7 +198,7 @@ const DashboardTable = ({ TableData, tableRole = "", Text }) => {
 
   return (
     <div className="h-full">
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-3">
         <h2 className="text-2xl font-bold">
           {TableHeader?.text} (
           <span className="text-sm">{filterData?.length}</span>)

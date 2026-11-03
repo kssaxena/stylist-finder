@@ -17,9 +17,9 @@ const addressSchema = new mongoose.Schema(
     locality: String,
     sector: String,
     pincode: String,
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    country: { type: String, required: true },
+    city: { type: String },
+    state: { type: String },
+    country: { type: String },
 
     // exact location
     location: {
@@ -31,14 +31,20 @@ const addressSchema = new mongoose.Schema(
       // the location coordinates are stored in indexes [0]:latitude and [1]:longitude
       coordinates: {
         type: [Number], // [lat, lng]
-        required: true,
       },
     },
 
     // address type
     addressType: {
       type: String,
-      enum: ["Home", "Friend's", "Others"],
+      enum: [
+        "Home",
+        "Friend's",
+        "Address 1",
+        "Address 2",
+        "Address 3",
+        "Others",
+      ],
       default: "Home",
     },
     contactDetails: { name: String, contact: String },

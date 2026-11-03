@@ -14,9 +14,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Popup from "./Popup";
 
-const StoreServiceCard = ({ service }) => {
+const StoreServiceCard = ({ service, onEdit, onDelete }) => {
   const [showDetails, setShowDetails] = useState(false);
   const role = localStorage.getItem("role")?.toLowerCase();
+  const isStoreRole = role === "store";
+
+  if (!service || !service._id) return null;
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow hover:shadow-xl transition-all duration-300 w-full md:w-[50vw] lg:w-[30vw]">
@@ -46,7 +49,7 @@ const StoreServiceCard = ({ service }) => {
           <h2 className="text-2xl font-bold text-gray-800">{service?.name}</h2>
 
           <p className="text-sm text-[#8B2954] font-medium">
-            {service?.category}
+            {service?.category?.title}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -54,7 +57,9 @@ const StoreServiceCard = ({ service }) => {
             <FaMoneyBillWave className="text-green-600" />
             <div>
               <p className="text-xs text-gray-500">Charges</p>
-              <p className="font-semibold">₹ {service?.charges}</p>
+              <p className="font-semibold">
+                ₹ {service?.charges || service?.price?.sellingPrice}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -66,31 +71,38 @@ const StoreServiceCard = ({ service }) => {
           </div>
         </div>
 
-        <div className="flex gap-1 w-full justify-between ">
-          <Button
-            variant="secondary"
-            LabelName="view details"
-            onClick={() => setShowDetails(true)}
-          />
+        {isStoreRole && (
+          <div className="flex gap-2 w-full justify-between">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              LabelName={
+                <span className="flex items-center justify-center gap-2">
+                  <FaEdit />
+                  Edit
+                </span>
+              }
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(service);
+              }}
+            />
 
-          <Button
-            variant="secondary"
-            LabelName={
-              <h1 className="flex justify-center items-center gap-2">
-                <FaEdit />
-                Edit
-              </h1>
-            }
-          />
-          <Button
-            LabelName={
-              <h1 className="flex justify-center items-center gap-2">
-                <FaTrash />
-                Delete
-              </h1>
-            }
-          />
-        </div>
+            <Button
+              className="flex-1 bg-red-600 text-white border border-red-600"
+              LabelName={
+                <span className="flex items-center justify-center gap-2">
+                  <FaTrash />
+                  Delete
+                </span>
+              }
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(service);
+              }}
+            />
+          </div>
+        )}
       </div>
       <Popup isOpen={showDetails} onClose={() => setShowDetails(false)}>
         <div className="bg-white flex md:justify-between justify-evenly items-start flex-col h-fit py-5 px-5 rounded-xl">

@@ -1,5 +1,7 @@
 import multer from "multer";
 
+const MAX_UPLOAD_FILE_SIZE = 2 * 1024 * 1024;
+
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -10,4 +12,7 @@ const storage = multer.diskStorage({
   },
 });
 
-export const upload = multer({ storage });
+export const upload = multer({
+  storage,
+  limits: { fileSize: MAX_UPLOAD_FILE_SIZE },
+});

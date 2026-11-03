@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import InputBox from "../../components/Input";
 import Button from "../../components/Button";
@@ -6,7 +6,7 @@ import { FaChevronUp } from "react-icons/fa";
 import { FetchData } from "../../utils/FetchFromApi";
 import { useToast } from "../../components/hooks/ToastContext";
 
-const SubscriptionModelForm = ({ onClose, adminId }) => {
+const SubscriptionModelForm = ({ onClose, adminId, initialData, onSaved }) => {
   const formRef = useRef();
   const { alertInfo, alertError, alertSuccess } = useToast();
   const [features, setFeatures] = useState([""]);
@@ -24,6 +24,24 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
       answer: "",
     },
   ]);
+
+  useEffect(() => {
+    if (!initialData) return;
+    setPlanFor(initialData.planFor || "");
+    setCustomModel(Boolean(initialData.customModel));
+    setIsActive(initialData.isActive !== false);
+    setPriceData({
+      mrp: initialData.price?.mrp ?? "",
+      discount: initialData.price?.discount ?? "",
+      sellingPrice: initialData.price?.sellingPrice ?? "",
+    });
+    setFeatures(initialData.features?.length ? initialData.features : [""]);
+    setFaqs(
+      initialData.faqs?.length
+        ? initialData.faqs
+        : [{ question: "", answer: "" }],
+    );
+  }, [initialData]);
 
   const addFaqs = () => {
     setFaqs((prev) => [
@@ -112,6 +130,11 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
             unlimitedVideos: formData.get("unlimitedVideos") === "on",
           },
 
+          serviceLimit: {
+            count: Number(formData.get("serviceLimit")),
+            unlimited: formData.get("unlimitedServices") === "on",
+          },
+
           booking: {
             enabled: formData.get("bookingEnabled") === "on",
             advancedBooking: formData.get("advancedBooking") === "on",
@@ -144,7 +167,9 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
       );
 
       const response = await FetchData(
-        `subscription/create/new-model/${adminId}`,
+        initialData
+          ? `subscription/update/${initialData._id}`
+          : `subscription/create/new-model/${adminId}`,
         "post",
         formData,
       );
@@ -153,8 +178,9 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
       setFeatures([""]);
       setFaqs([{ question: "", answer: "" }]);
       alertInfo(response.data.message);
+      onSaved?.(response.data.data);
+      onClose?.();
     } catch (err) {
-      console.log(err.response || err);
       alertError(err.response.data);
     }
   };
@@ -183,7 +209,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
             </label>
             <select
               name="planName"
-              // value={}
+              defaultValue={initialData?.planName || ""}
               className={`w-full px-4 py-2 border border-gray-300 rounded-lg bg-neutral-50 text-gray-700 outline-none focus:ring-1 focus:ring-[#8B2954] focus:border-[#8B2954] transition hover:shadow-md disabled:bg-gray-100 disabled:cursor-not-allowed`}
             >
               <option className="uppercase" value="">
@@ -224,6 +250,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
             label="Validity"
             name="validity"
             type="number"
+            defaultValue={initialData?.validity?.months || ""}
             placeholder="Enter months. Eg: 1, 6, 24"
           />
           <div className="w-full py-3 flex justify-between items-center border rounded-lg px-4">
@@ -246,6 +273,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
             <InputBox
               label="Custom Model For"
               name="customModelFor"
+              defaultValue={initialData?.customModelFor || ""}
               placeholder="Example: Franchise, Academy, Premium Store"
             />
           )}
@@ -258,6 +286,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
               required={false}
               placeholder="Write a short tagline..."
               name="tagline"
+              defaultValue={initialData?.tagline || ""}
               rows="2"
               className="bg-neutral-50 w-full px-4 py-2 text-gray-700 border border-gray-300 rounded-md focus:ring-[#8B2954] focus:border-[#8B2954] outline-none transition duration-200 ease-in-out hover:shadow-md"
             />
@@ -288,6 +317,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
               <InputBox
                 label="Plan Price Label"
                 name="planPrice"
+                defaultValue={initialData?.planPrice || ""}
                 placeholder="Example: ₹500/year or ₹125/month"
               />
             </div>
@@ -390,6 +420,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
                 label="Validity (Months)"
                 name="validityMonths"
                 type="number"
+                defaultValue={initialData?.validity?.months || ""}
                 placeholder="12"
               />
 
@@ -397,6 +428,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
                 <label className="block text-sm mb-2">Renewal Type</label>
                 <select
                   name="renewalType"
+                  defaultValue={initialData?.validity?.renewalType || "yearly"}
                   className="w-full px-4 py-2 border rounded-lg bg-neutral-50"
                 >
                   <option value="oneTime">One Time</option>
@@ -409,6 +441,7 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
                 <label className="block text-sm mb-2">Support</label>
                 <select
                   name="support"
+                  defaultValue={initialData?.support || "basic"}
                   className="w-full px-4 py-2 border rounded-lg bg-neutral-50"
                 >
                   <option value="basic">Basic</option>
@@ -422,17 +455,56 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
             <h2 className="font-semibold mb-4">Media Limits</h2>
 
             <div className="grid grid-cols-4 gap-4">
-              <InputBox label="Photos" name="photos" type="number" />
-              <InputBox label="Videos" name="videos" type="number" />
+              <InputBox
+                label="Photos"
+                name="photos"
+                type="number"
+                defaultValue={initialData?.mediaLimit?.photos || 0}
+              />
+              <InputBox
+                label="Videos"
+                name="videos"
+                type="number"
+                defaultValue={initialData?.mediaLimit?.videos || 0}
+              />
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="unlimitedPhotos" />
+                <input
+                  type="checkbox"
+                  name="unlimitedPhotos"
+                  defaultChecked={initialData?.mediaLimit?.unlimitedPhotos}
+                />
                 Unlimited Photos
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="unlimitedVideos" />
+                <input
+                  type="checkbox"
+                  name="unlimitedVideos"
+                  defaultChecked={initialData?.mediaLimit?.unlimitedVideos}
+                />
                 Unlimited Videos
+              </label>
+            </div>
+          </div>
+          <div className="col-span-3 w-full border rounded-xl p-4">
+            <h2 className="font-semibold mb-4">Service Limits</h2>
+
+            <div className="grid grid-cols-2 gap-4">
+              <InputBox
+                label="Services"
+                name="serviceLimit"
+                type="number"
+                defaultValue={initialData?.serviceLimit?.count || 0}
+              />
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="unlimitedServices"
+                  defaultChecked={initialData?.serviceLimit?.unlimited}
+                />
+                Unlimited Services
               </label>
             </div>
           </div>
@@ -441,12 +513,20 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="bookingEnabled" />
+                <input
+                  type="checkbox"
+                  name="bookingEnabled"
+                  defaultChecked={initialData?.booking?.enabled}
+                />
                 Online Booking
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="advancedBooking" />
+                <input
+                  type="checkbox"
+                  name="advancedBooking"
+                  defaultChecked={initialData?.booking?.advancedBooking}
+                />
                 Advanced Booking
               </label>
             </div>
@@ -456,12 +536,20 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="featured" />
+                <input
+                  type="checkbox"
+                  name="featured"
+                  defaultChecked={initialData?.visibility?.featured}
+                />
                 Featured Listing
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="verifiedBadge" />
+                <input
+                  type="checkbox"
+                  name="verifiedBadge"
+                  defaultChecked={initialData?.visibility?.verifiedBadge}
+                />
                 Verified Badge
               </label>
             </div>
@@ -472,12 +560,20 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
 
             <div className="grid grid-cols-2 gap-4">
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="franchiseEnabled" />
+                <input
+                  type="checkbox"
+                  name="franchiseEnabled"
+                  defaultChecked={initialData?.franchise?.enabled}
+                />
                 Franchise Enabled
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="enquiryButton" />
+                <input
+                  type="checkbox"
+                  name="enquiryButton"
+                  defaultChecked={initialData?.franchise?.enquiryButton}
+                />
                 Franchise Enquiry Button
               </label>
             </div>
@@ -488,22 +584,40 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
 
             <div className="grid grid-cols-2 gap-3">
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="staffAttendance" />
+                <input
+                  type="checkbox"
+                  name="staffAttendance"
+                  defaultChecked={initialData?.managementTools?.staffAttendance}
+                />
                 Staff Attendance
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="inventory" />
+                <input
+                  type="checkbox"
+                  name="inventory"
+                  defaultChecked={initialData?.managementTools?.inventory}
+                />
                 Inventory
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="commissionTracking" />
+                <input
+                  type="checkbox"
+                  name="commissionTracking"
+                  defaultChecked={
+                    initialData?.managementTools?.commissionTracking
+                  }
+                />
                 Commission Tracking
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="analytics" />
+                <input
+                  type="checkbox"
+                  name="analytics"
+                  defaultChecked={initialData?.managementTools?.analytics}
+                />
                 Analytics Dashboard
               </label>
             </div>
@@ -514,22 +628,38 @@ const SubscriptionModelForm = ({ onClose, adminId }) => {
 
             <div className="grid grid-cols-2 gap-3">
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="socialPromotion" />
+                <input
+                  type="checkbox"
+                  name="socialPromotion"
+                  defaultChecked={initialData?.marketing?.socialPromotion}
+                />
                 Social Promotion
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="couponManager" />
+                <input
+                  type="checkbox"
+                  name="couponManager"
+                  defaultChecked={initialData?.marketing?.couponManager}
+                />
                 Coupon Manager
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="smsWhatsapp" />
+                <input
+                  type="checkbox"
+                  name="smsWhatsapp"
+                  defaultChecked={initialData?.marketing?.smsWhatsapp}
+                />
                 SMS & WhatsApp
               </label>
 
               <label className="flex items-center gap-2">
-                <input type="checkbox" name="reviews" />
+                <input
+                  type="checkbox"
+                  name="reviews"
+                  defaultChecked={initialData?.marketing?.reviews}
+                />
                 Reviews & Ratings
               </label>
             </div>

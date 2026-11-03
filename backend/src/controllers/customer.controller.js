@@ -6,8 +6,10 @@ import { Customer } from "../models/customer.model.js";
 import { Address } from "../models/address.model.js";
 import { BankDetails } from "../models/bankDetails.model.js";
 import { ServiceBookings } from "../models/serviceBooking.model.js";
+import { PaymentTransaction } from "../models/paymentTransaction.models.js";
 import { validatePhone } from "../validators/contactNumber.validator.js";
 import otpTemplate from "../template/otp.mail.template.js";
+import accountCreation from "../template/accountCreation.mail.template.js";
 import sendEmail from "../services/mail.service.js";
 import welcomeTemplate from "../template/welcome.mail.template.js";
 import { validateBankDetails } from "../validators/bankDetails.validator.js";
@@ -15,7 +17,7 @@ import { StoreStaff } from "../models/storeStaff.model.js";
 import { Subscription } from "../models/subscription.model.js";
 
 const registerCustomer = asyncHandler(async (req, res) => {
-  const { contactNumber, name, email } = req.body;
+  const { contactNumber, name, email, password } = req.body;
 
   // contact number validation
   if (!contactNumber) throw new ApiError(400, "Please enter contact number");
@@ -53,6 +55,7 @@ const registerCustomer = asyncHandler(async (req, res) => {
 
   const newUser = await Customer.create({
     name: name,
+    password: password,
     contactNumber: contactNumber,
     email: email,
     otp: otp,
@@ -68,7 +71,7 @@ const registerCustomer = asyncHandler(async (req, res) => {
   await sendEmail({
     to: user?.email,
     subject: "OTP Verification",
-    html: otpTemplate(user?.name, otp),
+    html: accountCreation(user?.name, otp),
   });
 
   return res
@@ -76,10 +79,37 @@ const registerCustomer = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { user, otpStatus, otp },
+        { user, otpStatus },
         "Otp has been sent to your contact number",
       ),
     );
+});
+
+const updatePassword = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { password } = req.body;
+
+  if (!userId || !password)
+    throw new ApiError(400, "Please fill the correct value");
+
+  const user = await Customer.findById(userId);
+  const userPassword = user.password;
+  if (!userPassword) {
+    user.password = password;
+    await user.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password saved successfully !"));
+  }
+  if (userPassword || user.password.length <= 1) {
+    user.password = password;
+    await user.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password updated successfully !"));
+  }
 });
 
 const loginCustomer = asyncHandler(async (req, res) => {
@@ -102,15 +132,68 @@ const loginCustomer = asyncHandler(async (req, res) => {
   user.otpExpiry = expiresAt;
   await user.save();
 
+  await sendEmail({
+    to: user?.email,
+    subject: "OTP Verification",
+    html: otpTemplate(user?.name, otp),
+  });
+
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { user: { contactNumber }, otpStatus, otp },
+        { user: { contactNumber }, otpStatus },
         "OTP sent successfully !",
       ),
     );
+});
+
+const passwordLogin = asyncHandler(async (req, res) => {
+  const { contactNumber, email, password } = req.body;
+
+  if (contactNumber) {
+    if (!contactNumber) throw new ApiError(400, "Invalid request ");
+    const user = await Customer.findOne({ contactNumber });
+    if (!user) throw new ApiError(401, "Invalid credentials");
+
+    const isValid = await user.comparePassword(password);
+    if (!isValid) throw new ApiError(401, "Incorrect Password !");
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { user, tokens: { accessToken, refreshToken } },
+          "Logged in successful !",
+        ),
+      );
+  }
+  if (email) {
+    if (!email) throw new ApiError(400, "Invalid request ");
+    const user = await Customer.findOne({ email });
+    if (!user) throw new ApiError(401, "Invalid credentials");
+
+    const isValid = await user.comparePassword(password);
+    if (!isValid) throw new ApiError(401, "Incorrect Password !");
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { user, tokens: { accessToken, refreshToken } },
+          "Logged in successful !",
+        ),
+      );
+  }
 });
 
 const otpVerification = asyncHandler(async (req, res) => {
@@ -170,7 +253,6 @@ const otpVerification = asyncHandler(async (req, res) => {
     if (now > user.otpExpiry)
       throw new ApiError(403, "OTP expired, please try again");
     console.log(otp, user.otp);
-    console.log(user);
 
     if (otp != user.otp) throw new ApiError(400, "Invalid OTP");
 
@@ -209,6 +291,29 @@ const updateGender = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Updated successfully !"));
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const { customerId } = req.params;
+  const { name, contactNumber, email, gender, alternateContactNumber } =
+    req.body;
+
+  if (!customerId || !name || !contactNumber)
+    throw new ApiError(400, "Name and contact number are required");
+  if (!validatePhone(contactNumber))
+    throw new ApiError(400, "Invalid contact number");
+  if (name.length > 50) throw new ApiError(400, "Name length is too long");
+
+  const customer = await Customer.findByIdAndUpdate(
+    customerId,
+    { name, contactNumber, email, gender, alternateContactNumber },
+    { new: true, runValidators: true },
+  );
+  if (!customer) throw new ApiError(404, "Invalid user");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, customer, "Profile updated successfully"));
 });
 
 const addAlternateContactNumber = asyncHandler(async (req, res) => {
@@ -284,7 +389,7 @@ const addAddress = asyncHandler(async (req, res) => {
     name,
     contact,
   } = req.body;
-  if (!street1 || !area || !city || !state || !country || !name || !contact)
+  if (!street1 || !area || !city || !state || !country)
     throw new ApiError(400, "Please fill the required inputs");
 
   const newAddress = await Address.create({
@@ -320,7 +425,6 @@ const addAddress = asyncHandler(async (req, res) => {
 
 const markAddressDefault = asyncHandler(async (req, res) => {
   const { addressId, customerId } = req.params;
-  console.log(addressId, customerId);
 
   if (!addressId || !customerId) {
     throw new ApiError(400, "Something went wrong please try again later");
@@ -416,8 +520,22 @@ const deleteAddress = asyncHandler(async (req, res) => {
   if (!addressId || !customerId)
     throw new ApiError(400, "Something went wrong");
 
-  const address = await Address.findOneAndDelete({ customer: customerId });
-  if (!address) throw new ApiError(400, "Unable to process the request");
+  const customer = await Customer.findById(customerId);
+  if (!customer)
+    throw new ApiError(400, "Invalid request, please try again later");
+
+  const exists = customer.address.some(
+    (id) => id.toString() === addressId.toString(),
+  );
+  if (exists) {
+    customer.address = customer.address.filter(
+      (id) => id.toString() !== addressId.toString(),
+    );
+  }
+  await customer.save();
+
+  const address = await Address.findByIdAndDelete(addressId);
+  // if (!address) throw new ApiError(400, "Unable to process the request");
 
   return res.status(200).json(new ApiResponse(200, {}, "Deleted successfully"));
 });
@@ -551,9 +669,12 @@ const dashboardData = asyncHandler(async (req, res) => {
     case "bookings": {
       const bookings = await ServiceBookings.find({
         customer: customerId,
-      }).populate({ path: "service", select: "name duration executive" });
-      console.log("Executive Id", bookings?.service?.executive);
-      // const executive = await StoreStaff.findById(bookings?.service?.executive);
+      })
+        .populate({ path: "service", select: "name duration executive" })
+        .populate({ path: "address", select: "city state" })
+        .populate({ path: "customer", select: "name contactNumber" })
+        .populate({ path: "store", select: "storeName storeContactNumber" })
+        .sort({ createdAt: -1 });
 
       return res
         .status(200)
@@ -584,6 +705,16 @@ const dashboardData = asyncHandler(async (req, res) => {
             "Bank details fetched successfully",
           ),
         );
+    }
+
+    case "payments": {
+      const payments = await PaymentTransaction.find({ user: customerId })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      return res
+        .status(200)
+        .json(new ApiResponse(200, payments, "Payments fetched successfully"));
     }
 
     case "service-bookings": {
@@ -699,11 +830,9 @@ const reLoginToken = asyncHandler(async (req, res) => {
 
 const getCustomerById = asyncHandler(async (req, res) => {
   const { customerId } = req.params;
-  console.log(customerId);
   if (!customerId) throw new ApiError(400, "Invalid request");
 
   const customer = await Customer.findById(customerId).populate("address");
-  console.log(customer);
   if (!customer)
     throw new ApiError(
       400,
@@ -727,11 +856,56 @@ const getCustomerById = asyncHandler(async (req, res) => {
     );
 });
 
+const actionsForStore = asyncHandler(async (req, res) => {
+  const { action, keyId, customerId } = req.params;
+  if (!action || !keyId || !customerId) {
+    throw new ApiError(
+      400,
+      "Invalid request, please reload or try again later!",
+    );
+  }
+
+  const customer = await Customer.findById(customerId);
+  if (!customer) {
+    throw new ApiError(400, "Unable to authenticate you");
+  }
+
+  const allowedActions = {
+    favStore: "favStore",
+    favProfessional: "favProfessional",
+    quickServices: "quickServices",
+    wishListServices: "wishListServices",
+  };
+
+  const field = allowedActions[action];
+  if (!field) {
+    throw new ApiError(400, "Invalid dashboard query");
+  }
+
+  const exists = customer[field].some(
+    (id) => id.toString() === keyId.toString(),
+  );
+  if (exists) {
+    customer[field] = customer[field].filter(
+      (id) => id.toString() !== keyId.toString(),
+    );
+  } else {
+    customer[field].push(keyId);
+  }
+
+  await customer.save();
+
+  return res.status(200).json(new ApiResponse(200, {}, "Success"));
+});
+
 export {
   registerCustomer,
   loginCustomer,
+  updatePassword,
+  passwordLogin,
   otpVerification,
   updateGender,
+  updateProfile,
   addAlternateContactNumber,
   updateAlternateNumber,
   addAddress,
@@ -742,6 +916,7 @@ export {
   addUPIid,
   deleteBankDetails,
   getCustomerById,
+  actionsForStore,
   dashboardData,
   reLoginToken,
 };

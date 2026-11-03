@@ -17,12 +17,14 @@ export const createTransaction = async ({
   currency = "INR",
   gateway = PAYMENT_GATEWAYS.RAZORPAY,
   metadata = {},
+  userModel = "Store",
 }) => {
   return PaymentTransaction.create({
     transactionNumber: generateTransactionNumber(),
     module,
     moduleId,
     user,
+    userModel,
     amount,
     currency,
     gateway,

@@ -3,10 +3,12 @@ import Button from "../../components/Button";
 import { useState } from "react";
 import Popup from "../../components/ui/Popup";
 import ExploreServices from "../../components/ExploreServices";
+import { useNavigate } from "react-router-dom";
 
 function Landing() {
   const [isOpen, setIsOpen] = useState(false);
   const [appointmentType, setAppointmentType] = useState("");
+  const navigate = useNavigate();
 
   const openSelfAppointment = () => {
     setAppointmentType("self");
@@ -50,20 +52,29 @@ function Landing() {
           look and feel your absolute best.
         </p>
 
-        <div className="flex gap-4">
-          <Button
-            LabelName="Book Appointment"
-            onClick={() => {
-              // openSelfAppointment();
-              openExploreServices();
-            }}
-          />
-          {/* <Button
-            LabelName="Explore Services"
-            onClick={() => {
-              openExploreServices();
-            }}
-          /> */}
+        <div className="flex justify-center items-center flex-col w-full gap-5">
+          <div className="flex justify-center items-center gap-5 w-full py-5 px-10">
+            <Button
+              LabelName="Avail franchise"
+              onClick={() => navigate("/franchise/franchise-info")}
+            />
+
+            <Button
+              LabelName="beauty course"
+              onClick={() => navigate("/course/course-info")}
+            />
+          </div>
+          <p>or</p>
+          <div className="flex justify-center items-center gap-5">
+            <Button
+              LabelName="Register Parlor / Stores"
+              onClick={() => navigate("/auth/register/store")}
+            />
+            <Button
+              LabelName="Explore services"
+              onClick={() => navigate("/services/all")}
+            />
+          </div>
         </div>
       </div>
       <Popup isOpen={isOpen} onClose={closePopup} center={true}>
