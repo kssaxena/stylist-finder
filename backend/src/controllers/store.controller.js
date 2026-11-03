@@ -1047,6 +1047,36 @@ const deleteGalleryImage = asyncHandler(async (req, res) => {
     );
 });
 
+const replaceGalleryImage = asyncHandler(async (req, res) => {
+  const { storeId, fileId } = req.params;
+  const store = await Store.findById(storeId);
+  if (!store) throw new ApiError(404, "Store not found");
+  if (!req.file) throw new ApiError(400, "Please select an image");
+
+  const gallery = store.images?.gallery || [];
+  const imageIndex = gallery.findIndex((image) => image.fileId === fileId);
+  if (imageIndex === -1) throw new ApiError(404, "Gallery image not found");
+
+  const safeName = store.storeName.toLowerCase().replace(/[^a-z0-9-_]+/g, "-");
+  const uploaded = await UploadImages(req.file.filename, {
+    folderStructure: `store/gallery-images/${safeName}-${storeId}`,
+  });
+  const oldFileId = gallery[imageIndex].fileId;
+  gallery[imageIndex] = { url: uploaded.url, fileId: uploaded.fileId };
+  store.images = {
+    ...(store.images?.toObject?.() || store.images || {}),
+    gallery,
+  };
+  await store.save();
+  await DeleteImage(oldFileId);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, store.images, "Gallery image replaced successfully"),
+    );
+});
+
 const getStoreById = asyncHandler(async (req, res) => {
   const { storeId } = req.params;
   if (!storeId) throw new ApiError(400, "Invalid request");
@@ -1140,6 +1170,7 @@ export {
   addStoreStaff,
   addGalleryImages,
   deleteGalleryImage,
+  replaceGalleryImage,
   getStaffForService,
   registrationFeePaid,
   getStoreById,

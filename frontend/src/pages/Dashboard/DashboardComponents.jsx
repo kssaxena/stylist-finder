@@ -1875,7 +1875,8 @@ const Overview = ({
                 {/* ================= HEADER ================= */}
                 <div className="bg-[#8B2954] w-full text-center px-4 py-6 text-white">
                   <h1 className="text-3xl uppercase font-semibold">
-                    {i?.planName}
+                    {i?.planName}{" "}
+                    {i?.price?.sellingPrice === 0 ? "( Free )" : ""}
                   </h1>
 
                   <p className="font-light text-sm mt-1">{i?.tagline}</p>
@@ -4485,38 +4486,71 @@ const CurrentlyUnderBooking = ({ data, role }) => {
   );
 };
 
-const Images = ({ data, role, userId, subscription }) => {
+const Images = ({ data, userId, subscription, callData }) => {
   const storeImages = data?.images || {};
   const coverImage = storeImages.logo || {};
   const [gallery, setGallery] = useState(storeImages.gallery || []);
-
+  const [pendingImages, setPendingImages] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [replacingImageId, setReplacingImageId] = useState(null);
+  const previewUrls = useRef(new Set());
   const { alertSuccess, alertError } = useToast();
 
-  const handleGalleryUpload = async (e) => {
+  useEffect(
+    () => () => {
+      previewUrls.current.forEach((url) => URL.revokeObjectURL(url));
+      previewUrls.current.clear();
+    },
+    [],
+  );
+
+  const handleGallerySelection = (e) => {
     const files = Array.from(e.target.files || []);
+    e.target.value = "";
     if (!files.length) return;
+
+    if (files.length + pendingImages.length > 10) {
+      alertError("You can select up to 10 images at a time");
+      return;
+    }
 
     if (!subscription?.mediaLimit?.unlimitedPhotos) {
       const availableSlots = Math.max(
-        (subscription?.mediaLimit?.photos || 0) - gallery.length,
+        (subscription?.mediaLimit?.photos || 0) -
+          gallery.length -
+          pendingImages.length,
         0,
       );
       if (files.length > availableSlots) {
-        alertError(
-          `You can upload ${availableSlots} more image(s) on your plan`,
-        );
-        e.target.value = "";
+        alertError(`You can add ${availableSlots} more image(s) on your plan`);
         return;
       }
     }
 
+    const previews = files.map((file) => {
+      const preview = URL.createObjectURL(file);
+      previewUrls.current.add(preview);
+      return { file, preview };
+    });
+    setPendingImages((current) => [...current, ...previews]);
+  };
+
+  const removePendingImage = (preview) => {
+    URL.revokeObjectURL(preview);
+    previewUrls.current.delete(preview);
+    setPendingImages((current) =>
+      current.filter((item) => item.preview !== preview),
+    );
+  };
+
+  const uploadPendingImages = async () => {
+    if (!pendingImages.length) return;
+
     try {
       setUploading(true);
       const formData = new FormData();
-      files.forEach((file) => {
-        formData.append("images", file);
-      });
+      pendingImages.forEach(({ file }) => formData.append("images", file));
       const response = await FetchData(
         `store/update/add-gallery-images/${userId}`,
         "post",
@@ -4524,28 +4558,67 @@ const Images = ({ data, role, userId, subscription }) => {
         true,
       );
       setGallery(response.data.data.gallery || []);
+      pendingImages.forEach(({ preview }) => {
+        URL.revokeObjectURL(preview);
+        previewUrls.current.delete(preview);
+      });
+      setPendingImages([]);
       alertSuccess(response.data.message);
+      await callData?.();
     } catch (err) {
-      alertError(err.response?.data?.message || "Unable to upload images");
+      alertError(
+        err.response?.data?.message || err.message || "Unable to upload images",
+      );
     } finally {
       setUploading(false);
-      e.target.value = "";
     }
   };
 
-  const deleteImage = async ({ ImgId }) => {
+  const deleteImage = async (imageId) => {
     try {
       const response = await FetchData(
-        `store/update/delete-gallery-image/${userId}/${ImgId}`,
+        `store/update/delete-gallery-image/${userId}/${imageId}`,
         "delete",
       );
 
       alertSuccess(response.data.message);
       setGallery(response.data.data.gallery || []);
+      await callData?.();
     } catch (err) {
       alertError(err.response?.data?.message || "Unable to delete image");
     }
   };
+
+  const replaceImage = async (e, imageId) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    try {
+      setReplacingImageId(imageId);
+      const formData = new FormData();
+      formData.append("image", file);
+      const response = await FetchData(
+        `store/update/replace-gallery-image/${userId}/${imageId}`,
+        "post",
+        formData,
+        true,
+      );
+      setGallery(response.data.data.gallery || []);
+      alertSuccess(response.data.message);
+      await callData?.();
+    } catch (err) {
+      alertError(
+        err.response?.data?.message || err.message || "Unable to replace image",
+      );
+    } finally {
+      setReplacingImageId(null);
+    }
+  };
+
+  const photoLimitReached =
+    !subscription?.mediaLimit?.unlimitedPhotos &&
+    gallery.length >= (subscription?.mediaLimit?.photos || 0);
 
   return subscription ? (
     <div className="space-y-6 w-full">
@@ -4580,58 +4653,143 @@ const Images = ({ data, role, userId, subscription }) => {
 
       {/* Gallery Header */}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-3">
         <h2 className="text-2xl font-semibold">Gallery</h2>
 
-        <span className="bg-pink-100 text-[#8B2954] px-4 py-2 rounded-full text-sm">
-          {gallery.length} Images
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="bg-pink-100 text-[#8B2954] px-4 py-2 rounded-full text-sm">
+            {gallery.length} Images
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsEditing((editing) => !editing)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[#8B2954] px-4 py-2 text-sm font-medium text-[#8B2954] hover:bg-pink-50"
+          >
+            {isEditing ? <FaTimes /> : <FaEdit />}
+            {isEditing ? "Done" : "Edit images"}
+          </button>
+        </div>
       </div>
 
       {/* Gallery */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+      <div className="grid w-full grid-cols-2 gap-5 md:grid-cols-3 xl:grid-cols-4">
         {gallery.map((image) => (
           <div
             key={image.fileId}
-            className="relative group rounded-xl overflow-hidden bg-white shadow"
+            className="group relative overflow-hidden rounded-xl bg-white shadow"
           >
             <img
               src={image.url}
-              alt=""
-              className="w-full h-48 object-cover group-hover:scale-105 duration-300"
+              alt="Gallery image"
+              className="h-48 w-full object-cover transition duration-300 group-hover:scale-105"
             />
 
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex justify-center items-center">
+            {isEditing && (
+              <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/55">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100">
+                  {replacingImageId === image.fileId ? (
+                    "Replacing..."
+                  ) : (
+                    <>
+                      <FaUpload /> Replace
+                    </>
+                  )}
+                  <input
+                    className="sr-only"
+                    type="file"
+                    accept="image/*"
+                    disabled={uploading || replacingImageId !== null}
+                    onChange={(e) => replaceImage(e, image.fileId)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  aria-label="Delete gallery image"
+                  disabled={uploading || replacingImageId !== null}
+                  onClick={() => deleteImage(image.fileId)}
+                  className="rounded-lg bg-red-600 p-3 text-white hover:bg-red-700 disabled:opacity-50"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {pendingImages.map(({ file, preview }) => (
+          <div
+            key={preview}
+            className="relative overflow-hidden rounded-xl border-2 border-dashed border-[#8B2954] bg-white"
+          >
+            <img
+              src={preview}
+              alt={`Preview of ${file.name}`}
+              className="h-48 w-full object-cover"
+            />
+            <div className="flex items-center justify-between gap-2 p-2 text-xs">
+              <span className="truncate">Ready to upload</span>
               <button
-                onClick={() => deleteImage({ ImgId: image.fileId })}
-                className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full transition"
+                type="button"
+                aria-label="Remove image preview"
+                onClick={() => removePendingImage(preview)}
+                className="rounded p-1 text-gray-600 hover:bg-gray-100"
               >
-                <FaTrash />
+                <FaTimes />
               </button>
             </div>
           </div>
         ))}
 
-        {/* Upload Card */}
-        {!subscription?.mediaLimit?.unlimitedPhotos &&
-        subscription?.mediaLimit?.photos <= gallery?.length ? (
-          "Your have uploaded the number of images which comes under your plan,Please upgrade your plan to add more."
-        ) : (
-          <label className="border-2 border-dashed border-[#8B2954] rounded-xl h-48 flex flex-col justify-center items-center cursor-pointer hover:bg-pink-50 transition">
+        {!photoLimitReached && (
+          <label className="flex h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#8B2954] px-4 text-center transition hover:bg-pink-50">
             <FaImage className="text-4xl text-[#8B2954]" />
-            <p className="mt-3 font-medium">
-              {uploading ? "Uploading..." : "Add Images"}
-            </p>
+            <span className="mt-3 font-medium">Select images</span>
             <input
+              className="sr-only"
               type="file"
-              hidden
               multiple
               accept="image/*"
-              onChange={handleGalleryUpload}
+              disabled={uploading}
+              onChange={handleGallerySelection}
             />
           </label>
         )}
       </div>
+
+      {photoLimitReached && !pendingImages.length && (
+        <p className="text-sm text-gray-600">
+          Your plan's gallery limit is reached. Upgrade your plan to add more
+          images.
+        </p>
+      )}
+
+      {pendingImages.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={uploadPendingImages}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#8B2954] px-5 py-3 font-medium text-white hover:bg-[#742247] disabled:opacity-60"
+          >
+            <FaCloudUploadAlt />
+            {uploading
+              ? "Uploading..."
+              : `Upload ${pendingImages.length} image(s)`}
+          </button>
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => {
+              pendingImages.forEach(({ preview }) =>
+                removePendingImage(preview),
+              );
+            }}
+            className="rounded-lg border px-5 py-3 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
     </div>
   ) : (
     "Please purchase a subscription for gallery benefits"

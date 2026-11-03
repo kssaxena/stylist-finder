@@ -35,10 +35,7 @@ import { BsChevronDown } from "react-icons/bs";
 import CustomerServiceCard from "../../components/ui/CustomerServiceCard";
 import { FaCartPlus } from "react-icons/fa";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
-import {
-  addToCart,
-  toggleFavorite,
-} from "../../redux/slice/shoppingSlice";
+import { addToCart, toggleFavorite } from "../../redux/slice/shoppingSlice";
 
 const AccordionCard = ({ description, isScrolled = false }) => {
   const [isOpen, setIsOpen] = useState(description?.length > 5 ? true : false);
@@ -317,7 +314,9 @@ const CurrentService = () => {
                           variant="secondary"
                           onClick={() => {
                             if (isInCart) {
-                              alertInfo("This service is already in your cart.");
+                              alertInfo(
+                                "This service is already in your cart.",
+                              );
                               return;
                             }
                             dispatch(addToCart(services));
@@ -327,7 +326,11 @@ const CurrentService = () => {
                         <Button
                           LabelName={
                             <span className="flex items-center gap-2">
-                              {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
+                              {isFavorite ? (
+                                <MdFavorite />
+                              ) : (
+                                <MdFavoriteBorder />
+                              )}
                               {isFavorite ? "Favorited" : "Favorite"}
                             </span>
                           }
@@ -515,14 +518,14 @@ const CurrentService = () => {
               </h1>
               <div className="flex flex-col md:flex-row justify-between items-center w-full pl-10">
                 <div className="flex justify-center items-center lg:items-start flex-col">
-                  <strong className="heading">Visit store: </strong>{" "}
+                  <strong>Visit store: </strong>{" "}
                   <button
                     onClick={() =>
                       navigate(`/stores/${services?.store?._id}/current-store`)
                     }
-                    className="hover:text-blue-500 hover:underline cursor-pointer capitalize"
+                    className="hover:text-blue-500 hover:underline cursor-pointer capitalize text-3xl heading"
                   >
-                    {services?.store?.storeName}
+                    {services?.store?.storeName || "Hello store"}
                   </button>
                   {services?.executive ? (
                     <div className="flex justify-center items-center bg-neutral-200 p-2 rounded-xl gap-4">

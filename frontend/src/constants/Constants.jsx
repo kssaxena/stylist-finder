@@ -100,7 +100,7 @@ export const DashboardSectionList = [
     roles: ["Store", "Professional"],
   },
   {
-    label: "Images",
+    label: "Your Gallery",
     icon: <FaImages />,
     query: "images",
     roles: ["Store", "Professional"],

@@ -10,13 +10,13 @@ export const FetchData = async (url, method, data, file = false) => {
     isFormData &&
     typeof File !== "undefined" &&
     [...data.values()].some((value) => value instanceof File);
+  const isMultipartFormData = isFormData && (file || hasFiles);
   const requestData = hasFiles ? await compressFormDataImages(data) : data;
 
   const options = {
     headers: {
-      "Content-Type":
-        file || hasFiles ? "multipart/form-data" : "application/json",
       Authorization: `Bearer ${AccessToken}`,
+      ...(!isMultipartFormData && { "Content-Type": "application/json" }),
     },
     withCredentials: true,
   };

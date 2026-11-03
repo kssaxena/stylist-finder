@@ -13,6 +13,7 @@ import {
   addStoreStaff,
   addGalleryImages,
   deleteGalleryImage,
+  replaceGalleryImage,
   getStaffForService,
   registrationFeePaid,
   passwordLogin,
@@ -94,6 +95,9 @@ router
 router
   .route("/update/delete-gallery-image/:storeId/:fileId")
   .delete(VerifyStore, deleteGalleryImage);
+router
+  .route("/update/replace-gallery-image/:storeId/:fileId")
+  .post(VerifyStore, upload.single("image"), replaceGalleryImage);
 router
   .route("/get/staff-for-service/store-staff/:storeId")
   .get(VerifyStore, getStaffForService);
